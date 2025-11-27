@@ -9,7 +9,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    // VercelがparamsをPromiseと解釈する問題への回避策
+    const resolvedParams = await Promise.resolve(params);
+    const id = resolvedParams.id;
     if (!id) {
       return NextResponse.json({ error: "IDが指定されていません。" }, { status: 400 });
     }

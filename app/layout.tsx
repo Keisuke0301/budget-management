@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Yusei_Magic } from "next/font/google"; // Yusei_Magicを追加
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +10,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const yuseiMagic = Yusei_Magic({ // Yusei_Magicを追加
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-yusei-magic", // CSS変数名を追加
 });
 
 export const metadata: Metadata = {
@@ -25,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${yuseiMagic.variable} antialiased`} // yuseiMagic.variableを追加
       >
         {children}
       </body>

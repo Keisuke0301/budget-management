@@ -1,15 +1,15 @@
 import { supabase } from "../../../lib/supabaseClient";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 /**
  * DELETE: 指定されたIDの支出記録を削除します
  */
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const id = context.params.id;
     if (!id) {
       return NextResponse.json({ error: "IDが指定されていません。" }, { status: 400 });
     }

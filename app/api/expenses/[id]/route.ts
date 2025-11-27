@@ -6,10 +6,10 @@ import { NextResponse, NextRequest } from "next/server";
  */
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const id = context.params.id;
+    const id = params.id;
     if (!id) {
       return NextResponse.json({ error: "IDが指定されていません。" }, { status: 400 });
     }

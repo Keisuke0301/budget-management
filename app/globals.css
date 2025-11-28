@@ -283,7 +283,10 @@ button:not([data-slot]):hover {
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
-  position: relative;
+  position: fixed;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   max-height: 90vh;
   display: flex;
@@ -304,8 +307,29 @@ button:not([data-slot]):hover {
 }
 .modal-form-container {
   padding: 20px;
-  overflow-y: auto;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
   max-height: calc(90vh - 72px);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.modal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-action {
+  align-self: flex-end;
+  margin-top: auto;
 }
 
 @media (max-width: 640px) {

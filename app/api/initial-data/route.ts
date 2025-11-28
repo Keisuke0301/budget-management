@@ -1,4 +1,4 @@
-import { supabase } from "../../lib/supabaseClient";
+import { getSupabaseClient } from "../../lib/supabaseClient";
 import {
   startOfDay,
   endOfDay,
@@ -70,6 +70,7 @@ const getMonthRange = (date: Date) => {
 
 export async function GET(request: Request) {
   try {
+    const supabase = getSupabaseClient();
     const today = new Date();
     
     // --- 日付範囲の計算 ---

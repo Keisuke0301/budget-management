@@ -14,6 +14,7 @@ interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDataChange: () => void; // データが変更されたことを親に通知する
+  dataUpdatedAt: number;
 }
 
 interface Expense {
@@ -30,12 +31,17 @@ interface ExpenseCache {
   data: Expense[];
 }
 
-export function HistoryModal({ isOpen, onClose, onDataChange }: HistoryModalProps) {
+export function HistoryModal({ isOpen, onClose, onDataChange, dataUpdatedAt }: HistoryModalProps) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
   const [cache, setCache] = useState<ExpenseCache | null>(null);
 
   const CACHE_TTL = 5 * 60 * 1000; // 5分
+
+  useEffect(() => {
+    // 集計データの更新があったらキャッシュを破棄する
+    setCache(null);
+  }, [dataUpdatedAt]);
 
   useEffect(() => {
     if (!isOpen) return;

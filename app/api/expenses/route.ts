@@ -1,47 +1,14 @@
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { NextResponse } from "next/server";
-import {
-  startOfDay,
-  endOfDay,
-  getDay,
-  subDays,
-  addDays,
-  startOfMonth,
-  addMonths,
-  subMonths,
-} from "date-fns";
+import { startOfDay, endOfDay, getDay, subDays, addDays } from "date-fns";
 
-// GASのgetMonthRangeロジックをdate-fnsで再現
-const getMonthRange = (date: Date) => {
+// 週の範囲を計算するヘルパー関数 (土曜〜金曜)
+const getWeekRange = (date: Date) => {
   const today = startOfDay(date);
-  const firstDayOfCurrentMonth = startOfMonth(today);
-
-  let firstSaturday = firstDayOfCurrentMonth;
-  while (getDay(firstSaturday) !== 6) {
-    firstSaturday = addDays(firstSaturday, 1);
-  }
-
-  let startOfMonthDate, endOfMonthDate;
-
-  if (today.getTime() < firstSaturday.getTime()) {
-    const firstDayOfLastMonth = startOfMonth(subMonths(today, 1));
-    let firstSaturdayOfLastMonth = firstDayOfLastMonth;
-    while (getDay(firstSaturdayOfLastMonth) !== 6) {
-      firstSaturdayOfLastMonth = addDays(firstSaturdayOfLastMonth, 1);
-    }
-    startOfMonthDate = firstSaturdayOfLastMonth;
-    endOfMonthDate = endOfDay(subDays(firstSaturday, 1));
-  } else {
-    startOfMonthDate = firstSaturday;
-    const firstDayOfNextMonth = startOfMonth(addMonths(today, 1));
-    let firstSaturdayOfNextMonth = firstDayOfNextMonth;
-    while (getDay(firstSaturdayOfNextMonth) !== 6) {
-      firstSaturdayOfNextMonth = addDays(firstSaturdayOfNextMonth, 1);
-    }
-    endOfMonthDate = endOfDay(subDays(firstSaturdayOfNextMonth, 1));
-  }
-
-  return { startOfMonth: startOfMonthDate, endOfMonth: endOfMonthDate };
+  const diff = today.getDay() === 6 ? 0 : today.getDay() + 1;
+  const startOfWeek = subDays(today, diff);
+  const endOfWeek = endOfDay(addDays(startOfWeek, 6));
+  return { startOfWeek, endOfWeek };
 };
 
 /**
@@ -50,29 +17,13 @@ const getMonthRange = (date: Date) => {
 export async function GET(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const url = new URL(request.url);
-    const monthParam = url.searchParams.get("month");
-    const weekParam = url.searchParams.get("week");
-
-    const referenceDate = monthParam ? new Date(monthParam) : new Date();
-    const { startOfMonth, endOfMonth } = getMonthRange(referenceDate);
-
-    let rangeStart = startOfMonth;
-    let rangeEnd = endOfMonth;
-
-    const weekNumber = weekParam === "all" || !weekParam ? null : Number(weekParam);
-    if (weekNumber && weekNumber >= 1 && weekNumber <= 5) {
-      const weekStart = addDays(startOfMonth, (weekNumber - 1) * 7);
-      const weekEndCandidate = endOfDay(addDays(weekStart, 6));
-      rangeStart = weekStart;
-      rangeEnd = weekEndCandidate.getTime() > endOfMonth.getTime() ? endOfMonth : weekEndCandidate;
-    }
+    const { startOfWeek, endOfWeek } = getWeekRange(new Date());
 
     const { data: expenses, error } = await supabase
       .from("expenses")
       .select("id, created_at, category, amount")
-      .gte("created_at", rangeStart.toISOString())
-      .lte("created_at", rangeEnd.toISOString())
+      .gte("created_at", startOfWeek.toISOString())
+      .lte("created_at", endOfWeek.toISOString())
       .order("created_at", { ascending: false }); // 新しい順で取得
 
     if (error) {

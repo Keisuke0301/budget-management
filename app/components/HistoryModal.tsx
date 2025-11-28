@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -19,56 +20,27 @@ interface HistoryModalProps {
 interface Expense {
   row: number; // idのエイリアス
   timestamp: number;
-  dateString: string;
   category: string;
-  categoryIcon: string;
   amount: number;
-}
-
-interface ExpenseCache {
-  fetchedAt: number;
-  data: Expense[];
 }
 
 export function HistoryModal({ isOpen, onClose, onDataChange }: HistoryModalProps) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(false);
-  const [cache, setCache] = useState<ExpenseCache | null>(null);
-
-  const CACHE_TTL = 5 * 60 * 1000; // 5分
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    type ExpensesResponse = Expense[] | { error: string };
-
-    const shouldUseCache = cache && Date.now() - cache.fetchedAt < CACHE_TTL;
-    if (shouldUseCache) {
-      setExpenses(cache.data);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    fetch('/api/expenses') // 週次履歴を取得
-      .then(res => {
-        if (!res.ok) {
-          throw new Error("レスポンスの取得に失敗しました。");
-        }
-        return res.json() as Promise<ExpensesResponse>;
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
+    if (isOpen) {
+      setLoading(true);
+      fetch('/api/expenses') // 週次履歴を取得
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) throw new Error(data.error);
           setExpenses(data);
-          setCache({ data, fetchedAt: Date.now() });
-          return;
-        }
-
-        throw new Error(data.error);
-      })
-      .catch(err => toast.error(`履歴の取得に失敗: ${err.message}`))
-      .finally(() => setLoading(false));
-  }, [CACHE_TTL, cache, isOpen]);
+        })
+        .catch(err => toast.error(`履歴の取得に失敗: ${err.message}`))
+        .finally(() => setLoading(false));
+    }
+  }, [isOpen]);
 
   const handleDelete = async (id: number) => {
     const originalExpenses = [...expenses];
@@ -83,9 +55,8 @@ export function HistoryModal({ isOpen, onClose, onDataChange }: HistoryModalProp
         throw new Error("削除に失敗しました。");
       }
       toast.success("削除しました。");
-      setCache(null); // 次回開くときに最新を取得する
       onDataChange(); // 親コンポーネントの合計データを更新
-    } catch (_error) {
+    } catch (error) {
       toast.error("削除に失敗しました。画面を更新してください。");
       // 失敗した場合はUIを元に戻す
       setExpenses(originalExpenses);
@@ -107,9 +78,12 @@ export function HistoryModal({ isOpen, onClose, onDataChange }: HistoryModalProp
             ) : (
               <ul className="history-list">
                 {expenses.map((expense) => {
+                  const date = new Date(expense.timestamp);
+                  const dateString = format(date, "M/d(E)", { weekStartsOn: 1 /*月曜始まり*/ });
+                  const categoryIcon = expense.category === '食費' ? '🍴' : '🧻';
                   return (
                     <li key={expense.row} className="history-list-item">
-                      <span>{expense.dateString} {expense.categoryIcon} {expense.category}</span>
+                      <span>{dateString} {categoryIcon} {expense.category}</span>
                       <span className="history-amount">{expense.amount.toLocaleString()}円</span>
                       <Button
                         variant="ghost"

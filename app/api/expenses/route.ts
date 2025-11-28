@@ -1,6 +1,6 @@
 import { getSupabaseClient } from "../../lib/supabaseClient";
 import { NextResponse } from "next/server";
-import { startOfDay, endOfDay, getDay, subDays, addDays, format } from "date-fns";
+import { startOfDay, endOfDay, getDay, subDays, addDays } from "date-fns";
 
 // 週の範囲を計算するヘルパー関数 (土曜〜金曜)
 const getWeekRange = (date: Date) => {
@@ -24,25 +24,20 @@ export async function GET(request: Request) {
       .select("id, created_at, category, amount")
       .gte("created_at", startOfWeek.toISOString())
       .lte("created_at", endOfWeek.toISOString())
-      .order("created_at", { ascending: true }); // 日付の昇順で取得
+      .order("created_at", { ascending: false }); // 新しい順で取得
 
     if (error) {
       throw new Error(`履歴の取得に失敗しました: ${error.message}`);
     }
 
     // GASの `getWeeklyExpenses` の戻り値の形式に近づける
-    const formattedExpenses = expenses.map(e => {
-      const createdAt = new Date(e.created_at);
-      return {
-        // GASではrowを使っていたが、DBのidを代わりに使う
-        row: e.id,
-        timestamp: createdAt.getTime(),
-        dateString: format(createdAt, "M/d(E)", { weekStartsOn: 1 /*月曜始まり*/ }),
-        category: e.category,
-        categoryIcon: e.category === "食費" ? "🍴" : "🧻",
-        amount: e.amount,
-      };
-    });
+    const formattedExpenses = expenses.map(e => ({
+      // GASではrowを使っていたが、DBのidを代わりに使う
+      row: e.id, 
+      timestamp: new Date(e.created_at).getTime(),
+      category: e.category,
+      amount: e.amount,
+    })).sort((a, b) => a.timestamp - b.timestamp); // 日付の昇順（古いものが先）にソート
 
     return NextResponse.json(formattedExpenses);
 

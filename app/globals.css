@@ -317,6 +317,31 @@ button:not([data-slot]):hover {
   overflow: hidden;
 }
 
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.filter-select {
+  width: 180px;
+}
+
 .modal-scroll-area {
   flex: 1;
   overflow-y: auto;
@@ -340,6 +365,19 @@ button:not([data-slot]):hover {
 
   .modal-content {
     width: min(440px, 94vw);
+  }
+
+  .filter-row {
+    gap: 10px;
+  }
+
+  .filter-field {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .filter-select {
+    width: 100%;
   }
 
   .modal-title {

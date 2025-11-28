@@ -76,7 +76,7 @@ body {
   padding-bottom: 0;
   margin-bottom: 10px;
 }
-button {
+button:not([data-slot]) {
   background: #66a6ff;
   display: block;
   width: 100%;
@@ -90,7 +90,7 @@ button {
   cursor: pointer;
   transition: opacity 0.2s;
 }
-button:hover {
+button:not([data-slot]):hover {
   opacity: 0.9;
 }
 
@@ -98,6 +98,9 @@ button:hover {
   margin: 0;
   font-size: 26px;
   letter-spacing: 1.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ▼▼▼【追加】カレンダーのスタイル ▼▼▼ */
@@ -110,10 +113,8 @@ button:hover {
   align-items: center;
   margin-bottom: 15px;
 }
-.calendar-header h3 {
+.calendar-header h2 {
   margin: 0;
-  font-size: 18px;
-  color: #333;
 }
 .calendar-weekdays {
   display: grid;
@@ -157,16 +158,16 @@ button:hover {
 
 /* メインコンテンツ */
 .container {
-  padding: 20px 15px;
-  max-width: 600px;
+  padding: 16px 14px;
+  max-width: 580px;
   margin: 0 auto;
 }
 .card {
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
-  padding: 20px;
-  margin-bottom: 15px; /* 余白を調整 */
+  padding: 16px 18px;
+  margin-bottom: 12px; /* 余白を調整 */
 }
 .card.totals-card h2 {
   color: #333;
@@ -275,24 +276,113 @@ button:hover {
   align-items: center;
 }
 .modal-content {
-  background-color: #f4f7f9;
+  background-color: #ffffff;
   padding: 0;
   border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  position: relative;
+  width: min(400px, 92vw);
+  max-height: min(90vh, 90dvh);
+  max-width: none;
+  margin: 0 auto;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: none;
 }
-.modal-content h2 {
+.modal-header {
   margin: 0;
-  padding: 20px;
+  padding: 14px 18px;
   background: linear-gradient(135deg, #89f7fe, #66a6ff);
   color: white;
-  font-size: 20px;
   border-radius: 12px 12px 0 0;
 }
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+}
 .modal-form-container {
-  padding: 20px;
+  padding: 16px 18px;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  max-height: calc(90vh - 72px);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.filter-select {
+  width: 180px;
+}
+
+.modal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.modal-action {
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+
+  .modal-content {
+    width: min(440px, 94vw);
+  }
+
+  .filter-row {
+    gap: 10px;
+  }
+
+  .filter-field {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
 }
 .close-modal-btn {
   position: absolute;
@@ -337,12 +427,13 @@ button:hover {
 /* ▲▲▲ ここまで ▲▲▲ */
 
 /* 入力フォーム */
-.input-group { margin-bottom: 15px; }
+.input-group { margin-bottom: 12px; }
 .input-group label {
   display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #555;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
 }
 .input-group select,
 .input-group input {
@@ -355,19 +446,19 @@ button:hover {
   font-family: var(--font-yusei-magic), sans-serif; /* フォームにもフォントを適用 */
 }
 .modal-form-container p {
-  margin: 0 0 20px;
-  font-size: 16px;
+  margin: 0 0 12px;
+  font-size: 15px;
 }
 
 /* ▼▼▼【追加】電卓UIのスタイル ▼▼▼ */
 #calculator {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 14px;
+  margin-bottom: 14px;
 }
 .calc-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .calc-btn {
   width: 32%;
@@ -387,6 +478,32 @@ button:hover {
   background-color: #f8f9fa; /* 薄いグレーに変更 */
 }
 /* ▲▲▲ ここまで ▲▲▲ */
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-list-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 16px;
+}
+
+.history-list-item:last-child {
+  border-bottom: none;
+}
+
+.history-amount {
+  font-weight: 700;
+  text-align: right;
+  min-width: 96px;
+}
 
 .delete-btn {
   background: none;

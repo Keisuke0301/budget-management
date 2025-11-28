@@ -76,26 +76,15 @@ export function HistoryModal({ isOpen, onClose, onDataChange }: HistoryModalProp
             ) : expenses.length === 0 ? (
               <p>今週の支出はまだありません。</p>
             ) : (
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              <ul className="history-list">
                 {expenses.map((expense) => {
                   const date = new Date(expense.timestamp);
                   const dateString = format(date, "M/d(E)", { weekStartsOn: 1 /*月曜始まり*/ });
                   const categoryIcon = expense.category === '食費' ? '🍴' : '🧻';
                   return (
-                    <li
-                      key={expense.row}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr auto auto",
-                        alignItems: "center",
-                        gap: "10px",
-                        padding: "12px 4px",
-                        borderBottom: "1px solid #eee",
-                        fontSize: "16px",
-                      }}
-                    >
+                    <li key={expense.row} className="history-list-item">
                       <span>{dateString} {categoryIcon} {expense.category}</span>
-                      <span style={{fontWeight: "bold"}}>{expense.amount.toLocaleString()}円</span>
+                      <span className="history-amount">{expense.amount.toLocaleString()}円</span>
                       <Button
                         variant="ghost"
                         size="icon"

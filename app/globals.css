@@ -113,10 +113,8 @@ button:not([data-slot]):hover {
   align-items: center;
   margin-bottom: 15px;
 }
-.calendar-header h3 {
+.calendar-header h2 {
   margin: 0;
-  font-size: 18px;
-  color: #333;
 }
 .calendar-weekdays {
   display: grid;

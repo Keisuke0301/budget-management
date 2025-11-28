@@ -1,4 +1,4 @@
-import { supabase } from "../../lib/supabaseClient";
+import { getSupabaseClient } from "../../lib/supabaseClient";
 import { NextResponse } from "next/server";
 import { startOfDay, endOfDay, getDay, subDays, addDays } from "date-fns";
 
@@ -16,6 +16,7 @@ const getWeekRange = (date: Date) => {
  */
 export async function GET(request: Request) {
   try {
+    const supabase = getSupabaseClient();
     const { startOfWeek, endOfWeek } = getWeekRange(new Date());
 
     const { data: expenses, error } = await supabase
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    const supabase = getSupabaseClient();
     const { category, amount } = await request.json();
 
     // バリデーション

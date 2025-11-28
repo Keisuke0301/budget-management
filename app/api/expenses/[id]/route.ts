@@ -1,4 +1,4 @@
-import { supabase } from "../../../lib/supabaseClient";
+import { getSupabaseClient } from "../../../lib/supabaseClient";
 import { NextResponse, NextRequest } from "next/server";
 
 /**
@@ -6,12 +6,11 @@ import { NextResponse, NextRequest } from "next/server";
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // VercelがparamsをPromiseと解釈する問題への回避策
-    const resolvedParams = await Promise.resolve(params);
-    const id = resolvedParams.id;
+    const supabase = getSupabaseClient();
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "IDが指定されていません。" }, { status: 400 });
     }

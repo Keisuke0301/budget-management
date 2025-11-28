@@ -32,6 +32,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // HistoryModalのstateを追加
+  const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
 
   const fetchData = useCallback(async () => {
     // データ更新時にもローディング状態がわかるようにする
@@ -45,6 +46,7 @@ export default function Home() {
       }
       const result = await response.json();
       setData(result);
+      setDataUpdatedAt(Date.now());
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -125,6 +127,7 @@ export default function Home() {
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
         onDataChange={fetchData} // データ削除後に合計値を再取得するため
+        dataUpdatedAt={dataUpdatedAt}
       />
     </>
   );

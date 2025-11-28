@@ -42,7 +42,7 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
   const handleClear = () => {
     setAmount("");
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0) {
@@ -74,51 +74,59 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="modal-content">
-        <DialogHeader>
-          <DialogTitle>支出記録</DialogTitle>
+        <DialogHeader className="modal-header">
+          <DialogTitle className="modal-title">支出記録</DialogTitle>
         </DialogHeader>
         <div className="modal-form-container">
-          <form onSubmit={handleSubmit}>
-            <div className="input-group">
-              <label htmlFor="category">費目</label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="費目を選択" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="食費">🍴 食費</SelectItem>
-                  <SelectItem value="日用品">🧻 日用品</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="input-group">
-              <label htmlFor="amount">金額</label>
-              <Input
-                type="number"
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                inputMode="numeric"
-                required
-              />
-            </div>
-            <div id="calculator">
-              {[["7","8","9"], ["4","5","6"], ["1","2","3"]].map((row, i) => (
-                <div key={i} className="calc-row">
-                  {row.map(val => (
-                    <Button key={val} type="button" variant="outline" className="calc-btn" onClick={() => handleCalculatorClick(val)}>
-                      {val}
-                    </Button>
-                  ))}
+          <form onSubmit={handleSubmit} className="modal-form">
+            <div className="modal-scroll-area">
+              <div className="input-group">
+                <label htmlFor="category">費目</label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="費目を選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="食費">🍴 食費</SelectItem>
+                    <SelectItem value="日用品">🧻 日用品</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="input-group">
+                <label htmlFor="amount">金額</label>
+                <Input
+                  type="number"
+                  id="amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  inputMode="numeric"
+                  required
+                />
+              </div>
+              <div id="calculator">
+                {["789", "456", "123"].map((row, i) => (
+                  <div key={i} className="calc-row">
+                    {row.split("").map((val) => (
+                      <Button key={val} type="button" variant="outline" className="calc-btn" onClick={() => handleCalculatorClick(val)}>
+                        {val}
+                      </Button>
+                    ))}
+                  </div>
+                ))}
+                <div className="calc-row">
+                  <Button type="button" variant="outline" className="calc-btn" onClick={() => handleCalculatorClick("0")}>
+                    0
+                  </Button>
+                  <Button type="button" variant="outline" className="calc-btn" onClick={() => handleCalculatorClick("00")}>
+                    00
+                  </Button>
+                  <Button type="button" variant="outline" className="calc-btn" onClick={handleClear}>
+                    C
+                  </Button>
                 </div>
-              ))}
-              <div className="calc-row">
-                 <Button type="button" variant="outline" className="calc-btn" onClick={() => handleCalculatorClick("0")}>0</Button>
-                 <Button type="button" variant="outline" className="calc-btn" onClick={() => handleCalculatorClick("00")}>00</Button>
-                 <Button type="button" variant="outline" className="calc-btn" onClick={handleClear}>C</Button>
               </div>
             </div>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} className="modal-action">
               {isSubmitting ? '処理中...' : '記録する'}
             </Button>
           </form>

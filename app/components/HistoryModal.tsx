@@ -66,8 +66,8 @@ export function HistoryModal({ isOpen, onClose, onDataChange }: HistoryModalProp
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="modal-content">
-        <DialogHeader>
-          <DialogTitle>今週の履歴</DialogTitle>
+        <DialogHeader className="modal-header">
+          <DialogTitle className="modal-title">今週の履歴</DialogTitle>
         </DialogHeader>
         <div id="history-list-container" className="modal-form-container">
           {loading ? (

@@ -74,8 +74,8 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="modal-content">
-        <DialogHeader>
-          <DialogTitle>支出記録</DialogTitle>
+        <DialogHeader className="modal-header">
+          <DialogTitle className="modal-title">支出記録</DialogTitle>
         </DialogHeader>
         <div className="modal-form-container">
           <form onSubmit={handleSubmit}>

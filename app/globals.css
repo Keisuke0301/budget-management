@@ -281,14 +281,11 @@ button:not([data-slot]):hover {
   background-color: #f4f7f9;
   padding: 0;
   border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  position: fixed;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
+  width: min(400px, 92vw);
+  max-height: min(90vh, 90dvh);
+  max-width: none;
+  margin: 0 auto;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -343,8 +340,7 @@ button:not([data-slot]):hover {
   }
 
   .modal-content {
-    width: 94%;
-    max-width: none;
+    width: min(440px, 94vw);
   }
 
   .modal-title {

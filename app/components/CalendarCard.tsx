@@ -44,7 +44,7 @@ export function CalendarCard({ data }: CalendarCardProps) {
   const calendarEnd = endOfWeek(endOfMonth(monthPeriodStart));
   
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  const weekdays = ["土", "日", "月", "火", "水", "木", "金"];
 
   const getDayClassName = (day: Date) => {
     let classes = 'calendar-day';

@@ -40,8 +40,8 @@ export function CalendarCard({ data }: CalendarCardProps) {
   const currentWeek = { start: new Date(startOfWeekTime), end: new Date(endOfWeekTime) };
 
   // カレンダーの表示範囲を計算（月の初日から週の初日まで）
-  const calendarStart = startOfWeek(monthPeriodStart, { weekStartsOn: 0 }); // 週の始まりを日曜日に設定
-  const calendarEnd = endOfWeek(endOfMonth(monthPeriodStart), { weekStartsOn: 0 });
+  const calendarStart = startOfWeek(monthPeriodStart); // 週の始まりは日曜日
+  const calendarEnd = endOfWeek(endOfMonth(monthPeriodStart));
   
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];

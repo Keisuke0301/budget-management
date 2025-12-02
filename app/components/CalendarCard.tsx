@@ -1,17 +1,18 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  format, 
-  eachDayOfInterval, 
-  startOfMonth, 
-  endOfMonth, 
+import {
+  format,
+  eachDayOfInterval,
+  startOfMonth,
+  endOfMonth,
   startOfWeek, 
-  endOfWeek, 
-  isSameMonth, 
-  isSameDay, 
+  endOfWeek,
+  isSameMonth,
+  isSameDay,
   isWithinInterval
 } from "date-fns";
+import type { Day, StartOfWeekOptions } from "date-fns";
 
 // 型定義はpage.tsxからインポートするのが望ましいが、簡単のため再定義
 interface InitialData {
@@ -40,8 +41,9 @@ export function CalendarCard({ data }: CalendarCardProps) {
   const currentWeek = { start: new Date(startOfWeekTime), end: new Date(endOfWeekTime) };
 
   // カレンダーの表示範囲を計算（月の初日から週の初日まで）
-  const calendarStart = startOfWeek(monthPeriodStart, { weekStartsOn: 0 }); // 週の始まりを日曜日に設定
-  const calendarEnd = endOfWeek(endOfMonth(monthPeriodStart), { weekStartsOn: 0 });
+  const weekOptions: StartOfWeekOptions<Date> = { weekStartsOn: 0 as Day }; // カレンダーは日曜日開始、土曜日終了
+  const calendarStart = startOfWeek(monthPeriodStart, weekOptions);
+  const calendarEnd = endOfWeek(endOfMonth(monthPeriodStart), weekOptions);
   
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];

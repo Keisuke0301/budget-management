@@ -28,17 +28,18 @@ interface CalendarCardProps {
 }
 
 export function CalendarCard({ data }: CalendarCardProps) {
-  const { 
-    todayTime, 
-    startOfWeekTime, 
-    endOfWeekTime, 
+  const {
+    todayTime,
     startOfMonthTime,
     weekNumber
   } = data;
 
   const today = new Date(todayTime);
   const monthPeriodStart = new Date(startOfMonthTime);
-  const currentWeek = { start: new Date(startOfWeekTime), end: new Date(endOfWeekTime) };
+  const highlightedWeek = {
+    start: startOfWeek(today, { weekStartsOn: 6 }), // 土曜開始
+    end: endOfWeek(today, { weekStartsOn: 6 }) // 金曜終了
+  };
 
   // カレンダーの表示範囲を計算（月の初日から週の初日まで）
   const weekOptions: StartOfWeekOptions = { weekStartsOn: 0 }; // カレンダー表示は日曜開始・土曜終了
@@ -55,7 +56,7 @@ export function CalendarCard({ data }: CalendarCardProps) {
     } else {
       classes += ' day-other-month';
     }
-    if (isWithinInterval(day, currentWeek)) {
+    if (isWithinInterval(day, highlightedWeek)) {
       classes += ' day-in-week';
     }
     if (isSameDay(day, today)) {

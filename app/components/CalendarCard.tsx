@@ -6,13 +6,13 @@ import {
   eachDayOfInterval,
   startOfMonth,
   endOfMonth,
-  startOfWeek, 
+  startOfWeek,
   endOfWeek,
   isSameMonth,
   isSameDay,
   isWithinInterval
 } from "date-fns";
-import type { Day, StartOfWeekOptions } from "date-fns";
+import type { StartOfWeekOptions } from "date-fns";
 
 // 型定義はpage.tsxからインポートするのが望ましいが、簡単のため再定義
 interface InitialData {
@@ -41,7 +41,7 @@ export function CalendarCard({ data }: CalendarCardProps) {
   const currentWeek = { start: new Date(startOfWeekTime), end: new Date(endOfWeekTime) };
 
   // カレンダーの表示範囲を計算（月の初日から週の初日まで）
-  const weekOptions: StartOfWeekOptions<Date> = { weekStartsOn: 0 as Day }; // カレンダーは日曜日開始、土曜日終了
+  const weekOptions: StartOfWeekOptions = { weekStartsOn: 0 }; // カレンダー表示は日曜開始・土曜終了
   const calendarStart = startOfWeek(monthPeriodStart, weekOptions);
   const calendarEnd = endOfWeek(endOfMonth(monthPeriodStart), weekOptions);
   

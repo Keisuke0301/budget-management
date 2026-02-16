@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { TotalsCard } from './components/TotalsCard';
 import { CalendarCard } from './components/CalendarCard';
 import { ExpenseModal } from './components/ExpenseModal';
-import { HistoryModal } from './components/HistoryModal'; // HistoryModalをインポート
+import { HistoryModal } from './components/HistoryModal';
+import { ChoreModal } from './components/ChoreModal';
+import { ChoreListCard } from './components/ChoreListCard';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -31,7 +33,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // HistoryModalのstateを追加
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isChoreModalOpen, setIsChoreModalOpen] = useState(false);
+  const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
 
   const fetchData = useCallback(async () => {
@@ -47,8 +51,9 @@ export default function Home() {
       const result = await response.json();
       setData(result);
       setDataUpdatedAt(Date.now());
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -91,6 +96,7 @@ export default function Home() {
       <>
         <CalendarCard data={data} />
         <TotalsCard data={data} />
+        <ChoreListCard refreshTrigger={choreRefreshTrigger} />
       </>
     );
   };
@@ -104,6 +110,11 @@ export default function Home() {
       <div className="container">
         {renderContent()}
       </div>
+
+      {/* 家事ボタン (chore-fab) */}
+      <Button id="chore-fab" className="fab chore-fab" onClick={() => setIsChoreModalOpen(true)}>
+        🧹
+      </Button>
 
       {/* 履歴ボタン (history-fab) */}
       <Button id="history-fab" className="fab history-fab" onClick={() => setIsHistoryModalOpen(true)}>
@@ -126,8 +137,15 @@ export default function Home() {
       <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
-        onDataChange={fetchData} // データ削除後に合計値を再取得するため
+        onDataChange={fetchData}
         dataUpdatedAt={dataUpdatedAt}
+      />
+
+      {/* 家事記録モーダル */}
+      <ChoreModal
+        isOpen={isChoreModalOpen}
+        onClose={() => setIsChoreModalOpen(false)}
+        onSuccess={() => setChoreRefreshTrigger(Date.now())}
       />
     </>
   );

@@ -14,26 +14,30 @@ import {
 import { Sparkles } from "lucide-react";
 
 interface DailyTask {
+  id: string;
+  area: "食事" | "洗濯" | "ペット";
   category: string;
   task: string;
   score: number;
   icon: string;
+  display: string;
 }
 
 const DAILY_TASKS: DailyTask[] = [
-  { category: "食事", task: "料理", score: 3, icon: "🍳" },
-  { category: "食事", task: "皿洗い", score: 6, icon: "🧼" },
-  { category: "食事", task: "食器片付け", score: 1, icon: "🍽️" },
-  { category: "掃除", task: "部屋", score: 9, icon: "🧹" },
-  { category: "掃除", task: "風呂", score: 6, icon: "🛀" },
-  { category: "掃除", task: "トイレ", score: 7, icon: "🚽" },
-  { category: "洗濯", task: "洗濯", score: 2, icon: "🧺" },
-  { category: "洗濯", task: "干し", score: 8, icon: "👕" },
-  { category: "洗濯", task: "取込・畳み", score: 5, icon: "👕" },
-  { category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐭" },
-  { category: "ペット", task: "えさ(魚)", score: 1, icon: "🐟" },
-  { category: "その他", task: "ごみまとめ", score: 2, icon: "🗑️" },
-  { category: "その他", task: "ごみ捨て(通常)", score: 2, icon: "🏃" },
+  // 食事エリア
+  { id: "meal-1", area: "食事", category: "食事", task: "料理", score: 3, icon: "🍳", display: "料理(昼)" },
+  { id: "meal-2", area: "食事", category: "食事", task: "皿洗い", score: 6, icon: "🧼", display: "食器洗い(昼)" },
+  { id: "meal-3", area: "食事", category: "食事", task: "料理", score: 3, icon: "🍳", display: "料理(夜)" },
+  { id: "meal-4", area: "食事", category: "食事", task: "皿洗い", score: 6, icon: "🧼", display: "食器洗い(夜)" },
+  { id: "meal-5", area: "食事", category: "食事", task: "食器片付け", score: 1, icon: "🍽️", display: "食器片付け" },
+  // 洗濯エリア
+  { id: "laundry-1", area: "洗濯", category: "洗濯", task: "洗濯", score: 2, icon: "🧺", display: "洗濯" },
+  { id: "laundry-2", area: "洗濯", category: "洗濯", task: "洗濯", score: 8, icon: "👕", display: "干し" },
+  { id: "laundry-3", area: "洗濯", category: "洗濯", task: "取込・畳み", score: 5, icon: "👕", display: "取込・畳み" },
+  // ペットエリア
+  { id: "pet-1", area: "ペット", category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐭", display: "デグーえさ(朝)" },
+  { id: "pet-2", area: "ペット", category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐭", display: "デグーえさ(夜)" },
+  { id: "pet-3", area: "ペット", category: "ペット", task: "えさ(魚)", score: 1, icon: "🐟", display: "魚えさ" },
 ];
 
 const PRAISE_MESSAGES = [
@@ -47,7 +51,7 @@ const PRAISE_MESSAGES = [
 ];
 
 export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
-  const [completedTaskKeys, setCompletedTaskKeys] = useState<Set<string>>(new Set());
+  const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
   const [selectedTask, setSelectedTask] = useState<DailyTask | null>(null);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,13 +63,14 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       if (!res.ok) throw new Error("取得失敗");
       const data: Chore[] = await res.json();
 
-      const completed = new Set<string>();
+      const counts: Record<string, number> = {};
       data.forEach(chore => {
         if (chore.created_at && isToday(new Date(chore.created_at))) {
-          completed.add(`${chore.category}-${chore.task}`);
+          const key = `${chore.category}-${chore.task}`;
+          counts[key] = (counts[key] || 0) + 1;
         }
       });
-      setCompletedTaskKeys(completed);
+      setCompletedCounts(counts);
     } catch (error) {
       console.error(error);
     }
@@ -76,7 +81,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
   }, [fetchTodayChores]);
 
   const handleBubbleClick = (task: DailyTask) => {
-    setPoppingTask(`${task.category}-${task.task}`);
+    setPoppingTask(task.id);
     // はじけるアニメーションの後にモーダルを出す
     setTimeout(() => {
       setSelectedTask(task);
@@ -109,7 +114,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
       const score = result.score ?? 0;
-      let toastMessage = `${selectedTask.task} (${score}pt) を記録しました！\n${randomPraise}`;
+      let toastMessage = `${selectedTask.display} (${score}pt) を記録しました！\n${randomPraise}`;
 
       if (result.multiplier && result.multiplier > 1) {
         toastMessage = `${result.multiplier_message}\n` + toastMessage;
@@ -129,54 +134,81 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
     }
   };
 
-  const activeTasks = DAILY_TASKS.filter(
-    (t) => !completedTaskKeys.has(`${t.category}-${t.task}`)
+  // 各タスクにその種類内での出現順序を割り当てる
+  const tasksWithOrder = DAILY_TASKS.map((task, index) => {
+    const previousSameTasks = DAILY_TASKS.slice(0, index).filter(
+      t => t.category === task.category && t.task === task.task
+    );
+    return { ...task, order: previousSameTasks.length + 1 };
+  });
+
+  const activeTasks = tasksWithOrder.filter(
+    (t) => (completedCounts[`${t.category}-${t.task}`] || 0) < t.order
   );
 
+  const areas: DailyTask["area"][] = ["食事", "洗濯", "ペット"];
+
   return (
-    <div className="relative w-full min-h-[500px] overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-4 mb-24">
+    <div className="relative w-full min-h-[600px] overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-4 mb-24">
       <div className="absolute inset-0 pointer-events-none opacity-50">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-100 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-pink-100 rounded-full blur-[100px]"></div>
       </div>
 
-      <div className="relative z-10 flex flex-wrap justify-center gap-6 p-4">
+      <div className="relative z-10 space-y-8 p-2">
         {activeTasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-40 text-slate-400">
             <Sparkles className="w-12 h-12 mb-4 opacity-20" />
             <p className="text-sm font-medium">今日のタスクはすべて完了しました！</p>
             <p className="text-xs mt-1">お疲れ様です ✨</p>
           </div>
         ) : (
-          activeTasks.map((task, index) => {
-            const isPopping = poppingTask === `${task.category}-${task.task}`;
-            // ランダムなアニメーション設定
-            const delay = (index * 0.2) % 2;
-            const duration = 3 + (index % 3);
+          areas.map((area) => {
+            const areaTasks = activeTasks.filter((t) => t.area === area);
+            if (areaTasks.length === 0) return null;
 
             return (
-              <button
-                key={`${task.category}-${task.task}`}
-                data-slot="bubble"
-                onClick={() => handleBubbleClick(task)}
-                disabled={isPopping}
-                className={`
-                  relative w-24 h-24 rounded-full flex flex-col items-center justify-center
-                  bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
-                  transition-all duration-300 hover:scale-110 active:scale-95
-                  ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
-                `}
-                style={{
-                  animation: `float ${duration}s ease-in-out ${delay}s infinite alternate`,
-                }}
-              >
-                <span className="text-3xl mb-1">{task.icon}</span>
-                <span className="text-[10px] font-bold text-slate-600 px-2 text-center leading-tight">
-                  {task.task}
-                </span>
-                {/* 泡のハイライト効果 */}
-                <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
-              </button>
+              <div key={area} className="space-y-4">
+                <div className="flex items-center gap-2 px-4">
+                  <span className="text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full shadow-sm">
+                    {area}エリア
+                  </span>
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
+                </div>
+                <div className="flex flex-wrap justify-center gap-6 p-4">
+                  {areaTasks.map((task, index) => {
+                    const isPopping = poppingTask === task.id;
+                    // バラバラのアニメーション設定
+                    const animIndex = (index % 4) + 1;
+                    const delay = (index * 0.3) % 2;
+                    const duration = 4 + (index % 3);
+
+                    return (
+                      <button
+                        key={task.id}
+                        data-slot="bubble"
+                        onClick={() => handleBubbleClick(task)}
+                        disabled={isPopping}
+                        className={`
+                          relative w-24 h-24 rounded-full flex flex-col items-center justify-center
+                          bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
+                          transition-all duration-300 hover:scale-110 active:scale-95
+                          ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
+                        `}
+                        style={{
+                          animation: `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
+                        }}
+                      >
+                        <span className="text-3xl mb-1">{task.icon}</span>
+                        <span className="text-[10px] font-bold text-slate-600 px-2 text-center leading-tight">
+                          {task.display}
+                        </span>
+                        <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })
         )}

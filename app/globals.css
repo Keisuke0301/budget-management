@@ -536,13 +536,30 @@ button:not([data-slot]):hover {
   }
 }
 
-@keyframes float {
+@keyframes float-1 {
   0% { transform: translateY(0) translateX(0); }
-  33% { transform: translateY(-10px) translateX(5px); }
-  66% { transform: translateY(5px) translateX(-5px); }
+  50% { transform: translateY(-15px) translateX(5px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes float-2 {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-10px) translateX(-10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes float-3 {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(10px) translateX(10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes float-4 {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-5px) translateX(15px); }
   100% { transform: translateY(0) translateX(0); }
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite alternate;
+  animation: float-1 3s ease-in-out infinite alternate;
 }

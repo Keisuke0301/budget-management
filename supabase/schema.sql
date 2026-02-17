@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS chores (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   category TEXT NOT NULL,
   task TEXT NOT NULL,
-  chore_name TEXT,
   note TEXT,
   score INTEGER,
   multiplier INTEGER DEFAULT 1,

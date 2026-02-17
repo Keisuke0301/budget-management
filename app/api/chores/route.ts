@@ -34,9 +34,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 後方互換性または表示用のために chore_name を生成
-    const chore_name = `${category} - ${task}`;
-
     let multiplier = 1;
     let multiplier_message = null;
     let score = null;
@@ -61,7 +58,6 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('chores')
       .insert([{
-        chore_name,
         note,
         category,
         task,

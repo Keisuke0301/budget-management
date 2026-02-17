@@ -8,9 +8,11 @@ import { HistoryModal } from './components/HistoryModal';
 import { ChoreModal } from './components/ChoreModal';
 import { ChoreBubbleGame } from './components/ChoreBubbleGame';
 import { ChoreHistoryModal } from './components/ChoreHistoryModal';
+import { ChoreStatsModal } from './components/ChoreStatsModal';
 import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
+import { Trophy } from 'lucide-react';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -38,6 +40,7 @@ export default function Home() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isChoreModalOpen, setIsChoreModalOpen] = useState(false);
   const [isChoreHistoryModalOpen, setIsChoreHistoryModalOpen] = useState(false);
+  const [isChoreStatsModalOpen, setIsChoreStatsModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
   const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('chores');
@@ -166,6 +169,9 @@ export default function Home() {
 
       {activeTab === 'chores' && (
         <>
+          <Button id="chore-stats-fab" className="fab stats-fab" onClick={() => setIsChoreStatsModalOpen(true)}>
+            <Trophy size={28} className="text-amber-500" />
+          </Button>
           <Button id="chore-history-fab" className="fab history-fab" onClick={() => setIsChoreHistoryModalOpen(true)}>
             📜
           </Button>
@@ -203,6 +209,13 @@ export default function Home() {
       <ChoreHistoryModal
         isOpen={isChoreHistoryModalOpen}
         onClose={() => setIsChoreHistoryModalOpen(false)}
+        refreshTrigger={choreRefreshTrigger}
+      />
+
+      {/* 家事実績モーダル */}
+      <ChoreStatsModal
+        isOpen={isChoreStatsModalOpen}
+        onClose={() => setIsChoreStatsModalOpen(false)}
         refreshTrigger={choreRefreshTrigger}
       />
     </>

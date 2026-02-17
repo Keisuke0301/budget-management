@@ -170,7 +170,7 @@ export default function Home() {
       {activeTab === 'chores' && (
         <>
           <Button id="chore-stats-fab" className="fab stats-fab" onClick={() => setIsChoreStatsModalOpen(true)}>
-            <Trophy size={28} className="text-amber-500" />
+            <span className="text-[30px] leading-none flex items-center justify-center">🏆</span>
           </Button>
           <Button id="chore-history-fab" className="fab history-fab" onClick={() => setIsChoreHistoryModalOpen(true)}>
             📜

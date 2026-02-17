@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
 
 interface DailyTask {
   id: string;
@@ -142,76 +142,92 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
     return { ...task, order: previousSameTasks.length + 1 };
   });
 
-  const activeTasks = tasksWithOrder.filter(
-    (t) => (completedCounts[`${t.category}-${t.task}`] || 0) < t.order
-  );
+  const tasksWithStatus = tasksWithOrder.map((t) => ({
+    ...t,
+    isCompleted: (completedCounts[`${t.category}-${t.task}`] || 0) >= t.order,
+  }));
+
+  const allCompleted = tasksWithStatus.every((t) => t.isCompleted);
 
   const areas: DailyTask["area"][] = ["食事", "洗濯", "ペット"];
 
   return (
-    <div className="relative w-full min-h-[600px] overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-4 mb-24">
+    <div className="relative w-full min-h-fit overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-3 mb-4">
       <div className="absolute inset-0 pointer-events-none opacity-50">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-100 rounded-full blur-[100px]"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-pink-100 rounded-full blur-[100px]"></div>
+        <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-blue-100 rounded-full blur-[80px]"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-pink-100 rounded-full blur-[80px]"></div>
       </div>
 
-      <div className="relative z-10 space-y-8 p-2">
-        {activeTasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-40 text-slate-400">
-            <Sparkles className="w-12 h-12 mb-4 opacity-20" />
-            <p className="text-sm font-medium">今日のタスクはすべて完了しました！</p>
-            <p className="text-xs mt-1">お疲れ様です ✨</p>
+      <div className="relative z-10 space-y-4 p-1">
+        {allCompleted && (
+          <div className="flex flex-col items-center justify-center pt-8 pb-4 text-emerald-500 animate-in fade-in slide-in-from-top-4 duration-1000">
+            <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 shadow-sm">
+              <Sparkles className="w-4 h-4" />
+              <p className="text-xs font-bold">今日のタスクはすべて完了しました！ お疲れ様です ✨</p>
+            </div>
           </div>
-        ) : (
-          areas.map((area) => {
-            const areaTasks = activeTasks.filter((t) => t.area === area);
-            if (areaTasks.length === 0) return null;
+        )}
 
-            return (
-              <div key={area} className="space-y-4">
-                <div className="flex items-center gap-2 px-4">
-                  <span className="text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full shadow-sm">
-                    {area}エリア
-                  </span>
-                  <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
-                </div>
-                <div className="flex flex-wrap justify-center gap-6 p-4">
-                  {areaTasks.map((task, index) => {
-                    const isPopping = poppingTask === task.id;
-                    // バラバラのアニメーション設定
-                    const animIndex = (index % 4) + 1;
-                    const delay = (index * 0.3) % 2;
-                    const duration = 4 + (index % 3);
+        {areas.map((area) => {
+          const areaTasks = tasksWithStatus.filter((t) => t.area === area);
+          if (areaTasks.length === 0) return null;
 
-                    return (
-                      <button
-                        key={task.id}
-                        data-slot="bubble"
-                        onClick={() => handleBubbleClick(task)}
-                        disabled={isPopping}
-                        className={`
-                          relative w-24 h-24 rounded-full flex flex-col items-center justify-center
-                          bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
-                          transition-all duration-300 hover:scale-110 active:scale-95
-                          ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
-                        `}
-                        style={{
-                          animation: `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
-                        }}
-                      >
-                        <span className="text-3xl mb-1">{task.icon}</span>
-                        <span className="text-[10px] font-bold text-slate-600 px-2 text-center leading-tight">
-                          {task.display}
-                        </span>
-                        <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
-                      </button>
-                    );
-                  })}
-                </div>
+          return (
+            <div key={area} className="space-y-1">
+              <div className="flex items-center gap-2 px-2">
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shadow-sm">
+                  {area}
+                </span>
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
               </div>
+              <div className="flex flex-wrap justify-center gap-3 p-1">
+                {areaTasks.map((task, index) => {
+                  const isPopping = poppingTask === task.id;
+                  const isCompleted = task.isCompleted;
+                  // バラバラのアニメーション設定
+                  const animIndex = (index % 4) + 1;
+                  const delay = (index * 0.3) % 2;
+                  const duration = 4 + (index % 3);
+
+                  return (
+                    <button
+                      key={task.id}
+                      data-slot="bubble"
+                      onClick={() => handleBubbleClick(task)}
+                      disabled={isPopping || isCompleted}
+                      className={`
+                        relative w-20 h-20 rounded-full flex flex-col items-center justify-center
+                        bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
+                        transition-all duration-300
+                        ${isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
+                        ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
+                      `}
+                      style={{
+                        animation: isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
+                      }}
+                    >
+                      <span className="text-2xl mb-0.5">{task.icon}</span>
+                      <span className="text-[9px] font-bold text-slate-600 px-2 text-center leading-tight">
+                        {task.display}
+                      </span>
+                      {isCompleted && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 rounded-full">
+                          <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm">
+                            <Check className="w-3 h-3 stroke-[4]" />
+                          </div>
+                        </div>
+                      )}
+                      {!isCompleted && (
+                        <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             );
           })
-        )}
+        }
       </div>
 
       <Dialog open={isAssigneeModalOpen} onOpenChange={setIsAssigneeModalOpen}>

@@ -117,24 +117,33 @@ export default function Home() {
   return (
     <>
       <Toaster richColors position="top-center" />
-      <header className="relative py-12 px-4 flex flex-col items-center justify-center overflow-hidden bg-white border-b border-slate-100">
-        {/* モダンな装飾的な背景要素 */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-          <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-blue-50 blur-3xl opacity-60"></div>
-          <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-pink-50 blur-3xl opacity-60"></div>
-        </div>
+      <header className="relative py-16 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
+  {/* 装飾的な背景のアクセント */}
+  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full pointer-events-none">
+    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/40 blur-[80px]"></div>
+    <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[50%] rounded-full bg-indigo-100/30 blur-[60px]"></div>
+  </div>
 
-        <div className="relative group">
-          {/* タイトルの背後のほのかな光彩 */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-200/30 to-pink-200/30 rounded-2xl blur-xl opacity-50"></div>
-
-          <div className="relative bg-white/70 backdrop-blur-md px-8 py-5 rounded-2xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/50">
-            <h1 className="font-serif italic text-3xl md:text-4xl tracking-[0.15em] text-slate-800 text-center">
-              Family Hub
-            </h1>
-          </div>
-        </div>
-      </header>
+  <div className="relative flex flex-col items-center">
+    {/* サブタイトル的なラベル */}
+    <span className="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-[0.3em] uppercase text-indigo-500 bg-indigo-50/50 rounded-full border border-indigo-100/50 backdrop-blur-sm">
+      Management Tool
+    </span>
+    
+    <h1 className="relative group cursor-default">
+      <span className="text-4xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
+        Family Hub
+      </span>
+      {/* 下線のアクセント */}
+      <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
+    </h1>
+    
+    <p className="mt-4 text-slate-400 text-xs font-medium tracking-widest uppercase">
+      Shared Life Dashboard
+    </p>
+  </div>
+</header>
+      
       <div className="container">
         {renderContent()}
       </div>

@@ -1,0 +1,1 @@
+ALTER TABLE chores ADD COLUMN IF NOT EXISTS assignee TEXT;

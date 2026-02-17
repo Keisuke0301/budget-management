@@ -118,7 +118,7 @@ export default function Home() {
     <>
       <Toaster richColors position="top-center" />
       <div className="header">
-        <h1>💰週次予算管理アプリぶりぶり</h1>
+        <h1 className="font-serif italic tracking-wider">Osawa Family Hub</h1>
       </div>
       <div className="container">
         {renderContent()}

@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { chore_name, note, category, task, base_score } = await request.json();
+    const { chore_name, note, category, task, base_score, assignee } = await request.json();
 
     if (!chore_name) {
       return NextResponse.json(
@@ -64,7 +64,8 @@ export async function POST(request: Request) {
         task,
         score,
         multiplier,
-        multiplier_message
+        multiplier_message,
+        assignee
       }])
       .select()
       .single();

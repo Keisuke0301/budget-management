@@ -44,7 +44,7 @@ export function TotalsCard({ data }: TotalsCardProps) {
         <table className="totals-table">
           <tbody>
             <tr>
-              <td className="item-label">🍴 食費</td>
+              <td className="item-label">🥗 食費</td>
               <td className={`amount weekly-usage ${isFoodOverBudget ? 'over-budget' : ''}`}>
                 {weeklyFoodUsage.toLocaleString()}円
               </td>

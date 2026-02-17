@@ -395,7 +395,7 @@
             <div class="input-group">
               <label for="category">費目</label>
               <select id="category" name="category">
-                <option value="食費">🍴 食費</option>
+                <option value="食費">🥗 食費</option>
                 <option value="日用品">🧻 日用品</option>
               </select>
             </div>
@@ -649,7 +649,7 @@
         expenses.forEach(expense => {
           const date = new Date(expense.timestamp);
           const dateString = `${date.getMonth() + 1}/${date.getDate()}(${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
-          const categoryIcon = expense.category === '食費' ? '🍴' : '🧻';
+          const categoryIcon = expense.category === '食費' ? '🥗' : '🧻';
           const amount = expense.amount.toLocaleString();
           
           html += `<li style="display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 12px 4px; border-bottom: 1px solid #eee; font-size: 16px;">

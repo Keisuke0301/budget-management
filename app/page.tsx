@@ -40,7 +40,7 @@ export default function Home() {
   const [isChoreHistoryModalOpen, setIsChoreHistoryModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('budget');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('chores');
 
   const fetchData = useCallback(async () => {
     // データ更新時にもローディング状態がわかるようにする

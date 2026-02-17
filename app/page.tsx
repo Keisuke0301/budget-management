@@ -130,7 +130,7 @@ export default function Home() {
 
           <div className="relative bg-white/70 backdrop-blur-md px-8 py-5 rounded-2xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/50">
             <h1 className="font-serif italic text-3xl md:text-4xl tracking-[0.15em] text-slate-800 text-center">
-              Osawa Family Hub
+              Family Hub
             </h1>
           </div>
         </div>

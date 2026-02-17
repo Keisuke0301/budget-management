@@ -25,14 +25,17 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { chore_name, note, category, task, base_score, assignee } = await request.json();
+    const { category, task, note, base_score, assignee } = await request.json();
 
-    if (!chore_name) {
+    if (!category || !task) {
       return NextResponse.json(
-        { error: '家事の内容を入力してください。' },
+        { error: '分類とタスクを入力してください。' },
         { status: 400 }
       );
     }
+
+    // 後方互換性または表示用のために chore_name を生成
+    const chore_name = `${category} - ${task}`;
 
     let multiplier = 1;
     let multiplier_message = null;

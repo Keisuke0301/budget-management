@@ -106,7 +106,6 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
     setIsSubmitting(true);
     try {
       const payload = {
-        chore_name: `${currentCategory.name} - ${currentTask.name}`,
         category: currentCategory.name,
         task: currentTask.name,
         base_score: currentTask.score,

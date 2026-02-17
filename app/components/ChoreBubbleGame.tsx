@@ -87,7 +87,6 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
     setIsSubmitting(true);
     try {
       const payload = {
-        chore_name: `${selectedTask.category} - ${selectedTask.task}`,
         category: selectedTask.category,
         task: selectedTask.task,
         base_score: selectedTask.score,

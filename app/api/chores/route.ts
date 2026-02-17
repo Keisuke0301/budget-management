@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { chore_name, note } = await request.json();
+    const { chore_name, note, category, task, base_score } = await request.json();
 
     if (!chore_name) {
       return NextResponse.json(
@@ -34,9 +34,38 @@ export async function POST(request: Request) {
       );
     }
 
+    let multiplier = 1;
+    let multiplier_message = null;
+    let score = null;
+
+    if (base_score) {
+      const rand = Math.random(); // 0.0 <= rand < 1.0
+
+      if (rand < 0.01) { // 1/100
+        multiplier = 10;
+        multiplier_message = "💎爆裂大当たり！！一生分の運を使い切ったかも！！！ポイント10倍！！！";
+      } else if (rand < 0.03) { // 1/50 (0.01 + 0.02)
+        multiplier = 5;
+        multiplier_message = "🌟スーパー当たりラッキー！運だけかよ！ポイント5倍！！";
+      } else if (rand < 0.13) { // 1/10 (0.03 + 0.1)
+        multiplier = 2;
+        multiplier_message = "🎊ラッキーだ！運も実力うんちだ！ポイント2倍！";
+      }
+
+      score = base_score * multiplier;
+    }
+
     const { data, error } = await supabase
       .from('chores')
-      .insert([{ chore_name, note }])
+      .insert([{
+        chore_name,
+        note,
+        category,
+        task,
+        score,
+        multiplier,
+        multiplier_message
+      }])
       .select()
       .single();
 

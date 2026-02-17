@@ -7,6 +7,7 @@ import { ExpenseModal } from './components/ExpenseModal';
 import { HistoryModal } from './components/HistoryModal';
 import { ChoreModal } from './components/ChoreModal';
 import { ChoreListCard } from './components/ChoreListCard';
+import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -37,6 +38,7 @@ export default function Home() {
   const [isChoreModalOpen, setIsChoreModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('budget');
 
   const fetchData = useCallback(async () => {
     // データ更新時にもローディング状態がわかるようにする
@@ -92,11 +94,22 @@ export default function Home() {
       return <p>データがありません。</p>;
     }
 
+    if (activeTab === 'chores') {
+      return (
+        <>
+          <ChoreListCard refreshTrigger={choreRefreshTrigger} />
+          {/* スペーサー */}
+          <div className="h-20"></div>
+        </>
+      );
+    }
+
     return (
       <>
         <CalendarCard data={data} />
         <TotalsCard data={data} />
-        <ChoreListCard refreshTrigger={choreRefreshTrigger} />
+        {/* スペーサー */}
+        <div className="h-20"></div>
       </>
     );
   };
@@ -111,20 +124,27 @@ export default function Home() {
         {renderContent()}
       </div>
 
-      {/* 家事ボタン (chore-fab) */}
-      <Button id="chore-fab" className="fab chore-fab" onClick={() => setIsChoreModalOpen(true)}>
-        🧹
-      </Button>
+      {activeTab === 'budget' && (
+        <>
+          {/* 履歴ボタン (history-fab) */}
+          <Button id="history-fab" className="fab history-fab" onClick={() => setIsHistoryModalOpen(true)}>
+            📜
+          </Button>
 
-      {/* 履歴ボタン (history-fab) */}
-      <Button id="history-fab" className="fab history-fab" onClick={() => setIsHistoryModalOpen(true)}>
-        📜
-      </Button>
+          {/* 追加ボタン (add-expense-fab) */}
+          <Button id="add-expense-fab" className="fab" onClick={() => setIsExpenseModalOpen(true)}>
+            ＋
+          </Button>
+        </>
+      )}
 
-      {/* 追加ボタン (add-expense-fab) */}
-      <Button id="add-expense-fab" className="fab" onClick={() => setIsExpenseModalOpen(true)}>
-        ＋
-      </Button>
+      {activeTab === 'chores' && (
+        <Button id="chore-fab" className="fab" onClick={() => setIsChoreModalOpen(true)}>
+          ＋
+        </Button>
+      )}
+
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* 支出記録モーダル */}
       <ExpenseModal

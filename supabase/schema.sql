@@ -6,6 +6,5 @@ CREATE TABLE IF NOT EXISTS chores (
   note TEXT,
   score INTEGER,
   multiplier INTEGER DEFAULT 1,
-  multiplier_message TEXT,
   assignee TEXT
 );

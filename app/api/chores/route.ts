@@ -63,7 +63,6 @@ export async function POST(request: Request) {
         task,
         score,
         multiplier,
-        multiplier_message,
         assignee
       }])
       .select()
@@ -73,7 +72,11 @@ export async function POST(request: Request) {
       throw new Error(`家事の記録に失敗しました: ${error.message}`);
     }
 
-    return NextResponse.json(data, { status: 201 });
+    // レスポンスにメッセージを含めて、フロントエンドで表示できるようにする
+    return NextResponse.json({
+      ...data,
+      multiplier_message
+    }, { status: 201 });
   } catch (e: unknown) {
     console.error(e);
     const message = e instanceof Error ? e.message : "Unknown error";

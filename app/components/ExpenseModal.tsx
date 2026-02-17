@@ -87,7 +87,7 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
                     <SelectValue placeholder="費目を選択" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="食費">🍴 食費</SelectItem>
+                    <SelectItem value="食費">🥗 食費</SelectItem>
                     <SelectItem value="日用品">🧻 日用品</SelectItem>
                   </SelectContent>
                 </Select>

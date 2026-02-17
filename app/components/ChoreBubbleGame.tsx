@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Chore } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { isToday } from "date-fns";
+import { PRAISE_MESSAGES } from "@/app/lib/constants";
 import {
   Dialog,
   DialogContent,
@@ -38,16 +39,6 @@ const DAILY_TASKS: DailyTask[] = [
   { id: "pet-1", area: "ペット", category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐭", display: "デグーえさ(朝)" },
   { id: "pet-2", area: "ペット", category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐭", display: "デグーえさ(夜)" },
   { id: "pet-3", area: "ペット", category: "ペット", task: "えさ(魚)", score: 1, icon: "🐟", display: "魚えさ" },
-];
-
-const PRAISE_MESSAGES = [
-  "おなす！🍆",
-  "ゴッド！👆",
-  "ヘルプミー！🆘",
-  "富士山でかい！🗻",
-  "素早いうなぎか！🐍",
-  "キウイ!🥝",
-  "おちん！🍭",
 ];
 
 export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {

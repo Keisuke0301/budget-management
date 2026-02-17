@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         timestamp: createdAt.getTime(),
         dateString: format(createdAt, "M/d(E)", { weekStartsOn: 1 /*月曜始まり*/ }),
         category: e.category,
-        categoryIcon: e.category === "食費" ? "🍴" : "🧻",
+        categoryIcon: e.category === "食費" ? "🥗" : "🧻",
         amount: e.amount,
       };
     });

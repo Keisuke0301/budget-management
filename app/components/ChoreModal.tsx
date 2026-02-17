@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Utensils, Sparkles, Shirt, Fish, MoreHorizontal } from "lucide-react";
+import { PRAISE_MESSAGES } from "@/app/lib/constants";
 
 interface ChoreModalProps {
   isOpen: boolean;
@@ -73,16 +74,6 @@ const CHORE_CATEGORIES = [
       { name: "散髪", score: 10 },
     ],
   },
-];
-
-const PRAISE_MESSAGES = [
-  "おなす！🍆",
-  "ゴッド！👆",
-  "ヘルプミー！🆘",
-  "富士山でかい！🗻",
-  "素早いうなぎか！🐍",
-  "キウイ!🥝",
-  "おちん！🍭",
 ];
 
 export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {

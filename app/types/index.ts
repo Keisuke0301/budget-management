@@ -8,4 +8,5 @@ export interface Chore {
   multiplier_message: string | null;
   category: string | null;
   task: string | null;
+  assignee: string | null;
 }

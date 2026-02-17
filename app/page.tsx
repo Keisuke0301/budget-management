@@ -118,7 +118,7 @@ export default function Home() {
 
   return (
     <>
-      <Toaster richColors position="top-center" />
+      <Toaster position="top-center" />
       <header className="relative py-2 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
   {/* 装飾的な背景のアクセント */}
   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full pointer-events-none">

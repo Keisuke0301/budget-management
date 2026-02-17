@@ -140,7 +140,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
 
       // トースト表示の構築
       const score = result.score ?? 0;
-      let toastMessage = `${currentTask.name} (${score}pt) を記録しました！\n${randomPraise}`;
+      let toastMessage = `${currentTask.name} (${score}pt) を記録しました！\n\n${randomPraise}`;
 
       if (result.multiplier && result.multiplier > 1 && result.multiplier_message) {
         // 大当たりの場合はメッセージを追加

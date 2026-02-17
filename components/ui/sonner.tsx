@@ -18,20 +18,25 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        success: <CircleCheckIcon className="size-5 text-green-500" />,
+        info: <InfoIcon className="size-5 text-blue-500" />,
+        warning: <TriangleAlertIcon className="size-5 text-yellow-500" />,
+        error: <OctagonXIcon className="size-5 text-red-500" />,
+        loading: <Loader2Icon className="size-5 animate-spin" />,
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
+      toastOptions={{
+        style: {
+          background: "white",
+          color: "black",
+          border: "1px solid #e2e8f0",
+          borderRadius: "12px",
+          padding: "16px",
+          fontSize: "16px",
+          textAlign: "center",
+          whiteSpace: "pre-wrap",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        },
+      }}
       {...props}
     />
   )

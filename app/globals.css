@@ -559,6 +559,19 @@ button:not([data-slot]):hover {
   100% { transform: translateY(0) translateX(0); }
 }
 
-.animate-float {
-  animation: float-1 3s ease-in-out infinite alternate;
+/* ▼▼▼【追加】トーストのスタイル ▼▼▼ */
+[data-sonner-toaster][data-position="top-center"] {
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
+
+[data-sonner-toast] {
+  justify-content: center !important;
+}
+
+[data-sonner-toast] [data-title] {
+  text-align: center !important;
+  width: 100%;
+}
+/* ▲▲▲ ここまで ▲▲▲ */

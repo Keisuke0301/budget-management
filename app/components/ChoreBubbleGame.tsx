@@ -114,7 +114,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
       const score = result.score ?? 0;
-      let toastMessage = `${selectedTask.display} (${score}pt) を記録しました！\n${randomPraise}`;
+      let toastMessage = `${selectedTask.display} (${score}pt) を記録しました！\n\n${randomPraise}`;
 
       if (result.multiplier && result.multiplier > 1) {
         toastMessage = `${result.multiplier_message}\n` + toastMessage;

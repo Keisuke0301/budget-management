@@ -26,7 +26,7 @@ const CHORE_CATEGORIES = [
     tasks: [
       { name: "料理", score: 3 },
       { name: "弁当", score: 6 },
-      { name: "食器洗い", score: 6 },
+      { name: "皿洗い", score: 6 },
       { name: "食器片付け", score: 1 },
     ],
   },

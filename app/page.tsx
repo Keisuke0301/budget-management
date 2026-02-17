@@ -6,7 +6,8 @@ import { CalendarCard } from './components/CalendarCard';
 import { ExpenseModal } from './components/ExpenseModal';
 import { HistoryModal } from './components/HistoryModal';
 import { ChoreModal } from './components/ChoreModal';
-import { ChoreListCard } from './components/ChoreListCard';
+import { ChoreBubbleGame } from './components/ChoreBubbleGame';
+import { ChoreHistoryModal } from './components/ChoreHistoryModal';
 import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
@@ -36,6 +37,7 @@ export default function Home() {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isChoreModalOpen, setIsChoreModalOpen] = useState(false);
+  const [isChoreHistoryModalOpen, setIsChoreHistoryModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
   const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('budget');
@@ -97,7 +99,7 @@ export default function Home() {
     if (activeTab === 'chores') {
       return (
         <>
-          <ChoreListCard refreshTrigger={choreRefreshTrigger} />
+          <ChoreBubbleGame onUpdate={() => setChoreRefreshTrigger(Date.now())} />
           {/* スペーサー */}
           <div className="h-20"></div>
         </>
@@ -163,9 +165,14 @@ export default function Home() {
       )}
 
       {activeTab === 'chores' && (
-        <Button id="chore-fab" className="fab" onClick={() => setIsChoreModalOpen(true)}>
-          ＋
-        </Button>
+        <>
+          <Button id="chore-history-fab" className="fab history-fab" onClick={() => setIsChoreHistoryModalOpen(true)}>
+            📜
+          </Button>
+          <Button id="chore-fab" className="fab" onClick={() => setIsChoreModalOpen(true)}>
+            ＋
+          </Button>
+        </>
       )}
 
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -190,6 +197,13 @@ export default function Home() {
         isOpen={isChoreModalOpen}
         onClose={() => setIsChoreModalOpen(false)}
         onSuccess={() => setChoreRefreshTrigger(Date.now())}
+      />
+
+      {/* 家事履歴モーダル */}
+      <ChoreHistoryModal
+        isOpen={isChoreHistoryModalOpen}
+        onClose={() => setIsChoreHistoryModalOpen(false)}
+        refreshTrigger={choreRefreshTrigger}
       />
     </>
   );

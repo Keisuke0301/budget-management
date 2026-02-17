@@ -19,10 +19,16 @@ export function ChoreListCard({ refreshTrigger }: { refreshTrigger: number }) {
       const res = await fetch("/api/chores");
       if (!res.ok) throw new Error("家事ログの取得に失敗しました");
       const data = await res.json();
-      setChores(data);
+      if (Array.isArray(data)) {
+        setChores(data);
+      } else {
+        console.error("API response is not an array:", data);
+        setChores([]);
+      }
     } catch (error) {
       console.error(error);
       toast.error("家事ログの読み込みに失敗しました");
+      setChores([]);
     } finally {
       setLoading(false);
     }
@@ -72,7 +78,7 @@ export function ChoreListCard({ refreshTrigger }: { refreshTrigger: number }) {
                       </span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      {chore.score !== null && (
+                      {typeof chore.score === 'number' && (
                         <span className={`text-sm font-bold ${isLucky ? 'text-amber-500 flex items-center gap-1' : 'text-slate-600'}`}>
                           {isLucky && <Sparkles size={12} />}
                           {chore.score} pt

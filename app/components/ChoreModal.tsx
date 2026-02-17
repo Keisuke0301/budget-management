@@ -138,9 +138,10 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
 
       // トースト表示の構築
-      let toastMessage = `${currentTask.name} (${result.score}pt) を記録しました！\n${randomPraise}`;
+      const score = result.score ?? 0;
+      let toastMessage = `${currentTask.name} (${score}pt) を記録しました！\n${randomPraise}`;
 
-      if (result.multiplier > 1) {
+      if (result.multiplier && result.multiplier > 1 && result.multiplier_message) {
         // 大当たりの場合はメッセージを追加
         toastMessage = `${result.multiplier_message}\n` + toastMessage;
         toast.success(toastMessage, { duration: 5000 });

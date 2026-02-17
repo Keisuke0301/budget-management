@@ -101,7 +101,7 @@ export default function Home() {
         <>
           <ChoreBubbleGame onUpdate={() => setChoreRefreshTrigger(Date.now())} />
           {/* スペーサー */}
-          <div className="h-20"></div>
+          <div className="h-10"></div>
         </>
       );
     }
@@ -119,7 +119,7 @@ export default function Home() {
   return (
     <>
       <Toaster richColors position="top-center" />
-      <header className="relative py-16 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
+      <header className="relative py-8 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
   {/* 装飾的な背景のアクセント */}
   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full pointer-events-none">
     <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/40 blur-[80px]"></div>
@@ -128,19 +128,19 @@ export default function Home() {
 
   <div className="relative flex flex-col items-center">
     {/* サブタイトル的なラベル */}
-    <span className="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-[0.3em] uppercase text-indigo-500 bg-indigo-50/50 rounded-full border border-indigo-100/50 backdrop-blur-sm">
+    <span className="inline-block px-3 py-1 mb-1 text-[10px] font-bold tracking-[0.3em] uppercase text-indigo-500 bg-indigo-50/50 rounded-full border border-indigo-100/50 backdrop-blur-sm">
       Management Tool
     </span>
     
     <h1 className="relative group cursor-default">
-      <span className="text-4xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
+      <span className="text-3xl md:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
         Family Hub
       </span>
       {/* 下線のアクセント */}
       <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
     </h1>
     
-    <p className="mt-4 text-slate-400 text-xs font-medium tracking-widest uppercase">
+    <p className="mt-2 text-slate-400 text-xs font-medium tracking-widest uppercase">
       Shared Life Dashboard
     </p>
   </div>

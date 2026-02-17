@@ -73,6 +73,15 @@ export function ChoreListCard({ refreshTrigger }: { refreshTrigger: number }) {
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2 flex-wrap">
                       <span className="font-medium text-base">{chore.chore_name}</span>
+                      {chore.assignee && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                          chore.assignee === 'けいすけ' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          chore.assignee === 'けいこ' ? 'bg-pink-50 text-pink-700 border-pink-200' :
+                          'bg-gray-50 text-gray-700 border-gray-200'
+                        }`}>
+                          {chore.assignee === 'けいすけ' ? '👦' : chore.assignee === 'けいこ' ? '👧' : '👤'} {chore.assignee}
+                        </span>
+                      )}
                       <span className="text-xs text-gray-500">
                         {format(new Date(chore.created_at), "M/d(E) HH:mm", { locale: ja })}
                       </span>

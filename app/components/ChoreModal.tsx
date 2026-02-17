@@ -87,6 +87,7 @@ const PRAISE_MESSAGES = [
 ];
 
 export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
+  const [assignee, setAssignee] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTaskName, setSelectedTaskName] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -107,6 +108,10 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!assignee) {
+      toast.error("担当者を選択してください。");
+      return;
+    }
     if (!currentCategory || !currentTask) {
       toast.error("分類とタスクを選択してください。");
       return;
@@ -120,6 +125,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
         task: currentTask.name,
         base_score: currentTask.score,
         note,
+        assignee,
       };
 
       const response = await fetch("/api/chores", {
@@ -153,6 +159,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
       setSelectedCategoryId(null);
       setSelectedTaskName(null);
       setNote("");
+      // assigneeはリセットしない（連続入力のため）
       onSuccess();
       onClose();
     } catch (error: unknown) {
@@ -170,6 +177,29 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
           <DialogTitle>家事記録</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* 担当者選択 */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">担当者</label>
+            <div className="flex gap-4">
+              <Button
+                type="button"
+                variant={assignee === "けいすけ" ? "default" : "outline"}
+                className={`flex-1 ${assignee === "けいすけ" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+                onClick={() => setAssignee("けいすけ")}
+              >
+                👦 けいすけ
+              </Button>
+              <Button
+                type="button"
+                variant={assignee === "けいこ" ? "default" : "outline"}
+                className={`flex-1 ${assignee === "けいこ" ? "bg-pink-600 hover:bg-pink-700" : ""}`}
+                onClick={() => setAssignee("けいこ")}
+              >
+                👧 けいこ
+              </Button>
+            </div>
+          </div>
 
           {/* 分類選択 */}
           <div className="space-y-2">
@@ -236,7 +266,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSubmitting || !selectedCategoryId || !selectedTaskName} className="w-full sm:w-auto">
+            <Button type="submit" disabled={isSubmitting || !assignee || !selectedCategoryId || !selectedTaskName} className="w-full sm:w-auto">
               {isSubmitting ? "記録中..." : "記録する"}
             </Button>
           </div>

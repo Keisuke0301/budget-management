@@ -119,7 +119,7 @@ export default function Home() {
   return (
     <>
       <Toaster richColors position="top-center" />
-      <header className="relative py-8 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
+      <header className="relative py-2 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
   {/* 装飾的な背景のアクセント */}
   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full pointer-events-none">
     <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/40 blur-[80px]"></div>
@@ -140,7 +140,7 @@ export default function Home() {
       <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
     </h1>
     
-    <p className="mt-2 text-slate-400 text-xs font-medium tracking-widest uppercase">
+    <p className="mt-1 text-slate-400 text-xs font-medium tracking-widest uppercase">
       Shared Life Dashboard
     </p>
   </div>

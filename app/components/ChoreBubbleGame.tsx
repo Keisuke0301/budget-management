@@ -28,7 +28,7 @@ const DAILY_TASKS: DailyTask[] = [
   // 食事エリア
   { id: "meal-1", area: "食事", category: "食事", task: "料理", score: 3, icon: "🍳", display: "料理(昼)" },
   { id: "meal-2", area: "食事", category: "食事", task: "皿洗い", score: 6, icon: "🧼", display: "食器洗い(昼)" },
-  { id: "meal-3", area: "食事", category: "食事", task: "料理", score: 3, icon: "🍳", display: "料理(夜)" },
+  { id: "meal-3", area: "食事", category: "食事", task: "料理", score: 3, icon: "🧑‍🍳", display: "料理(夜)" },
   { id: "meal-4", area: "食事", category: "食事", task: "皿洗い", score: 6, icon: "🧼", display: "食器洗い(夜)" },
   { id: "meal-5", area: "食事", category: "食事", task: "食器片付け", score: 1, icon: "🍽️", display: "食器片付け" },
   // 洗濯エリア
@@ -170,7 +170,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
                 </span>
                 <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
               </div>
-              <div className="flex flex-wrap justify-center gap-3 p-1">
+              <div className="flex flex-wrap justify-center gap-2 p-1">
                 {areaTasks.map((task, index) => {
                   const isPopping = poppingTask === task.id;
                   const isCompleted = task.isCompleted;
@@ -186,7 +186,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
                       onClick={() => handleBubbleClick(task)}
                       disabled={isPopping || isCompleted}
                       className={`
-                        relative w-20 h-20 rounded-full flex flex-col items-center justify-center
+                        relative w-[60px] h-[60px] rounded-full flex flex-col items-center justify-center
                         bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
                         transition-all duration-300
                         ${isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
@@ -196,8 +196,8 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
                         animation: isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
                       }}
                     >
-                      <span className="text-2xl mb-0.5">{task.icon}</span>
-                      <span className="text-[9px] font-bold text-slate-600 px-2 text-center leading-tight">
+                      <span className="text-xl mb-0">{task.icon}</span>
+                      <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
                         {task.display}
                       </span>
                       {isCompleted && (

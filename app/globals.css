@@ -231,7 +231,7 @@ button:not([data-slot]):hover {
 /* ▼▼▼【変更】モーダルとFABのスタイル ▼▼▼ */
 .fab {
   position: fixed;
-  bottom: 25px;
+  bottom: 90px;
   right: 25px;
   width: 60px;
   height: 60px;
@@ -257,14 +257,13 @@ button:not([data-slot]):hover {
 }
 
 .history-fab {
-  bottom: 25px;
+  bottom: 90px;
   right: 95px; /* 追加ボタンの左 (25+60+10) */
 }
 
 .chore-fab {
-  bottom: 100px;
-  left: 25px;
-  right: auto;
+  bottom: 90px;
+  right: 25px;
 }
 
 /* ▲▲▲ ここまで ▲▲▲ */

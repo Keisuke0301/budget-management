@@ -42,7 +42,7 @@ const DAILY_TASKS: DailyTask[] = [
 ];
 
 export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
-  const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
+  const [completedCounts, setCompletedCounts] = useState<Record<string, { am: number; pm: number; total: number }>>({});
   const [selectedTask, setSelectedTask] = useState<DailyTask | null>(null);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,11 +54,21 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       if (!res.ok) throw new Error("取得失敗");
       const data: Chore[] = await res.json();
 
-      const counts: Record<string, number> = {};
+      const counts: Record<string, { am: number; pm: number; total: number }> = {};
       data.forEach(chore => {
         if (chore.created_at && isToday(new Date(chore.created_at))) {
           const key = `${chore.category}-${chore.task}`;
-          counts[key] = (counts[key] || 0) + 1;
+          if (!counts[key]) {
+            counts[key] = { am: 0, pm: 0, total: 0 };
+          }
+          counts[key].total++;
+          
+          const hour = new Date(chore.created_at).getHours();
+          if (hour < 17) {
+            counts[key].am++;
+          } else {
+            counts[key].pm++;
+          }
         }
       });
       setCompletedCounts(counts);
@@ -132,10 +142,31 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
     return { ...task, order: previousSameTasks.length + 1 };
   });
 
-  const tasksWithStatus = tasksWithOrder.map((t) => ({
-    ...t,
-    isCompleted: (completedCounts[`${t.category}-${t.task}`] || 0) >= t.order,
-  }));
+  const tasksWithStatus = tasksWithOrder.map((t) => {
+    const counts = completedCounts[`${t.category}-${t.task}`] || { am: 0, pm: 0, total: 0 };
+    
+    const isLunchOrMorning = t.display.includes("(昼)") || t.display.includes("(朝)");
+    const isNightOrEvening = t.display.includes("(夜)");
+
+    let isCompleted = false;
+    if (isLunchOrMorning) {
+      isCompleted = counts.am > 0;
+    } else if (isNightOrEvening) {
+      isCompleted = counts.pm > 0;
+    } else {
+      isCompleted = counts.total >= t.order;
+    }
+
+    const currentHour = new Date().getHours();
+    let isTimeDisabled = false;
+    if (isLunchOrMorning) {
+      isTimeDisabled = currentHour >= 17;
+    } else if (isNightOrEvening) {
+      isTimeDisabled = currentHour < 17;
+    }
+
+    return { ...t, isCompleted, isTimeDisabled };
+  });
 
   const allCompleted = tasksWithStatus.every((t) => t.isCompleted);
 
@@ -179,39 +210,39 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
                   const delay = (index * 0.3) % 2;
                   const duration = 4 + (index % 3);
 
-                  return (
-                    <button
-                      key={task.id}
-                      data-slot="bubble"
-                      onClick={() => handleBubbleClick(task)}
-                      disabled={isPopping || isCompleted}
-                      className={`
-                        relative w-[60px] h-[60px] rounded-full flex flex-col items-center justify-center
-                        bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
-                        transition-all duration-300
-                        ${isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
-                        ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
-                      `}
-                      style={{
-                        animation: isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
-                      }}
-                    >
-                      <span className="text-xl mb-0">{task.icon}</span>
-                      <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
-                        {task.display}
-                      </span>
-                      {isCompleted && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 rounded-full">
-                          <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm">
-                            <Check className="w-3 h-3 stroke-[4]" />
+                    return (
+                      <button
+                        key={task.id}
+                        data-slot="bubble"
+                        onClick={() => handleBubbleClick(task)}
+                        disabled={isPopping || isCompleted || task.isTimeDisabled}
+                        className={`
+                          relative w-[60px] h-[60px] rounded-full flex flex-col items-center justify-center
+                          bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
+                          transition-all duration-300
+                          ${(isCompleted || task.isTimeDisabled) ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
+                          ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
+                        `}
+                        style={{
+                          animation: (isCompleted || task.isTimeDisabled) ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
+                        }}
+                      >
+                        <span className="text-xl mb-0">{task.icon}</span>
+                        <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
+                          {task.display}
+                        </span>
+                        {isCompleted && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 rounded-full">
+                            <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm">
+                              <Check className="w-3 h-3 stroke-[4]" />
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {!isCompleted && (
-                        <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
-                      )}
-                    </button>
-                  );
+                        )}
+                        {(!isCompleted && !task.isTimeDisabled) && (
+                          <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
+                        )}
+                      </button>
+                    );
                 })}
               </div>
             </div>

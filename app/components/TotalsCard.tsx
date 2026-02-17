@@ -36,11 +36,11 @@ export function TotalsCard({ data }: TotalsCardProps) {
   const isDailyGoodsOverBudget = weeklyDailyGoodsUsage > dailyGoodsBudget;
 
   return (
-    <Card className="totals-card">
-      <CardHeader>
-        <h2 className="text-2xl font-semibold">合計</h2>
+    <Card className="totals-card pt-2 pb-4 gap-2">
+      <CardHeader className="py-2 px-4">
+        <h2 className="text-lg font-bold">合計</h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0 px-4 pb-0">
         <table className="totals-table">
           <tbody>
             <tr>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   format,
   eachDayOfInterval,
@@ -66,13 +66,13 @@ export function CalendarCard({ data }: CalendarCardProps) {
   };
 
   return (
-    <Card>
-      <CardContent id="calendar-container" className="pt-6">
-        <div className="calendar-header">
-          <h2 className="text-2xl font-semibold">
-            {format(monthPeriodStart, "yyyy年 M月期")} ({`第${weekNumber}週`})
-          </h2>
-        </div>
+    <Card className="pt-2 pb-4 gap-2">
+      <CardHeader className="py-2 px-4">
+        <h2 className="text-lg font-bold">
+          {format(monthPeriodStart, "yyyy年 M月期")} ({`第${weekNumber}週`})
+        </h2>
+      </CardHeader>
+      <CardContent id="calendar-container" className="pt-0 px-4 pb-0">
         <div className="calendar-weekdays">
           {weekdays.map(day => <div key={day}>{day}</div>)}
         </div>

@@ -63,13 +63,6 @@ body {
 }
 
 /* ヘッダー */
-.header {
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  color: white;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
-}
 .card.totals-card h2 {
   color: #333;
   border-bottom: none;
@@ -94,14 +87,6 @@ button:not([data-slot]):hover {
   opacity: 0.9;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: 1.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 /* ▼▼▼【追加】カレンダーのスタイル ▼▼▼ */
 #calendar-container {
@@ -296,9 +281,10 @@ button:not([data-slot]):hover {
 }
 .modal-header {
   margin: 0;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  color: white;
+  padding: 18px 20px;
+  background: #ffffff;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
   border-radius: 12px 12px 0 0;
 }
 .modal-title {
@@ -334,15 +320,6 @@ button:not([data-slot]):hover {
 }
 
 @media (max-width: 640px) {
-  .header {
-    padding: 16px;
-  }
-
-  .header h1 {
-    font-size: 20px;
-    letter-spacing: 1px;
-  }
-
   .modal-content {
     width: min(440px, 94vw);
   }

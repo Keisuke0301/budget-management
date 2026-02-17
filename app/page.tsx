@@ -117,9 +117,24 @@ export default function Home() {
   return (
     <>
       <Toaster richColors position="top-center" />
-      <div className="header">
-        <h1 className="font-serif italic tracking-wider">Osawa Family Hub</h1>
-      </div>
+      <header className="relative py-12 px-4 flex flex-col items-center justify-center overflow-hidden bg-white border-b border-slate-100">
+        {/* モダンな装飾的な背景要素 */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+          <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-blue-50 blur-3xl opacity-60"></div>
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-pink-50 blur-3xl opacity-60"></div>
+        </div>
+
+        <div className="relative group">
+          {/* タイトルの背後のほのかな光彩 */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-200/30 to-pink-200/30 rounded-2xl blur-xl opacity-50"></div>
+
+          <div className="relative bg-white/70 backdrop-blur-md px-8 py-5 rounded-2xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-200/50">
+            <h1 className="font-serif italic text-3xl md:text-4xl tracking-[0.15em] text-slate-800 text-center">
+              Osawa Family Hub
+            </h1>
+          </div>
+        </div>
+      </header>
       <div className="container">
         {renderContent()}
       </div>

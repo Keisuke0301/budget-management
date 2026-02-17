@@ -64,11 +64,15 @@ body {
 
 /* ヘッダー */
 .header {
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  color: white;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 18px 20px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 .card.totals-card h2 {
   color: #333;
@@ -96,8 +100,6 @@ button:not([data-slot]):hover {
 
 .header h1 {
   margin: 0;
-  font-size: 26px;
-  letter-spacing: 1.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -296,9 +298,10 @@ button:not([data-slot]):hover {
 }
 .modal-header {
   margin: 0;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  color: white;
+  padding: 16px 20px;
+  background: #ffffff;
+  color: #1a202c;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 12px 12px 0 0;
 }
 .modal-title {
@@ -358,7 +361,7 @@ button:not([data-slot]):hover {
   background: none;
   border: none;
   font-size: 32px;
-  color: rgba(255,255,255,0.8);
+  color: rgba(0,0,0,0.4);
   cursor: pointer;
   padding: 0;
   line-height: 1;

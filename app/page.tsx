@@ -118,7 +118,9 @@ export default function Home() {
     <>
       <Toaster richColors position="top-center" />
       <div className="header">
-        <h1 className="font-serif italic tracking-wider">Osawa Family Hub</h1>
+        <h1 className="text-2xl font-serif italic tracking-[0.2em] text-slate-900 drop-shadow-sm">
+          Osawa Family Hub
+        </h1>
       </div>
       <div className="container">
         {renderContent()}

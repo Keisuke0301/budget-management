@@ -560,18 +560,16 @@ button:not([data-slot]):hover {
 }
 
 /* ▼▼▼【追加】トーストのスタイル ▼▼▼ */
-[data-sonner-toaster][data-position="top-center"] {
+[data-sonner-toaster] {
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
+  width: auto !important;
+  max-width: 90vw !important;
 }
 
 [data-sonner-toast] {
+  margin: 0 !important;
   justify-content: center !important;
-}
-
-[data-sonner-toast] [data-title] {
-  text-align: center !important;
-  width: 100%;
 }
 /* ▲▲▲ ここまで ▲▲▲ */

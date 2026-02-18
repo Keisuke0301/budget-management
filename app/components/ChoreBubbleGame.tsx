@@ -106,12 +106,18 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
     return { ...task, order: previousSameTasks.length + 1 };
   });
 
-  const tasksWithStatus = tasksWithOrder.map((t) => ({
-    ...t,
-    isCompleted: (completedCounts[`${t.area}-${t.name}`] || 0) >= t.order,
-  }));
+  const tasksWithStatus = tasksWithOrder.map((t) => {
+    const count = completedCounts[`${t.area}-${t.name}`] || 0;
+    const isRepeatable = (t as any).repeatable === true;
+    return {
+      ...t,
+      count,
+      isRepeatable,
+      isCompleted: isRepeatable ? false : count >= t.order,
+    };
+  });
 
-  const allCompleted = tasksWithStatus.every((t) => t.isCompleted);
+  const allCompleted = tasksWithStatus.every((t) => t.count >= t.order);
   const areas = ["食事", "洗濯", "ペット"] as const;
 
   return (
@@ -156,30 +162,36 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
                       key={task.id}
                       data-slot="bubble"
                       onClick={() => handleBubbleClick(task)}
-                      disabled={isPopping || isCompleted}
+                      disabled={isPopping || task.isCompleted}
                       className={`
                         relative w-[60px] h-[60px] rounded-full flex flex-col items-center justify-center
                         bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
                         transition-all duration-300
-                        ${isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
+                        ${task.isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
                         ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
+                        ${task.count > 0 && !task.isCompleted ? 'border-emerald-200/50 ring-2 ring-emerald-500/10' : ''}
                       `}
                       style={{
-                        animation: isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
+                        animation: task.isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
                       }}
                     >
                       <span className="text-xl mb-0">{task.icon}</span>
                       <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
                         {task.name}
                       </span>
-                      {isCompleted && (
+                      {task.isCompleted && (
                         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 rounded-full">
                           <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm">
                             <Check className="w-3 h-3 stroke-[4]" />
                           </div>
                         </div>
                       )}
-                      {!isCompleted && (
+                      {task.count > 0 && !task.isCompleted && (
+                        <div className="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-black shadow-sm border border-white animate-in zoom-in duration-300">
+                          {task.count}
+                        </div>
+                      )}
+                      {!task.isCompleted && (
                         <div className="absolute top-2 left-4 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
                       )}
                     </button>

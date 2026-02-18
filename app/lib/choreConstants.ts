@@ -11,8 +11,8 @@ export const CHORE_CATEGORIES = [
       { id: "meal-1", name: "料理(昼)", score: 3, icon: "🍳" },
       { id: "meal-2", name: "料理(夜)", score: 3, icon: "🧑‍🍳" },
       { id: "meal-3", name: "料理(弁当)", score: 6, icon: "🍱" },
-      { id: "meal-5", name: "食器洗い", score: 6, icon: "🧼" },
-      { id: "meal-6", name: "食器片付け", score: 1, icon: "🍽️" },
+      { id: "meal-5", name: "食器洗い", score: 6, icon: "🧼", repeatable: true },
+      { id: "meal-6", name: "食器片付け", score: 1, icon: "🍽️", repeatable: true },
     ],
   },
   {
@@ -31,9 +31,9 @@ export const CHORE_CATEGORIES = [
     name: "洗濯",
     icon: Shirt,
     tasks: [
-      { id: "laundry-1", name: "洗濯", score: 2, icon: "🌀" },
-      { id: "laundry-2", name: "干し", score: 8, icon: "👕" },
-      { id: "laundry-3", name: "取込・畳み", score: 5, icon: "🐔" },
+      { id: "laundry-1", name: "洗濯", score: 2, icon: "🌀", repeatable: true },
+      { id: "laundry-2", name: "干し", score: 8, icon: "👕", repeatable: true },
+      { id: "laundry-3", name: "取込・畳み", score: 5, icon: "🐔", repeatable: true },
     ],
   },
   {
@@ -66,4 +66,4 @@ export const BUBBLE_TASKS = [
   ...CHORE_CATEGORIES.find(c => c.id === "meal")!.tasks.filter(t => ["料理(昼)", "料理(夜)", "食器洗い", "食器片付け"].includes(t.name)).map(t => ({ ...t, area: "食事" as const })),
   ...CHORE_CATEGORIES.find(c => c.id === "laundry")!.tasks.map(t => ({ ...t, area: "洗濯" as const })),
   ...CHORE_CATEGORIES.find(c => c.id === "pet")!.tasks.filter(t => ["デグえさ(朝)", "デグえさ(夜)", "魚えさ"].includes(t.name)).map(t => ({ ...t, area: "ペット" as const })),
-];
+] as const;

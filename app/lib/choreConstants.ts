@@ -1,6 +1,6 @@
 "use client";
 
-import { Utensils, Sparkles, Shirt, Fish, MoreHorizontal } from "lucide-react";
+import { Utensils, Sparkles, Shirt, Fish, MoreHorizontal, Rat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export const ICON_MAP: Record<string, LucideIcon> = {
@@ -8,5 +8,6 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Sparkles,
   Shirt,
   Fish,
-  MoreHorizontal
+  MoreHorizontal,
+  Rat
 };

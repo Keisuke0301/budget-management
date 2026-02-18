@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { category, task, note, base_score, assignee, created_at } = await request.json();
+    const { category, task, note, base_score, assignee, created_at, multiplier: clientMultiplier } = await request.json();
 
     if (!category || !task) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let multiplier = 1;
+    let multiplier = clientMultiplier || 1;
     let multiplier_message = null;
     let score = null;
 
@@ -42,17 +42,17 @@ export async function POST(request: Request) {
       const rand = Math.random(); // 0.0 <= rand < 1.0
 
       if (rand < 0.01) { // 1/100
-        multiplier = 10;
+        multiplier *= 10;
         multiplier_message = "\n💎爆裂大当たり！！一生分の運を使い切ったかも！！！ポイント10倍！！！";
       } else if (rand < 0.03) { // 1/50 (0.01 + 0.02)
-        multiplier = 5;
+        multiplier *= 5;
         multiplier_message = "\n🌟スーパー当たりラッキー！運だけかよ！ポイント5倍！！";
       } else if (rand < 0.13) { // 1/10 (0.03 + 0.1)
-        multiplier = 2;
+        multiplier *= 2;
         multiplier_message = "\n🎊ラッキーだ！運も実力うんちだ！ポイント2倍！";
       }
 
-      score = base_score; // ここを修正：倍率を掛けない元のスコアを保存
+      score = base_score; // ベーススコアを保存（表示時に multiplier を掛ける）
     }
 
     const insertData: any = {

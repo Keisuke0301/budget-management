@@ -42,6 +42,24 @@ export function ChoreBubbleGame({
     return tasks;
   }, [masterData]);
 
+  // 今日のボーナスタスクを決定 (日付ベースで決定論的に)
+  const bonusInfo = useMemo(() => {
+    if (bubbleTasks.length === 0) return null;
+    
+    const now = new Date();
+    const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    
+    // 擬似乱数的なインデックス選択
+    const taskIndex = seed % bubbleTasks.length;
+    // 1/5の確率で3倍、それ以外は2倍
+    const multiplier = (seed % 5 === 0) ? 3 : 2;
+    
+    return {
+      taskId: bubbleTasks[taskIndex].id,
+      multiplier
+    };
+  }, [bubbleTasks]);
+
   const fetchTodayChores = useCallback(async () => {
     try {
       const res = await fetch(`/api/chores?t=${Date.now()}`);
@@ -84,6 +102,7 @@ export function ChoreBubbleGame({
         task: selectedTask.name,
         base_score: selectedTask.score,
         assignee: assignee,
+        multiplier: selectedTask.id === bonusInfo?.taskId ? bonusInfo.multiplier : 1
       };
 
       const response = await fetch("/api/chores", {
@@ -128,10 +147,13 @@ export function ChoreBubbleGame({
   const tasksWithStatus = tasksWithOrder.map((t) => {
     const count = completedCounts[`${t.area}-${t.name}`] || 0;
     const isRepeatable = t.is_repeatable === true;
+    const isBonus = t.id === bonusInfo?.taskId;
     return {
       ...t,
       count,
       isRepeatable,
+      isBonus,
+      bonusMultiplier: isBonus ? bonusInfo?.multiplier : 1,
       isCompleted: isRepeatable ? false : count >= t.order,
     };
   });
@@ -198,6 +220,17 @@ export function ChoreBubbleGame({
                       <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
                         {task.name}
                       </span>
+
+                      {/* 今日のボーナスバッジ */}
+                      {task.isBonus && !task.isCompleted && (
+                        <div className="absolute -top-1 -right-1 z-20">
+                          <div className="bg-amber-400 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-sm border border-white animate-blink flex items-center gap-0.5">
+                            <Sparkles size={8} className="fill-current" />
+                            <span>x{task.bonusMultiplier}</span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* ステータス表示 (中央にDONEラベル + 回数) */}
                       {(task.isCompleted || task.count > 0) && (
                         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10 rounded-full pointer-events-none animate-in fade-in duration-500">

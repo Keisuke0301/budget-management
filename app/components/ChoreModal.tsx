@@ -10,16 +10,18 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
-import { CHORE_CATEGORIES } from "@/app/lib/choreConstants";
+import { ICON_MAP } from "@/app/lib/choreConstants";
 import { format } from "date-fns";
+import { MasterCategory, MasterTask } from "@/app/types";
 
 interface ChoreModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  masterData: MasterCategory[];
 }
 
-export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
+export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModalProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTaskName, setSelectedTaskName] = useState<string | null>(null);
   const [selectedAssignee, setSelectedAssignee] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
     setSelectedTaskName(null); // タスク選択はリセット
   };
 
-  const currentCategory = CHORE_CATEGORIES.find(c => c.id === selectedCategoryId);
+  const currentCategory = masterData.find(c => c.id === selectedCategoryId);
   const currentTask = currentCategory?.tasks.find(t => t.name === selectedTaskName);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,8 +156,8 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">分類</label>
             <div className="flex flex-wrap gap-2">
-              {CHORE_CATEGORIES.map((category) => {
-                const Icon = category.icon;
+              {masterData.map((category) => {
+                const Icon = ICON_MAP[category.icon_name] || ICON_MAP.MoreHorizontal;
                 const isSelected = selectedCategoryId === category.id;
                 return (
                   <Button

@@ -1,7 +1,16 @@
 "use client";
 
-import { Utensils, Sparkles, Shirt, Fish, MoreHorizontal } from "lucide-react";
+import { Utensils, Sparkles, Shirt, Fish, MoreHorizontal, LucideIcon } from "lucide-react";
 
+export const ICON_MAP: Record<string, LucideIcon> = {
+  Utensils,
+  Sparkles,
+  Shirt,
+  Fish,
+  MoreHorizontal
+};
+
+// 以下、外部DB化に伴い将来的には削除可能ですが、移行期間のため残しています
 export const CHORE_CATEGORIES = [
   {
     id: "meal",

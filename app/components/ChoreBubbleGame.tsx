@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { Chore } from "@/app/types";
+import { Chore, MasterCategory, MasterTask } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { isToday } from "date-fns";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
-import { BUBBLE_TASKS } from "@/app/lib/choreConstants";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +14,33 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, Check } from "lucide-react";
 
-export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => void, refreshTrigger: number }) {
+export function ChoreBubbleGame({ 
+  onUpdate, 
+  refreshTrigger,
+  masterData 
+}: { 
+  onUpdate: () => void, 
+  refreshTrigger: number,
+  masterData: MasterCategory[]
+}) {
   const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
-  const [selectedTask, setSelectedTask] = useState<typeof BUBBLE_TASKS[0] | null>(null);
+  const [selectedTask, setSelectedTask] = useState<MasterTask | null>(null);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [poppingTask, setPoppingTask] = useState<string | null>(null);
+
+  // バブル表示対象のタスクを抽出
+  const bubbleTasks = useMemo(() => {
+    const tasks: (MasterTask & { area: string })[] = [];
+    masterData.forEach(cat => {
+      cat.tasks.forEach(task => {
+        if (task.is_bubble) {
+          tasks.push({ ...task, area: cat.name });
+        }
+      });
+    });
+    return tasks;
+  }, [masterData]);
 
   const fetchTodayChores = useCallback(async () => {
     try {
@@ -31,7 +51,6 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
       const counts: Record<string, number> = {};
       data.forEach(chore => {
         if (chore.created_at && isToday(new Date(chore.created_at))) {
-          // category は choreConstants で定義された親カテゴリ名（食事、洗濯等）が入る想定
           const key = `${chore.category}-${chore.task}`;
           counts[key] = (counts[key] || 0) + 1;
         }
@@ -46,7 +65,7 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
     fetchTodayChores();
   }, [fetchTodayChores, refreshTrigger]);
 
-  const handleBubbleClick = (task: typeof BUBBLE_TASKS[0]) => {
+  const handleBubbleClick = (task: MasterTask & { area: string }) => {
     setPoppingTask(task.id);
     setTimeout(() => {
       setSelectedTask(task);
@@ -57,11 +76,12 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
 
   const handleRecord = async (assignee: string) => {
     if (!selectedTask) return;
+    const taskWithArea = selectedTask as MasterTask & { area: string };
 
     setIsSubmitting(true);
     try {
       const payload = {
-        category: selectedTask.area, // BUBBLE_TASKS の area を category として送信
+        category: taskWithArea.area,
         task: selectedTask.name,
         base_score: selectedTask.score,
         assignee: assignee,
@@ -99,8 +119,8 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
   };
 
   // 各タスクにその種類内での出現順序を割り当てる
-  const tasksWithOrder = BUBBLE_TASKS.map((task, index) => {
-    const previousSameTasks = BUBBLE_TASKS.slice(0, index).filter(
+  const tasksWithOrder = bubbleTasks.map((task, index) => {
+    const previousSameTasks = bubbleTasks.slice(0, index).filter(
       t => t.area === task.area && t.name === task.name
     );
     return { ...task, order: previousSameTasks.length + 1 };
@@ -108,7 +128,7 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
 
   const tasksWithStatus = tasksWithOrder.map((t) => {
     const count = completedCounts[`${t.area}-${t.name}`] || 0;
-    const isRepeatable = (t as any).repeatable === true;
+    const isRepeatable = t.is_repeatable === true;
     return {
       ...t,
       count,
@@ -118,7 +138,7 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
   });
 
   const allCompleted = tasksWithStatus.every((t) => t.count >= t.order);
-  const areas = ["食事", "洗濯", "ペット"] as const;
+  const areas = Array.from(new Set(bubbleTasks.map(t => t.area)));
 
   return (
     <div className="relative w-full min-h-fit overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-3 mb-4">

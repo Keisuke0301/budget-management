@@ -8,3 +8,22 @@ export interface Chore {
   task: string | null;
   assignee: string | null;
 }
+
+export interface MasterTask {
+  id: string;
+  category_id: string;
+  name: string;
+  score: number;
+  icon: string;
+  is_repeatable: boolean;
+  is_bubble: boolean;
+  display_order: number;
+}
+
+export interface MasterCategory {
+  id: string;
+  name: string;
+  icon_name: string;
+  display_order: number;
+  tasks: MasterTask[];
+}

@@ -13,6 +13,7 @@ import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Trophy } from 'lucide-react';
+import { MasterCategory } from './types';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -34,6 +35,7 @@ export interface InitialData {
 
 export default function Home() {
   const [data, setData] = useState<InitialData | null>(null);
+  const [choreMasterData, setChoreMasterData] = useState<MasterCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -50,13 +52,19 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/initial-data');
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `APIエラー: ${response.statusText}`);
-      }
-      const result = await response.json();
-      setData(result);
+      const [initRes, choreMasterRes] = await Promise.all([
+        fetch('/api/initial-data'),
+        fetch('/api/initial-data/chores')
+      ]);
+
+      if (!initRes.ok) throw new Error("初期データの取得に失敗しました");
+      if (!choreMasterRes.ok) throw new Error("家事マスターデータの取得に失敗しました");
+
+      const initResult = await initRes.json();
+      const choreMasterResult = await choreMasterRes.json();
+
+      setData(initResult);
+      setChoreMasterData(choreMasterResult);
       setDataUpdatedAt(Date.now());
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
@@ -102,10 +110,13 @@ export default function Home() {
     if (activeTab === 'chores') {
       return (
         <>
-          <ChoreBubbleGame 
-            onUpdate={() => setChoreRefreshTrigger(Date.now())} 
-            refreshTrigger={choreRefreshTrigger}
-          />
+          {choreMasterData.length > 0 && (
+            <ChoreBubbleGame 
+              onUpdate={() => setChoreRefreshTrigger(Date.now())} 
+              refreshTrigger={choreRefreshTrigger}
+              masterData={choreMasterData}
+            />
+          )}
           {/* スペーサー */}
           <div className="h-10"></div>
         </>
@@ -206,6 +217,7 @@ export default function Home() {
         isOpen={isChoreModalOpen}
         onClose={() => setIsChoreModalOpen(false)}
         onSuccess={() => setChoreRefreshTrigger(Date.now())}
+        masterData={choreMasterData}
       />
 
       {/* 家事履歴モーダル */}

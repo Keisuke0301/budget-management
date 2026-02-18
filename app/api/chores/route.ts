@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { category, task, note, base_score, assignee } = await request.json();
+    const { category, task, note, base_score, assignee, created_at } = await request.json();
 
     if (!category || !task) {
       return NextResponse.json(
@@ -55,16 +55,22 @@ export async function POST(request: Request) {
       score = base_score * multiplier;
     }
 
+    const insertData: any = {
+      note,
+      category,
+      task,
+      score,
+      multiplier,
+      assignee
+    };
+
+    if (created_at) {
+      insertData.created_at = created_at;
+    }
+
     const { data, error } = await supabase
       .from('chores')
-      .insert([{
-        note,
-        category,
-        task,
-        score,
-        multiplier,
-        assignee
-      }])
+      .insert([insertData])
       .select()
       .single();
 

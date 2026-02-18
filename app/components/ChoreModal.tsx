@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
 import { CHORE_CATEGORIES } from "@/app/lib/choreConstants";
+import { format } from "date-fns";
 
 interface ChoreModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTaskName, setSelectedTaskName] = useState<string | null>(null);
   const [selectedAssignee, setSelectedAssignee] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,12 +49,18 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
 
     setIsSubmitting(true);
     try {
+      // 選択された日付に現在の時刻を付与してISO文字列にする
+      const now = new Date();
+      const [year, month, day] = selectedDate.split("-").map(Number);
+      const createdAt = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds()).toISOString();
+
       const payload = {
         category: currentCategory.name,
         task: currentTask.name,
         base_score: currentTask.score,
         note,
         assignee: selectedAssignee,
+        created_at: createdAt,
       };
 
       const response = await fetch("/api/chores", {
@@ -98,6 +106,18 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
           <DialogTitle>家事記録</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* 日付選択 */}
+          <div className="space-y-2">
+            <label htmlFor="date" className="text-sm font-medium">実施日</label>
+            <input
+              type="date"
+              id="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
 
           {/* 担当者選択 */}
           <div className="space-y-2">

@@ -27,16 +27,6 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // カテゴリ選択時のハンドラ
-  const handleCategorySelect = (categoryId: string) => {
-    if (selectedCategoryId === categoryId) {
-      setSelectedCategoryId(null); // 選択解除
-    } else {
-      setSelectedCategoryId(categoryId);
-    }
-    setSelectedTaskName(null); // タスク選択はリセット
-  };
-
   const currentCategory = CHORE_CATEGORIES.find(c => c.id === selectedCategoryId);
   const currentTask = currentCategory?.tasks.find(t => t.name === selectedTaskName);
 
@@ -150,54 +140,49 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
             </div>
           </div>
 
-          {/* 分類選択 */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">分類</label>
-            <div className="flex flex-wrap gap-2">
+          {/* 作業選択 (全てのカテゴリを展開) */}
+          <div className="space-y-4">
+            <label className="text-sm font-medium">作業を選択</label>
+            <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 -mr-2">
               {CHORE_CATEGORIES.map((category) => {
                 const Icon = category.icon;
-                const isSelected = selectedCategoryId === category.id;
                 return (
-                  <Button
-                    key={category.id}
-                    type="button"
-                    variant={isSelected ? "default" : "outline"}
-                    className={`h-10 px-3 flex items-center gap-2 ${isSelected ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" : ""}`}
-                    onClick={() => handleCategorySelect(category.id)}
-                  >
-                    <Icon size={16} />
-                    {category.name}
-                  </Button>
+                  <div key={category.id} className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 px-1">
+                      <Icon size={12} className="text-slate-400" />
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{category.name}</span>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-1 px-1 no-scrollbar">
+                      {category.tasks.map((task) => {
+                        const isSelected = selectedTaskName === task.name && selectedCategoryId === category.id;
+                        return (
+                          <Button
+                            key={task.id}
+                            type="button"
+                            variant={isSelected ? "default" : "outline"}
+                            className={`h-auto py-2 px-3 shrink-0 flex flex-col items-center gap-0.5 min-w-[80px] transition-all duration-200 ${
+                              isSelected 
+                                ? "ring-2 ring-offset-1 ring-indigo-500 bg-indigo-600 hover:bg-indigo-700 text-white border-transparent" 
+                                : "hover:bg-slate-50 border-slate-200 text-slate-600"
+                            }`}
+                            onClick={() => {
+                              setSelectedCategoryId(category.id);
+                              setSelectedTaskName(task.name);
+                            }}
+                          >
+                            <span className="text-[10px] leading-tight font-bold">{task.name}</span>
+                            <span className={`text-[8px] font-medium ${isSelected ? "text-indigo-100" : "text-slate-400"}`}>
+                              {task.score}pt
+                            </span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
           </div>
-
-          {/* タスク選択 (カテゴリが選択されている場合のみ表示) */}
-          {currentCategory && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-sm font-medium">作業 ({currentCategory.name})</label>
-              <div className="grid grid-cols-2 gap-2">
-                {currentCategory.tasks.map((task, index) => {
-                  const isSelected = selectedTaskName === task.name;
-                  return (
-                    <Button
-                      key={index}
-                      type="button"
-                      variant={isSelected ? "default" : "outline"}
-                      className={`h-auto py-2 px-3 justify-start text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
-                      onClick={() => setSelectedTaskName(task.name)}
-                    >
-                      <div className="flex flex-col items-start w-full">
-                        <span className="text-sm font-medium">{task.name}</span>
-                        <span className="text-xs opacity-70">{task.score} pt</span>
-                      </div>
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* メモ入力 */}
           <div className="space-y-2">

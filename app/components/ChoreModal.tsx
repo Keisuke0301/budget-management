@@ -9,75 +9,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Utensils, Sparkles, Shirt, Fish, MoreHorizontal } from "lucide-react";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
+import { CHORE_CATEGORIES } from "@/app/lib/choreConstants";
 
 interface ChoreModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
-
-// 分類とタスクの定義
-const CHORE_CATEGORIES = [
-  {
-    id: "meal",
-    name: "食事",
-    icon: Utensils,
-    tasks: [
-      { name: "料理(昼)", score: 3 },
-      { name: "料理(夜)", score: 3 },
-      { name: "弁当", score: 6 },
-      { name: "食器洗い(昼)", score: 6 },
-      { name: "食器洗い(夜)", score: 6 },
-      { name: "食器片付け", score: 1 },
-    ],
-  },
-  {
-    id: "cleaning",
-    name: "掃除",
-    icon: Sparkles,
-    tasks: [
-      { name: "部屋", score: 9 },
-      { name: "風呂", score: 6 },
-      { name: "トイレ", score: 7 },
-      { name: "洗車", score: 9 },
-    ],
-  },
-  {
-    id: "laundry",
-    name: "洗濯",
-    icon: Shirt,
-    tasks: [
-      { name: "洗濯", score: 2 },
-      { name: "干し", score: 8 },
-      { name: "取込・畳み", score: 5 },
-    ],
-  },
-  {
-    id: "pet",
-    name: "ペット",
-    icon: Fish,
-    tasks: [
-      { name: "デグーえさ(朝)", score: 1 },
-      { name: "デグーえさ(夜)", score: 1 },
-      { name: "掃除(デグー)", score: 7 },
-      { name: "えさ(魚)", score: 1 },
-      { name: "掃除(魚)", score: 10 },
-    ],
-  },
-  {
-    id: "other",
-    name: "その他",
-    icon: MoreHorizontal,
-    tasks: [
-      { name: "ごみまとめ", score: 2 },
-      { name: "ごみ捨て(通常)", score: 2 },
-      { name: "ごみ捨て(資源ごみ)", score: 10 },
-      { name: "散髪", score: 10 },
-    ],
-  },
-];
 
 export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -127,23 +66,17 @@ export function ChoreModal({ isOpen, onClose, onSuccess }: ChoreModalProps) {
       }
 
       const result = await response.json();
-
-      // 称賛メッセージをランダムに選択
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
-
-      // トースト表示の構築
       const score = result.score ?? 0;
       let toastMessage = `${currentTask.name} (${score}pt) を記録しました！\n\n${randomPraise}`;
 
       if (result.multiplier && result.multiplier > 1 && result.multiplier_message) {
-        // 大当たりの場合はメッセージを追加
         toastMessage = `${result.multiplier_message}\n` + toastMessage;
         toast.success(toastMessage, { duration: 5000 });
       } else {
         toast.success(toastMessage);
       }
 
-      // 状態リセット
       setSelectedCategoryId(null);
       setSelectedTaskName(null);
       setSelectedAssignee(null);

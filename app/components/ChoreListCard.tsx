@@ -9,7 +9,7 @@ import { ja } from "date-fns/locale";
 import { toast } from "sonner";
 import { Chore } from "@/app/types";
 
-export function ChoreListCard({ refreshTrigger }: { refreshTrigger: number }) {
+export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrigger: number, onDeleteSuccess?: () => void }) {
   const [chores, setChores] = useState<Chore[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -46,6 +46,7 @@ export function ChoreListCard({ refreshTrigger }: { refreshTrigger: number }) {
       if (!res.ok) throw new Error("削除に失敗しました");
       toast.success("削除しました");
       fetchChores();
+      if (onDeleteSuccess) onDeleteSuccess();
     } catch {
       toast.error("削除に失敗しました");
     }

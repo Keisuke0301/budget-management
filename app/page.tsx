@@ -102,7 +102,10 @@ export default function Home() {
     if (activeTab === 'chores') {
       return (
         <>
-          <ChoreBubbleGame onUpdate={() => setChoreRefreshTrigger(Date.now())} />
+          <ChoreBubbleGame 
+            onUpdate={() => setChoreRefreshTrigger(Date.now())} 
+            refreshTrigger={choreRefreshTrigger}
+          />
           {/* スペーサー */}
           <div className="h-10"></div>
         </>
@@ -210,6 +213,7 @@ export default function Home() {
         isOpen={isChoreHistoryModalOpen}
         onClose={() => setIsChoreHistoryModalOpen(false)}
         refreshTrigger={choreRefreshTrigger}
+        onDeleteSuccess={() => setChoreRefreshTrigger(Date.now())}
       />
 
       {/* 家事実績モーダル */}

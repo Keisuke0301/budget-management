@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, Check } from "lucide-react";
 
-export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
+export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => void, refreshTrigger: number }) {
   const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
   const [selectedTask, setSelectedTask] = useState<typeof BUBBLE_TASKS[0] | null>(null);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
@@ -44,7 +44,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
 
   useEffect(() => {
     fetchTodayChores();
-  }, [fetchTodayChores]);
+  }, [fetchTodayChores, refreshTrigger]);
 
   const handleBubbleClick = (task: typeof BUBBLE_TASKS[0]) => {
     setPoppingTask(task.id);
@@ -179,16 +179,37 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
                       <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
                         {task.name}
                       </span>
-                      {task.isCompleted && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 rounded-full">
-                          <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm">
-                            <Check className="w-3 h-3 stroke-[4]" />
+                      {/* ステータス表示 (DONEラベル) */}
+                      {(task.isCompleted || task.count > 0) && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/5 rounded-full pointer-events-none">
+                          {task.isCompleted && (
+                            <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm mb-1.5 animate-in zoom-in">
+                              <Check className="w-2.5 h-2.5 stroke-[4]" />
+                            </div>
+                          )}
+                          <div className={`px-1.5 rounded-full text-[7px] font-black border backdrop-blur-sm shadow-sm transition-all duration-500
+                            ${task.isCompleted 
+                              ? 'bg-emerald-500 text-white border-emerald-400 mt-1' 
+                              : 'bg-indigo-50 text-indigo-600 border-indigo-100 absolute bottom-1'
+                            }`}>
+                            DONE
                           </div>
                         </div>
                       )}
-                      {task.count > 0 && !task.isCompleted && (
-                        <div className="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-black shadow-sm border border-white animate-in zoom-in duration-300">
-                          {task.count}
+
+                      {/* 回数バッジ (リピート可能または複数バブルある場合) */}
+                      {task.count > 0 && (
+                        <div className="absolute -top-1 -right-1 flex items-center justify-center">
+                          <div className={`
+                            min-w-[22px] h-[22px] px-1 flex flex-col items-center justify-center rounded-full shadow-lg border-2 border-white animate-in zoom-in duration-300
+                            ${task.isCompleted ? 'bg-slate-500 text-white' : 'bg-indigo-600 text-white'}
+                          `}>
+                            <span className="text-[10px] leading-none font-black">{task.count}</span>
+                            <span className="text-[5px] leading-none font-bold opacity-80 uppercase tracking-tighter">回</span>
+                          </div>
+                          {!task.isCompleted && (
+                            <div className="absolute inset-0 rounded-full bg-indigo-400/30 animate-ping -z-10"></div>
+                          )}
                         </div>
                       )}
                       {!task.isCompleted && (

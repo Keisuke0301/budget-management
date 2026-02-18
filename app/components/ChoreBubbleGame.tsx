@@ -55,19 +55,23 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       const data: Chore[] = await res.json();
 
       const counts: Record<string, { am: number; pm: number; total: number }> = {};
+      const today = new Date();
       data.forEach(chore => {
-        if (chore.created_at && isToday(new Date(chore.created_at))) {
-          const key = `${chore.category}-${chore.task}`;
-          if (!counts[key]) {
-            counts[key] = { am: 0, pm: 0, total: 0 };
-          }
-          counts[key].total++;
-          
-          const hour = new Date(chore.created_at).getHours();
-          if (hour < 17) {
-            counts[key].am++;
-          } else {
-            counts[key].pm++;
+        if (chore.created_at) {
+          const choreDate = new Date(chore.created_at);
+          if (isToday(choreDate)) {
+            const key = `${chore.category}-${chore.task}`;
+            if (!counts[key]) {
+              counts[key] = { am: 0, pm: 0, total: 0 };
+            }
+            counts[key].total++;
+            
+            const hour = choreDate.getHours();
+            if (hour < 17) {
+              counts[key].am++;
+            } else {
+              counts[key].pm++;
+            }
           }
         }
       });

@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, RefreshCcw, Sparkles } from "lucide-react";
-import { format } from "date-fns";
+import { Trash2, RefreshCcw, Sparkles, CalendarDays, History } from "lucide-react";
+import { format, isToday } from "date-fns";
 import { ja } from "date-fns/locale";
 import { toast } from "sonner";
 import { Chore } from "@/app/types";
@@ -12,17 +12,27 @@ import { Chore } from "@/app/types";
 export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrigger: number, onDeleteSuccess?: () => void }) {
   const [chores, setChores] = useState<Chore[]>([]);
   const [loading, setLoading] = useState(false);
+  const [filterMode, setFilterMode] = useState<'today' | 'recent'>('today');
 
   const fetchChores = useCallback(async () => {
     setLoading(true);
     try {
+      // 直近のデータを多めに取得しておく（30件以上あれば30件、API側の制限50件まで）
       const res = await fetch("/api/chores");
       if (!res.ok) throw new Error("家事ログの取得に失敗しました");
       const data = await res.json();
+      
       if (Array.isArray(data)) {
-        setChores(data);
+        if (filterMode === 'today') {
+          const filteredData = data.filter((chore: Chore) => 
+            chore.created_at && isToday(new Date(chore.created_at))
+          );
+          setChores(filteredData);
+        } else {
+          // 直近30件
+          setChores(data.slice(0, 30));
+        }
       } else {
-        console.error("API response is not an array:", data);
         setChores([]);
       }
     } catch (error) {
@@ -32,7 +42,7 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filterMode]);
 
   useEffect(() => {
     fetchChores();
@@ -54,8 +64,33 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button variant="ghost" size="sm" onClick={fetchChores} disabled={loading} className="text-slate-400 h-8 gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex bg-slate-100 p-1 rounded-lg">
+          <button
+            onClick={() => setFilterMode('today')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
+              filterMode === 'today' 
+              ? "bg-white text-indigo-600 shadow-sm" 
+              : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <CalendarDays size={14} />
+            今日
+          </button>
+          <button
+            onClick={() => setFilterMode('recent')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
+              filterMode === 'recent' 
+              ? "bg-white text-indigo-600 shadow-sm" 
+              : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <History size={14} />
+            直近30件
+          </button>
+        </div>
+
+        <Button variant="ghost" size="sm" onClick={fetchChores} disabled={loading} className="text-slate-400 h-8 gap-2 px-2">
           <RefreshCcw size={14} className={loading ? "animate-spin" : ""} />
           <span className="text-[11px] font-bold">更新</span>
         </Button>
@@ -63,7 +98,7 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
       
       {chores.length === 0 ? (
         <div className="text-center text-slate-400 py-12 text-sm bg-slate-50 rounded-xl border border-dashed">
-          まだ記録がありません
+          {filterMode === 'today' ? '今日の記録はまだありません' : '記録がありません'}
         </div>
       ) : (
         <ul className="divide-y divide-slate-100 border-t border-slate-100">

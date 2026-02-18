@@ -179,21 +179,16 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
                       <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
                         {task.name}
                       </span>
-                      {/* ステータス表示 (DONEラベル + 回数) */}
+                      {/* ステータス表示 (中央にDONEラベル + 回数) */}
                       {(task.isCompleted || task.count > 0) && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/5 rounded-full pointer-events-none">
-                          {task.isCompleted && (
-                            <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm mb-1 animate-in zoom-in">
-                              <Check className="w-2.5 h-2.5 stroke-[4]" />
-                            </div>
-                          )}
-                          <div className={`px-2 py-0.5 rounded-full text-[8px] font-black border backdrop-blur-sm shadow-sm transition-all duration-500 flex items-center gap-1
+                        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/10 rounded-full pointer-events-none animate-in fade-in duration-500">
+                          <div className={`px-2 py-0.5 rounded-full text-[9px] font-black border shadow-lg flex items-center gap-1.5 transition-all duration-500 scale-110
                             ${task.isCompleted 
                               ? 'bg-emerald-500 text-white border-emerald-400' 
-                              : 'bg-indigo-600 text-white border-indigo-400 absolute bottom-1.5 shadow-md shadow-indigo-200/50'
+                              : 'bg-indigo-600 text-white border-indigo-400 shadow-indigo-200/50'
                             }`}>
-                            <span>DONE</span>
-                            <span className="bg-white/20 px-1 rounded-sm text-[7px] min-w-[12px] text-center">
+                            <span className="tracking-tight">DONE</span>
+                            <span className="bg-white/20 px-1 rounded-sm text-[8px] min-w-[14px] text-center font-bold">
                               {task.count}
                             </span>
                           </div>

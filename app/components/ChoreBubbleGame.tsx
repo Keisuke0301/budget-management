@@ -115,10 +115,18 @@ export function ChoreBubbleGame({
 
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
-      const score = result.score ?? 0;
-      let toastMessage = `${selectedTask.name} (${score}pt) を記録しました！\n\n${randomPraise}`;
+      const baseScore = result.score ?? 0;
+      const totalMultiplier = result.multiplier ?? 1;
+      const finalScore = baseScore * totalMultiplier;
+      
+      let toastMessage = `${selectedTask.name} (${finalScore}pt) を記録しました！\n\n${randomPraise}`;
 
-      if (result.multiplier && result.multiplier > 1) {
+      // デイリーボーナスのメッセージ追加
+      if (selectedTask.id === bonusInfo?.taskId) {
+        toastMessage = `✨ デイリーボーナス適用！(x${bonusInfo.multiplier}) ✨\n` + toastMessage;
+      }
+
+      if (result.multiplier_message) {
         toastMessage = `${result.multiplier_message}\n` + toastMessage;
         toast.success(toastMessage, { duration: 5000 });
       } else {
@@ -282,6 +290,12 @@ export function ChoreBubbleGame({
               けいこ
             </Button>
           </div>
+          {selectedTask?.id === bonusInfo?.taskId && (
+            <div className="mt-4 p-2 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-center gap-2 animate-blink">
+              <Sparkles size={16} className="text-amber-500 fill-current" />
+              <span className="text-sm font-black text-amber-700">デイリーボーナス対象！ (x{bonusInfo?.multiplier})</span>
+            </div>
+          )}
           <p className="text-center text-sm text-slate-500 mt-4">
             {selectedTask?.area} - {selectedTask?.name}
           </p>

@@ -55,29 +55,37 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       const data: Chore[] = await res.json();
 
       const counts: Record<string, { am: number; pm: number; total: number }> = {};
-      const now = new Date();
+      
+      // 日本時間での「今日」の日付文字列 (YYYY-MM-DD) を取得
+      const jstToday = new Intl.DateTimeFormat('sv-SE', { 
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric', month: '2-digit', day: '2-digit' 
+      }).format(new Date());
 
       data.forEach(chore => {
         if (chore.created_at) {
           const choreDate = new Date(chore.created_at);
           
-          // date-fns の isToday (または同等のロジック) で当日判定
-          // JavaScriptの new Date(chore.created_at) は、ISO形式であれば
-          // ブラウザのローカルタイムゾーンに自動的に変換されます。
-          const isTaskToday = 
-            choreDate.getDate() === now.getDate() &&
-            choreDate.getMonth() === now.getMonth() &&
-            choreDate.getFullYear() === now.getFullYear();
+          // 記録の日本時間での日付文字列を取得
+          const choreJSTDate = new Intl.DateTimeFormat('sv-SE', { 
+            timeZone: 'Asia/Tokyo',
+            year: 'numeric', month: '2-digit', day: '2-digit' 
+          }).format(choreDate);
 
-          if (isTaskToday) {
+          if (choreJSTDate === jstToday) {
             const key = `${chore.category}-${chore.task}`;
             if (!counts[key]) {
               counts[key] = { am: 0, pm: 0, total: 0 };
             }
             counts[key].total++;
             
-            const hour = choreDate.getHours();
-            if (hour < 17) {
+            // 日本時間での「時」を取得
+            const jstHour = parseInt(new Intl.DateTimeFormat('en-GB', { 
+              timeZone: 'Asia/Tokyo',
+              hour: '2-digit', hour12: false 
+            }).format(choreDate));
+
+            if (jstHour < 17) {
               counts[key].am++;
             } else {
               counts[key].pm++;
@@ -171,7 +179,11 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       isCompleted = counts.total >= t.order;
     }
 
-    const currentHour = new Date().getHours();
+    const currentHour = parseInt(new Intl.DateTimeFormat('en-GB', { 
+      timeZone: 'Asia/Tokyo',
+      hour: '2-digit', hour12: false 
+    }).format(new Date()));
+
     let isTimeDisabled = false;
     if (isLunchOrMorning) {
       isTimeDisabled = currentHour >= 17;

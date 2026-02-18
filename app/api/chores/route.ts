@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         multiplier_message = "\n🎊ラッキーだ！運も実力うんちだ！ポイント2倍！";
       }
 
-      score = base_score * multiplier;
+      score = base_score; // ここを修正：倍率を掛けない元のスコアを保存
     }
 
     const insertData: any = {

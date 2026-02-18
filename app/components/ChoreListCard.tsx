@@ -94,7 +94,7 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
                       {typeof chore.score === 'number' && (
                         <span className={`text-sm font-bold ${isLucky ? 'text-amber-500 flex items-center gap-1' : 'text-slate-600'}`}>
                           {isLucky && <Sparkles size={12} />}
-                          {chore.score} pt
+                          {(chore.score * (chore.multiplier || 1))} pt
                           {isLucky && <span className="text-xs font-normal ml-1">({chore.multiplier}倍!)</span>}
                         </span>
                       )}

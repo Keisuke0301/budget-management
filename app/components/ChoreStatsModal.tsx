@@ -42,7 +42,8 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
         if (!newStats[assignee]) {
           newStats[assignee] = { totalPoints: 0, count: 0 };
         }
-        newStats[assignee].totalPoints += chore.score || 0;
+        const multipliedScore = (chore.score || 0) * (chore.multiplier || 1);
+        newStats[assignee].totalPoints += multipliedScore;
         newStats[assignee].count += 1;
       });
 

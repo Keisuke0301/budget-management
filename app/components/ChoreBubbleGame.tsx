@@ -179,37 +179,24 @@ export function ChoreBubbleGame({ onUpdate, refreshTrigger }: { onUpdate: () => 
                       <span className="text-[7.5px] font-bold text-slate-600 px-1 text-center leading-[1.1]">
                         {task.name}
                       </span>
-                      {/* ステータス表示 (DONEラベル) */}
+                      {/* ステータス表示 (DONEラベル + 回数) */}
                       {(task.isCompleted || task.count > 0) && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/5 rounded-full pointer-events-none">
                           {task.isCompleted && (
-                            <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm mb-1.5 animate-in zoom-in">
+                            <div className="bg-emerald-500 text-white rounded-full p-0.5 shadow-sm mb-1 animate-in zoom-in">
                               <Check className="w-2.5 h-2.5 stroke-[4]" />
                             </div>
                           )}
-                          <div className={`px-1.5 rounded-full text-[7px] font-black border backdrop-blur-sm shadow-sm transition-all duration-500
+                          <div className={`px-2 py-0.5 rounded-full text-[8px] font-black border backdrop-blur-sm shadow-sm transition-all duration-500 flex items-center gap-1
                             ${task.isCompleted 
-                              ? 'bg-emerald-500 text-white border-emerald-400 mt-1' 
-                              : 'bg-indigo-50 text-indigo-600 border-indigo-100 absolute bottom-1'
+                              ? 'bg-emerald-500 text-white border-emerald-400' 
+                              : 'bg-indigo-600 text-white border-indigo-400 absolute bottom-1.5 shadow-md shadow-indigo-200/50'
                             }`}>
-                            DONE
+                            <span>DONE</span>
+                            <span className="bg-white/20 px-1 rounded-sm text-[7px] min-w-[12px] text-center">
+                              {task.count}
+                            </span>
                           </div>
-                        </div>
-                      )}
-
-                      {/* 回数バッジ (リピート可能または複数バブルある場合) */}
-                      {task.count > 0 && (
-                        <div className="absolute -top-1 -right-1 flex items-center justify-center">
-                          <div className={`
-                            min-w-[22px] h-[22px] px-1 flex flex-col items-center justify-center rounded-full shadow-lg border-2 border-white animate-in zoom-in duration-300
-                            ${task.isCompleted ? 'bg-slate-500 text-white' : 'bg-indigo-600 text-white'}
-                          `}>
-                            <span className="text-[10px] leading-none font-black">{task.count}</span>
-                            <span className="text-[5px] leading-none font-bold opacity-80 uppercase tracking-tighter">回</span>
-                          </div>
-                          {!task.isCompleted && (
-                            <div className="absolute inset-0 rounded-full bg-indigo-400/30 animate-ping -z-10"></div>
-                          )}
                         </div>
                       )}
                       {!task.isCompleted && (

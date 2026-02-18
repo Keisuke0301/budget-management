@@ -42,20 +42,39 @@ export function ChoreBubbleGame({
     return tasks;
   }, [masterData]);
 
-  // 今日のボーナスタスクを決定 (日付ベースで決定論的に)
+  // 文字列から数値のハッシュを生成する簡易関数
+  const getHash = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 32bit整数に変換
+    }
+    return Math.abs(hash);
+  };
+
+  // 今日のボーナスタスクを決定 (項目の増減に左右されないハッシュ方式)
   const bonusInfo = useMemo(() => {
     if (bubbleTasks.length === 0) return null;
     
     const now = new Date();
-    const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    const dateStr = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
     
-    // 擬似乱数的なインデックス選択
-    const taskIndex = seed % bubbleTasks.length;
-    // 1/5の確率で3倍、それ以外は2倍
-    const multiplier = (seed % 5 === 0) ? 3 : 2;
+    // 各タスクに今日の日付に基づいたスコアを割り当てる
+    const scoredTasks = bubbleTasks.map(task => ({
+      taskId: task.id,
+      // タスクID + 日付文字列 でハッシュを生成
+      score: getHash(task.id + dateStr)
+    }));
+
+    // 最もスコア（ハッシュ値）が高いタスクを今日の勝者とする
+    const winner = scoredTasks.sort((a, b) => b.score - a.score)[0];
+    
+    // 3倍になるかどうかも、日付と当選タスクIDの組み合わせで決定論的に決める (1/5の確率)
+    const multiplier = (getHash(winner.taskId + dateStr + "multiplier") % 5 === 0) ? 3 : 2;
     
     return {
-      taskId: bubbleTasks[taskIndex].id,
+      taskId: winner.taskId,
       multiplier
     };
   }, [bubbleTasks]);

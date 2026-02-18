@@ -155,7 +155,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
           {/* 分類選択 */}
           <div className="space-y-2">
             <label className="text-sm font-medium">分類</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-5 gap-1">
               {masterData.map((category) => {
                 const Icon = ICON_MAP[category.icon_name] || ICON_MAP.MoreHorizontal;
                 const isSelected = selectedCategoryId === category.id;
@@ -164,11 +164,15 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
                     key={category.id}
                     type="button"
                     variant={isSelected ? "default" : "outline"}
-                    className={`h-10 px-3 flex items-center gap-2 ${isSelected ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" : ""}`}
+                    className={`h-14 px-0 flex flex-col items-center justify-center gap-1 transition-all ${
+                      isSelected 
+                        ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" 
+                        : "text-slate-500 border-slate-200"
+                    }`}
                     onClick={() => handleCategorySelect(category.id)}
                   >
-                    <Icon size={16} />
-                    {category.name}
+                    <Icon size={14} />
+                    <span className="text-[10px] font-bold leading-none">{category.name}</span>
                   </Button>
                 );
               })}

@@ -10,7 +10,7 @@ export const CHORE_CATEGORIES = [
     tasks: [
       { id: "meal-1", name: "料理(昼)", score: 3, icon: "🍳" },
       { id: "meal-2", name: "料理(夜)", score: 3, icon: "🧑‍🍳" },
-      { id: "meal-3", name: "弁当", score: 6, icon: "🍱" },
+      { id: "meal-3", name: "料理(弁当)", score: 6, icon: "🍱" },
       { id: "meal-4", name: "食器洗い(昼)", score: 6, icon: "🧼" },
       { id: "meal-5", name: "食器洗い(夜)", score: 6, icon: "🧼" },
       { id: "meal-6", name: "食器片付け", score: 1, icon: "🍽️" },
@@ -42,11 +42,11 @@ export const CHORE_CATEGORIES = [
     name: "ペット",
     icon: Fish,
     tasks: [
-      { id: "pet-1", name: "デグーえさ(朝)", score: 1, icon: "🐹" },
-      { id: "pet-2", name: "デグーえさ(夜)", score: 1, icon: "🐭" },
-      { id: "pet-3", name: "掃除(デグー)", score: 7, icon: "🧹" },
-      { id: "pet-4", name: "えさ(魚)", score: 1, icon: "🐟" },
-      { id: "pet-5", name: "掃除(魚)", score: 10, icon: "🧼" },
+      { id: "pet-1", name: "デグえさ(朝)", score: 1, icon: "🐹" },
+      { id: "pet-2", name: "デグえさ(夜)", score: 1, icon: "🐭" },
+      { id: "pet-3", name: "デグ掃除", score: 7, icon: "🧹" },
+      { id: "pet-4", name: "魚えさ", score: 1, icon: "🐟" },
+      { id: "pet-5", name: "魚掃除", score: 10, icon: "🧼" },
     ],
   },
   {
@@ -55,8 +55,8 @@ export const CHORE_CATEGORIES = [
     icon: MoreHorizontal,
     tasks: [
       { id: "other-1", name: "ごみまとめ", score: 2, icon: "📦" },
-      { id: "other-2", name: "ごみ捨て(通常)", score: 2, icon: "🗑️" },
-      { id: "other-3", name: "ごみ捨て(資源ごみ)", score: 10, icon: "♻️" },
+      { id: "other-2", name: "ごみ捨て", score: 2, icon: "🗑️" },
+      { id: "other-3", name: "ごみ捨て(資源)", score: 10, icon: "♻️" },
       { id: "other-4", name: "散髪", score: 10, icon: "✂️" },
     ],
   },
@@ -66,5 +66,5 @@ export const CHORE_CATEGORIES = [
 export const BUBBLE_TASKS = [
   ...CHORE_CATEGORIES.find(c => c.id === "meal")!.tasks.filter(t => ["料理(昼)", "食器洗い(昼)", "料理(夜)", "食器洗い(夜)", "食器片付け"].includes(t.name)).map(t => ({ ...t, area: "食事" as const })),
   ...CHORE_CATEGORIES.find(c => c.id === "laundry")!.tasks.map(t => ({ ...t, area: "洗濯" as const })),
-  ...CHORE_CATEGORIES.find(c => c.id === "pet")!.tasks.filter(t => ["デグーえさ(朝)", "デグーえさ(夜)", "えさ(魚)"].includes(t.name)).map(t => ({ ...t, area: "ペット" as const })),
+  ...CHORE_CATEGORIES.find(c => c.id === "pet")!.tasks.filter(t => ["デグえさ(朝)", "デグえさ(夜)", "魚えさ"].includes(t.name)).map(t => ({ ...t, area: "ペット" as const })),
 ];

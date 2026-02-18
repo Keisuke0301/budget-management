@@ -24,7 +24,7 @@ export function ChoreBubbleGame({
   masterData: MasterCategory[]
 }) {
   const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
-  const [selectedTask, setSelectedTask] = useState<MasterTask | null>(null);
+  const [selectedTask, setSelectedTask] = useState<(MasterTask & { area: string }) | null>(null);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [poppingTask, setPoppingTask] = useState<string | null>(null);
@@ -76,12 +76,11 @@ export function ChoreBubbleGame({
 
   const handleRecord = async (assignee: string) => {
     if (!selectedTask) return;
-    const taskWithArea = selectedTask as MasterTask & { area: string };
 
     setIsSubmitting(true);
     try {
       const payload = {
-        category: taskWithArea.area,
+        category: selectedTask.area,
         task: selectedTask.name,
         base_score: selectedTask.score,
         assignee: assignee,

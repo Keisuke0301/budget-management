@@ -56,23 +56,26 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
 
       const counts: Record<string, { am: number; pm: number; total: number }> = {};
       
-      // 日本時間での「今日」の日付文字列 (YYYY-MM-DD) を取得
-      const jstToday = new Intl.DateTimeFormat('sv-SE', { 
-        timeZone: 'Asia/Tokyo',
-        year: 'numeric', month: '2-digit', day: '2-digit' 
-      }).format(new Date());
+      // 日本時間 (JST) での現在時刻を取得
+      const now = new Date();
+      const jstNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+      const todayYear = jstNow.getFullYear();
+      const todayMonth = jstNow.getMonth();
+      const todayDate = jstNow.getDate();
 
       data.forEach(chore => {
         if (chore.created_at) {
           const choreDate = new Date(chore.created_at);
+          // 記録の日本時間での時刻
+          const jstChore = new Date(choreDate.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
           
-          // 記録の日本時間での日付文字列を取得
-          const choreJSTDate = new Intl.DateTimeFormat('sv-SE', { 
-            timeZone: 'Asia/Tokyo',
-            year: 'numeric', month: '2-digit', day: '2-digit' 
-          }).format(choreDate);
+          // 日本時間基準で「今日」かどうかを判定
+          const isTaskToday = 
+            jstChore.getFullYear() === todayYear &&
+            jstChore.getMonth() === todayMonth &&
+            jstChore.getDate() === todayDate;
 
-          if (choreJSTDate === jstToday) {
+          if (isTaskToday) {
             const key = `${chore.category}-${chore.task}`;
             if (!counts[key]) {
               counts[key] = { am: 0, pm: 0, total: 0 };
@@ -80,10 +83,7 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
             counts[key].total++;
             
             // 日本時間での「時」を取得
-            const jstHour = parseInt(new Intl.DateTimeFormat('en-GB', { 
-              timeZone: 'Asia/Tokyo',
-              hour: '2-digit', hour12: false 
-            }).format(choreDate));
+            const jstHour = jstChore.getHours();
 
             if (jstHour < 17) {
               counts[key].am++;
@@ -179,10 +179,8 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
       isCompleted = counts.total >= t.order;
     }
 
-    const currentHour = parseInt(new Intl.DateTimeFormat('en-GB', { 
-      timeZone: 'Asia/Tokyo',
-      hour: '2-digit', hour12: false 
-    }).format(new Date()));
+    const jstNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+    const currentHour = jstNow.getHours();
 
     let isTimeDisabled = false;
     if (isLunchOrMorning) {

@@ -55,14 +55,13 @@ export async function POST(request: Request) {
       score = base_score * multiplier;
     }
 
-    // 日本時間 (JST) のISO文字列を作成 (+09:00)
+    // 日本時間 (JST) のISO風文字列を作成 (+09:00)
+    // Intl.DateTimeFormatの locale によってはカンマが入るなど不安定なため、
+    // 手動でフォーマットを構築する
     const now = new Date();
-    const jstDate = new Intl.DateTimeFormat('sv-SE', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      fractionalSecondDigits: 3,
-      timeZone: 'Asia/Tokyo'
-    }).format(now).replace(' ', 'T') + '+09:00';
+    const jstOffset = 9 * 60 * 60 * 1000;
+    const jstDateObj = new Date(now.getTime() + jstOffset);
+    const jstDate = jstDateObj.toISOString().replace('Z', '+09:00');
 
     const { data, error } = await supabase
       .from('chores')

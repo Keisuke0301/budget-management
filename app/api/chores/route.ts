@@ -63,7 +63,8 @@ export async function POST(request: Request) {
         task,
         score,
         multiplier,
-        assignee
+        assignee,
+        created_at: new Date().toISOString()
       }])
       .select()
       .single();

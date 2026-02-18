@@ -50,23 +50,26 @@ export function ChoreBubbleGame({ onUpdate }: { onUpdate: () => void }) {
 
   const fetchTodayChores = useCallback(async () => {
     try {
-      // キャッシュを無効化するためにタイムスタンプを付与
       const res = await fetch(`/api/chores?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("取得失敗");
       const data: Chore[] = await res.json();
 
       const counts: Record<string, { am: number; pm: number; total: number }> = {};
       const now = new Date();
-      // 今日の日付 (YYYY-MM-DD) をローカル時間で取得
-      const todayStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
       data.forEach(chore => {
         if (chore.created_at) {
           const choreDate = new Date(chore.created_at);
-          // choreDate のローカル日付 (YYYY-MM-DD) を取得
-          const choreDateStr = new Date(choreDate.getTime() - choreDate.getTimezoneOffset() * 60000).toISOString().split('T')[0];
           
-          if (choreDateStr === todayStr) {
+          // date-fns の isToday (または同等のロジック) で当日判定
+          // JavaScriptの new Date(chore.created_at) は、ISO形式であれば
+          // ブラウザのローカルタイムゾーンに自動的に変換されます。
+          const isTaskToday = 
+            choreDate.getDate() === now.getDate() &&
+            choreDate.getMonth() === now.getMonth() &&
+            choreDate.getFullYear() === now.getFullYear();
+
+          if (isTaskToday) {
             const key = `${chore.category}-${chore.task}`;
             if (!counts[key]) {
               counts[key] = { am: 0, pm: 0, total: 0 };

@@ -53,70 +53,74 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
   };
 
   return (
-    <Card className="mt-6 mb-24">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium">最近の家事ログ</CardTitle>
-        <Button variant="ghost" size="icon" onClick={fetchChores} disabled={loading}>
-          <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button variant="ghost" size="sm" onClick={fetchChores} disabled={loading} className="text-slate-400 h-8 gap-2">
+          <RefreshCcw size={14} className={loading ? "animate-spin" : ""} />
+          <span className="text-[11px] font-bold">更新</span>
         </Button>
-      </CardHeader>
-      <CardContent>
-        {chores.length === 0 ? (
-          <div className="text-center text-gray-500 py-4">
-            まだ記録がありません
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {chores.map((chore) => {
-              const isLucky = chore.multiplier && chore.multiplier > 1;
-              return (
-                <li key={chore.id} className="flex justify-between items-start border-b pb-2 last:border-0 last:pb-0">
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="font-medium text-base">
-                        <span className="text-slate-500 text-sm mr-1">[{chore.category}]</span>
-                        {chore.task}
-                      </span>
-                      {chore.assignee && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                          chore.assignee === 'けいすけ' ? 'bg-blue-100 text-blue-600' :
-                          chore.assignee === 'けいこ' ? 'bg-pink-100 text-pink-600' :
-                          'bg-gray-100 text-gray-600'
-                        }`}>
-                          {chore.assignee}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-500">
-                        {format(new Date(chore.created_at), "M/d(E) HH:mm", { locale: ja })}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {typeof chore.score === 'number' && (
-                        <span className={`text-sm font-bold ${isLucky ? 'text-amber-500 flex items-center gap-1' : 'text-slate-600'}`}>
-                          {isLucky && <Sparkles size={12} />}
-                          {(chore.score * (chore.multiplier || 1))} pt
-                          {isLucky && <span className="text-xs font-normal ml-1">({chore.multiplier}倍!)</span>}
-                        </span>
-                      )}
-                    </div>
-                    {chore.note && (
-                      <p className="text-xs text-gray-500 mt-1 pl-2 border-l-2 border-gray-200">{chore.note}</p>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-gray-400 hover:text-red-500 shrink-0"
-                    onClick={() => handleDelete(chore.id)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+      
+      {chores.length === 0 ? (
+        <div className="text-center text-slate-400 py-12 text-sm bg-slate-50 rounded-xl border border-dashed">
+          まだ記録がありません
+        </div>
+      ) : (
+        <ul className="divide-y divide-slate-100 border-t border-slate-100">
+          {chores.map((chore) => {
+            const isLucky = chore.multiplier && chore.multiplier > 1;
+            const totalScore = (chore.score || 0) * (chore.multiplier || 1);
+            return (
+              <li key={chore.id} className="flex items-center gap-2 py-2.5 group">
+                {/* 日付 */}
+                <span className="text-[11px] text-slate-400 tabular-nums w-9 shrink-0">
+                  {format(new Date(chore.created_at), "M/d", { locale: ja })}
+                </span>
+                
+                {/* 分類 */}
+                <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
+                  {chore.category}
+                </span>
+                
+                {/* 項目 */}
+                <span className="text-sm font-medium text-slate-700 truncate flex-1 min-w-0">
+                  {chore.task}
+                </span>
+                
+                {/* 担当者 */}
+                {chore.assignee && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
+                    chore.assignee === 'けいすけ' ? 'bg-blue-50 text-blue-500' :
+                    chore.assignee === 'けいこ' ? 'bg-pink-50 text-pink-500' :
+                    'bg-slate-50 text-slate-500'
+                  }`}>
+                    {chore.assignee.slice(0, 4)}
+                  </span>
+                )}
+                
+                {/* 点数 */}
+                <div className="flex items-center gap-0.5 w-12 justify-end shrink-0">
+                  <span className={`text-xs font-black tabular-nums ${isLucky ? 'text-amber-500' : 'text-slate-600'}`}>
+                    {totalScore}
+                  </span>
+                  <span className="text-[9px] font-bold text-slate-400">pt</span>
+                  {isLucky && <Sparkles size={10} className="text-amber-500 animate-pulse ml-0.5" />}
+                </div>
+
+                {/* 削除ボタン */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleDelete(chore.id)}
+                >
+                  <Trash2 size={14} />
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

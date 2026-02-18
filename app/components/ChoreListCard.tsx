@@ -58,16 +58,6 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end sticky top-0 bg-white/50 backdrop-blur-sm z-10 py-1">
-        <button 
-          onClick={fetchChores} 
-          disabled={loading}
-          className="p-1.5 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors"
-        >
-          <RefreshCcw size={12} className={loading ? "animate-spin" : ""} />
-        </button>
-      </div>
-      
       {chores.length === 0 ? (
         <div className="text-center text-slate-400 py-10 text-[11px] font-bold bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
           今日の記録はありません

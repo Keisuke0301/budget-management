@@ -26,18 +26,18 @@ interface DailyTask {
 
 const DAILY_TASKS: DailyTask[] = [
   // 食事エリア
-  { id: "meal-1", area: "食事", category: "食事", task: "料理", score: 3, icon: "🍳", display: "料理(昼)" },
-  { id: "meal-2", area: "食事", category: "食事", task: "皿洗い", score: 6, icon: "🧼", display: "食器洗い(昼)" },
-  { id: "meal-3", area: "食事", category: "食事", task: "料理", score: 3, icon: "🧑‍🍳", display: "料理(夜)" },
-  { id: "meal-4", area: "食事", category: "食事", task: "皿洗い", score: 6, icon: "🧼", display: "食器洗い(夜)" },
+  { id: "meal-1", area: "食事", category: "食事", task: "料理(昼)", score: 3, icon: "🍳", display: "料理(昼)" },
+  { id: "meal-2", area: "食事", category: "食事", task: "食器洗い(昼)", score: 6, icon: "🧼", display: "食器洗い(昼)" },
+  { id: "meal-3", area: "食事", category: "食事", task: "料理(夜)", score: 3, icon: "🧑‍🍳", display: "料理(夜)" },
+  { id: "meal-4", area: "食事", category: "食事", task: "食器洗い(夜)", score: 6, icon: "🧼", display: "食器洗い(夜)" },
   { id: "meal-5", area: "食事", category: "食事", task: "食器片付け", score: 1, icon: "🍽️", display: "食器片付け" },
   // 洗濯エリア
   { id: "laundry-1", area: "洗濯", category: "洗濯", task: "洗濯", score: 2, icon: "🌀", display: "洗濯" },
   { id: "laundry-2", area: "洗濯", category: "洗濯", task: "洗濯", score: 8, icon: "👕", display: "干し" },
   { id: "laundry-3", area: "洗濯", category: "洗濯", task: "取込・畳み", score: 5, icon: "🐔", display: "取込・畳み" },
   // ペットエリア
-  { id: "pet-1", area: "ペット", category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐹", display: "デグーえさ(朝)" },
-  { id: "pet-2", area: "ペット", category: "ペット", task: "えさ(デグー)", score: 1, icon: "🐭", display: "デグーえさ(夜)" },
+  { id: "pet-1", area: "ペット", category: "ペット", task: "デグーえさ(朝)", score: 1, icon: "🐹", display: "デグーえさ(朝)" },
+  { id: "pet-2", area: "ペット", category: "ペット", task: "デグーえさ(夜)", score: 1, icon: "🐭", display: "デグーえさ(夜)" },
   { id: "pet-3", area: "ペット", category: "ペット", task: "えさ(魚)", score: 1, icon: "🐟", display: "魚えさ" },
 ];
 

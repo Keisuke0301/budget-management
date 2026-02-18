@@ -25,9 +25,11 @@ const CHORE_CATEGORIES = [
     name: "食事",
     icon: Utensils,
     tasks: [
-      { name: "料理", score: 3 },
+      { name: "料理(昼)", score: 3 },
+      { name: "料理(夜)", score: 3 },
       { name: "弁当", score: 6 },
-      { name: "皿洗い", score: 6 },
+      { name: "食器洗い(昼)", score: 6 },
+      { name: "食器洗い(夜)", score: 6 },
       { name: "食器片付け", score: 1 },
     ],
   },
@@ -57,7 +59,8 @@ const CHORE_CATEGORIES = [
     name: "ペット",
     icon: Fish,
     tasks: [
-      { name: "えさ(デグー)", score: 1 },
+      { name: "デグーえさ(朝)", score: 1 },
+      { name: "デグーえさ(夜)", score: 1 },
       { name: "掃除(デグー)", score: 7 },
       { name: "えさ(魚)", score: 1 },
       { name: "掃除(魚)", score: 10 },

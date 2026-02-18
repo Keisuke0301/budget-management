@@ -55,14 +55,6 @@ export async function POST(request: Request) {
       score = base_score * multiplier;
     }
 
-    // 日本時間 (JST) のISO風文字列を作成 (+09:00)
-    // Intl.DateTimeFormatの locale によってはカンマが入るなど不安定なため、
-    // 手動でフォーマットを構築する
-    const now = new Date();
-    const jstOffset = 9 * 60 * 60 * 1000;
-    const jstDateObj = new Date(now.getTime() + jstOffset);
-    const jstDate = jstDateObj.toISOString().replace('Z', '+09:00');
-
     const { data, error } = await supabase
       .from('chores')
       .insert([{
@@ -71,8 +63,7 @@ export async function POST(request: Request) {
         task,
         score,
         multiplier,
-        assignee,
-        created_at: jstDate
+        assignee
       }])
       .select()
       .single();

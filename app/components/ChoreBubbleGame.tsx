@@ -146,9 +146,9 @@ export function ChoreBubbleGame({
         <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-pink-100 rounded-full blur-[80px]"></div>
       </div>
 
-      <div className="relative z-10 space-y-4 p-1">
+      <div className="relative z-10 space-y-2.5 p-1">
         {allCompleted && (
-          <div className="flex flex-col items-center justify-center pt-8 pb-4 text-emerald-500 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <div className="flex flex-col items-center justify-center pt-4 pb-2 text-emerald-500 animate-in fade-in slide-in-from-top-4 duration-1000">
             <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 shadow-sm">
               <Sparkles className="w-4 h-4" />
               <p className="text-xs font-bold">今日のタスクはすべて完了しました！ お疲れ様です ✨</p>
@@ -161,14 +161,14 @@ export function ChoreBubbleGame({
           if (areaTasks.length === 0) return null;
 
           return (
-            <div key={area} className="space-y-1">
+            <div key={area} className="space-y-0.5">
               <div className="flex items-center gap-2 px-2">
-                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shadow-sm">
+                <span className="text-[10px] font-bold text-slate-400 bg-slate-100/50 px-1.5 py-0.5 rounded-full">
                   {area}
                 </span>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-100 to-transparent"></div>
               </div>
-              <div className="flex flex-wrap justify-center gap-2 p-1">
+              <div className="flex flex-wrap justify-center gap-1.5 p-0.5">
                 {areaTasks.map((task, index) => {
                   const isPopping = poppingTask === task.id;
                   const isCompleted = task.isCompleted;

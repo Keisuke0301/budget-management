@@ -63,42 +63,43 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex bg-slate-100 p-1 rounded-lg">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10 py-1">
+        <div className="flex bg-slate-200/50 p-0.5 rounded-lg border border-slate-200/30">
           <button
             onClick={() => setFilterMode('today')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
+            className={`px-2.5 py-1 rounded-md text-[10px] font-black transition-all duration-200 ${
               filterMode === 'today' 
               ? "bg-white text-indigo-600 shadow-sm" 
-              : "text-slate-500 hover:text-slate-700"
+              : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            <CalendarDays size={14} />
             今日
           </button>
           <button
             onClick={() => setFilterMode('recent')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${
+            className={`px-2.5 py-1 rounded-md text-[10px] font-black transition-all duration-200 ${
               filterMode === 'recent' 
               ? "bg-white text-indigo-600 shadow-sm" 
-              : "text-slate-500 hover:text-slate-700"
+              : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            <History size={14} />
-            直近30件
+            履歴
           </button>
         </div>
 
-        <Button variant="ghost" size="sm" onClick={fetchChores} disabled={loading} className="text-slate-400 h-8 gap-2 px-2">
-          <RefreshCcw size={14} className={loading ? "animate-spin" : ""} />
-          <span className="text-[11px] font-bold">更新</span>
-        </Button>
+        <button 
+          onClick={fetchChores} 
+          disabled={loading}
+          className="p-1.5 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-colors"
+        >
+          <RefreshCcw size={12} className={loading ? "animate-spin" : ""} />
+        </button>
       </div>
       
       {chores.length === 0 ? (
-        <div className="text-center text-slate-400 py-12 text-sm bg-slate-50 rounded-xl border border-dashed">
-          {filterMode === 'today' ? '今日の記録はまだありません' : '記録がありません'}
+        <div className="text-center text-slate-400 py-10 text-[11px] font-bold bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+          {filterMode === 'today' ? '今日の記録はありません' : '記録がありません'}
         </div>
       ) : (
         <ul className="divide-y divide-slate-100 border-t border-slate-100">

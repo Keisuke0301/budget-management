@@ -11,8 +11,7 @@ export const CHORE_CATEGORIES = [
       { id: "meal-1", name: "料理(昼)", score: 3, icon: "🍳" },
       { id: "meal-2", name: "料理(夜)", score: 3, icon: "🧑‍🍳" },
       { id: "meal-3", name: "料理(弁当)", score: 6, icon: "🍱" },
-      { id: "meal-4", name: "食器洗い(昼)", score: 6, icon: "🧼" },
-      { id: "meal-5", name: "食器洗い(夜)", score: 6, icon: "🧼" },
+      { id: "meal-5", name: "食器洗い", score: 6, icon: "🧼" },
       { id: "meal-6", name: "食器片付け", score: 1, icon: "🍽️" },
     ],
   },
@@ -64,7 +63,7 @@ export const CHORE_CATEGORIES = [
 
 // バブルゲーム用のフラットなリストを生成
 export const BUBBLE_TASKS = [
-  ...CHORE_CATEGORIES.find(c => c.id === "meal")!.tasks.filter(t => ["料理(昼)", "食器洗い(昼)", "料理(夜)", "食器洗い(夜)", "食器片付け"].includes(t.name)).map(t => ({ ...t, area: "食事" as const })),
+  ...CHORE_CATEGORIES.find(c => c.id === "meal")!.tasks.filter(t => ["料理(昼)", "料理(夜)", "食器洗い", "食器片付け"].includes(t.name)).map(t => ({ ...t, area: "食事" as const })),
   ...CHORE_CATEGORIES.find(c => c.id === "laundry")!.tasks.map(t => ({ ...t, area: "洗濯" as const })),
   ...CHORE_CATEGORIES.find(c => c.id === "pet")!.tasks.filter(t => ["デグえさ(朝)", "デグえさ(夜)", "魚えさ"].includes(t.name)).map(t => ({ ...t, area: "ペット" as const })),
 ];

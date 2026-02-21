@@ -7,8 +7,8 @@ export async function GET() {
     
     // カテゴリとタスクを両方取得
     const [categoriesRes, tasksRes] = await Promise.all([
-      supabase.from("chore_master_categories").select("*").order("display_order"),
-      supabase.from("chore_master_tasks").select("*").order("display_order")
+      supabase.from("chore_categories").select("*").order("display_order"),
+      supabase.from("chore_tasks").select("*").order("display_order")
     ]);
 
     if (categoriesRes.error) throw categoriesRes.error;

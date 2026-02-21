@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const supabase = getSupabaseClient();
     const { data: chores, error } = await supabase
-      .from("chores")
+      .from("chore_records")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(50);
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     });
 
     const { data, error } = await supabase
-      .from('chores')
+      .from('chore_records')
       .insert(recordsToInsert)
       .select();
 
@@ -116,7 +116,7 @@ export async function DELETE(request: Request) {
 
     const supabase = getSupabaseClient();
     const { error } = await supabase
-      .from('chores')
+      .from('chore_records')
       .delete()
       .eq('id', id);
 

@@ -63,8 +63,8 @@ export function ChoreBubbleGame({
     // 各タスクに今日の日付に基づいたスコアを割り当てる
     const scoredTasks = bubbleTasks.map(task => ({
       taskId: task.id,
-      // タスクID + 日付文字列 でハッシュを生成
-      score: getHash(task.id + dateStr)
+      // タスクIDのハッシュと日付のハッシュをXORしてスコアを生成
+      score: getHash(task.id) ^ getHash(dateStr)
     }));
 
     // 最もスコア（ハッシュ値）が高いタスクを今日の勝者とする

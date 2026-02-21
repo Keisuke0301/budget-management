@@ -106,138 +106,136 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>家事記録</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
-          
-          <div className="flex-1 overflow-y-auto space-y-4 pr-3">
-            {/* 日付選択 */}
-            <div className="space-y-2">
-              <label htmlFor="date" className="text-sm font-medium">実施日</label>
-              <input
-                type="date"
-                id="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* 担当者選択 */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">担当者 (複数選択可)</label>
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  type="button"
-                  variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
-                  className={`h-12 text-lg font-bold transition-all ${
-                    selectedAssignees.includes("けいすけ")
-                      ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200 text-white"
-                      : "border-blue-200 text-blue-600 hover:bg-blue-50"
-                  }`}
-                  onClick={() => {
-                    setSelectedAssignees(prev =>
-                      prev.includes("けいすけ")
-                        ? prev.filter(n => n !== "けいすけ")
-                        : [...prev, "けいすけ"]
-                    );
-                  }}
-                >
-                  けいすけ
-                </Button>
-                <Button
-                  type="button"
-                  variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
-                  className={`h-12 text-lg font-bold transition-all ${
-                    selectedAssignees.includes("けいこ")
-                      ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200 text-white"
-                      : "border-pink-200 text-pink-600 hover:bg-pink-50"
-                  }`}
-                  onClick={() => {
-                    setSelectedAssignees(prev =>
-                      prev.includes("けいこ")
-                        ? prev.filter(n => n !== "けいこ")
-                        : [...prev, "けいこ"]
-                    );
-                  }}
-                >
-                  けいこ
-                </Button>
-              </div>
-            </div>
+          {/* 日付選択 */}
+          <div className="space-y-2">
+            <label htmlFor="date" className="text-sm font-medium">実施日</label>
+            <input
+              type="date"
+              id="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
 
-            {/* 分類選択 */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">分類</label>
-              <div className="grid grid-cols-5 gap-1">
-                {masterData.map((category) => {
-                  const Icon = ICON_MAP[category.icon_name] || ICON_MAP.MoreHorizontal;
-                  const isSelected = selectedCategoryId === category.id;
+          {/* 担当者選択 */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">担当者 (複数選択可)</label>
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                type="button"
+                variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
+                className={`h-12 text-lg font-bold transition-all ${
+                  selectedAssignees.includes("けいすけ")
+                    ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200 text-white"
+                    : "border-blue-200 text-blue-600 hover:bg-blue-50"
+                }`}
+                onClick={() => {
+                  setSelectedAssignees(prev =>
+                    prev.includes("けいすけ")
+                      ? prev.filter(n => n !== "けいすけ")
+                      : [...prev, "けいすけ"]
+                  );
+                }}
+              >
+                けいすけ
+              </Button>
+              <Button
+                type="button"
+                variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
+                className={`h-12 text-lg font-bold transition-all ${
+                  selectedAssignees.includes("けいこ")
+                    ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200 text-white"
+                    : "border-pink-200 text-pink-600 hover:bg-pink-50"
+                }`}
+                onClick={() => {
+                  setSelectedAssignees(prev =>
+                    prev.includes("けいこ")
+                      ? prev.filter(n => n !== "けいこ")
+                      : [...prev, "けいこ"]
+                  );
+                }}
+              >
+                けいこ
+              </Button>
+            </div>
+          </div>
+
+          {/* 分類選択 */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">分類</label>
+            <div className="grid grid-cols-5 gap-1">
+              {masterData.map((category) => {
+                const Icon = ICON_MAP[category.icon_name] || ICON_MAP.MoreHorizontal;
+                const isSelected = selectedCategoryId === category.id;
+                return (
+                  <Button
+                    key={category.id}
+                    type="button"
+                    variant={isSelected ? "default" : "outline"}
+                    className={`h-14 px-0 flex flex-col items-center justify-center gap-1 transition-all ${
+                      isSelected 
+                        ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" 
+                        : "text-slate-500 border-slate-200"
+                    }`}
+                    onClick={() => handleCategorySelect(category.id)}
+                  >
+                    <Icon size={14} />
+                    <span className="text-[10px] font-bold leading-none">{category.name}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* タスク選択 (カテゴリが選択されている場合のみ表示) */}
+          {currentCategory && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+              <label className="text-sm font-medium">作業 ({currentCategory.name})</label>
+              <div className="grid grid-cols-2 gap-2">
+                {currentCategory.tasks.map((task, index) => {
+                  const isSelected = selectedTaskName === task.name;
                   return (
                     <Button
-                      key={category.id}
+                      key={index}
                       type="button"
                       variant={isSelected ? "default" : "outline"}
-                      className={`h-14 px-0 flex flex-col items-center justify-center gap-1 transition-all ${
-                        isSelected 
-                          ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" 
-                          : "text-slate-500 border-slate-200"
-                      }`}
-                      onClick={() => handleCategorySelect(category.id)}
+                      className={`h-auto py-2 px-3 justify-start text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
+                      onClick={() => setSelectedTaskName(task.name)}
                     >
-                      <Icon size={14} />
-                      <span className="text-[10px] font-bold leading-none">{category.name}</span>
+                      <div className="flex flex-col items-start w-full">
+                        <span className="text-sm font-medium">{task.name}</span>
+                        <span className="text-xs opacity-70">{task.score} pt</span>
+                      </div>
                     </Button>
                   );
                 })}
               </div>
             </div>
+          )}
 
-            {/* タスク選択 (カテゴリが選択されている場合のみ表示) */}
-            {currentCategory && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                <label className="text-sm font-medium">作業 ({currentCategory.name})</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {currentCategory.tasks.map((task, index) => {
-                    const isSelected = selectedTaskName === task.name;
-                    return (
-                      <Button
-                        key={index}
-                        type="button"
-                        variant={isSelected ? "default" : "outline"}
-                        className={`h-auto py-2 px-3 justify-start text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
-                        onClick={() => setSelectedTaskName(task.name)}
-                      >
-                        <div className="flex flex-col items-start w-full">
-                          <span className="text-sm font-medium">{task.name}</span>
-                          <span className="text-xs opacity-70">{task.score} pt</span>
-                        </div>
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* メモ入力 */}
-            <div className="space-y-2">
-              <label htmlFor="note" className="text-sm font-medium">
-                メモ (任意)
-              </label>
-              <textarea
-                id="note"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="メモがあれば入力"
-                rows={2}
-                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
+          {/* メモ入力 */}
+          <div className="space-y-2">
+            <label htmlFor="note" className="text-sm font-medium">
+              メモ (任意)
+            </label>
+            <textarea
+              id="note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="メモがあれば入力"
+              rows={2}
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            />
           </div>
-          
-          <div className="flex justify-end pt-4 mt-auto border-t">
+
+          <div className="flex justify-end pt-4">
             <Button type="submit" disabled={isSubmitting || !selectedCategoryId || !selectedTaskName || selectedAssignees.length === 0} className="w-full sm:w-auto">
               {isSubmitting ? "記録中..." : "記録する"}
             </Button>

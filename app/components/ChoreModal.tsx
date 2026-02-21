@@ -106,13 +106,13 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[95vh] p-0 overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle>家事記録</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden px-6 pb-6">
           
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2 -mr-2 min-h-0 max-h-[60vh] sm:max-h-none">
+          <div className="flex-1 overflow-y-auto space-y-4 px-1 min-h-0 max-h-[50vh] sm:max-h-none">
             {/* 日付選択 */}
             <div className="space-y-1.5">
               <label htmlFor="date" className="text-sm font-medium text-slate-500">実施日</label>

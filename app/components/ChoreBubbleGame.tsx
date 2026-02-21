@@ -28,6 +28,7 @@ export function ChoreBubbleGame({
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [poppingTask, setPoppingTask] = useState<string | null>(null);
+  const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
 
   // バブル表示対象のタスクを抽出
   const bubbleTasks = useMemo(() => {
@@ -104,6 +105,7 @@ export function ChoreBubbleGame({
 
   const handleBubbleClick = (task: MasterTask & { area: string }) => {
     setPoppingTask(task.id);
+    setSelectedAssignees([]); // Reset assignees when opening modal
     setTimeout(() => {
       setSelectedTask(task);
       setIsAssigneeModalOpen(true);
@@ -111,8 +113,11 @@ export function ChoreBubbleGame({
     }, 400);
   };
 
-  const handleRecord = async (assignee: string) => {
-    if (!selectedTask) return;
+  const handleRecord = async () => {
+    if (!selectedTask || selectedAssignees.length === 0) {
+      toast.error("担当者を1人以上選択してください。");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -120,7 +125,7 @@ export function ChoreBubbleGame({
         category: selectedTask.area,
         task: selectedTask.name,
         base_score: selectedTask.score,
-        assignee: assignee,
+        assignees: selectedAssignees,
         multiplier: selectedTask.id === bonusInfo?.taskId ? bonusInfo.multiplier : 1
       };
 
@@ -134,19 +139,18 @@ export function ChoreBubbleGame({
 
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
-      const baseScore = result.score ?? 0;
-      const totalMultiplier = result.multiplier ?? 1;
-      const finalScore = baseScore * totalMultiplier;
+      const finalScore = (payload.base_score * payload.multiplier) / selectedAssignees.length;
       
-      let toastMessage = `${selectedTask.name} (${finalScore}pt) を記録しました！\n\n${randomPraise}`;
+      let toastMessage = `${selectedTask.name} (${finalScore.toFixed(1)}pt/人) を記録しました！\n\n${randomPraise}`;
 
       // デイリーボーナスのメッセージ追加
       if (selectedTask.id === bonusInfo?.taskId) {
         toastMessage = `✨ デイリーボーナス適用！(x${bonusInfo.multiplier}) ✨\n` + toastMessage;
       }
 
-      if (result.multiplier_message) {
-        toastMessage = `${result.multiplier_message}\n` + toastMessage;
+      // APIからのレスポンスは配列で返ってくる可能性があるため、最初の要素を確認
+      if (result.length > 0 && result[0].multiplier_message) {
+        toastMessage = `${result[0].multiplier_message}\n` + toastMessage;
         toast.success(toastMessage, { duration: 5000 });
       } else {
         toast.success(toastMessage);
@@ -187,6 +191,12 @@ export function ChoreBubbleGame({
 
   const allCompleted = tasksWithStatus.every((t) => t.count >= t.order);
   const areas = Array.from(new Set(bubbleTasks.map(t => t.area)));
+
+  const handleAssigneeSelect = (name: string) => {
+    setSelectedAssignees(prev =>
+      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    );
+  };
 
   return (
     <div className="relative w-full min-h-fit overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-3 mb-4">
@@ -289,21 +299,29 @@ export function ChoreBubbleGame({
       <Dialog open={isAssigneeModalOpen} onOpenChange={setIsAssigneeModalOpen}>
         <DialogContent className="sm:max-w-[350px]">
           <DialogHeader>
-            <DialogTitle className="text-center">誰がやりましたか？</DialogTitle>
+            <DialogTitle className="text-center">誰がやりましたか？ (複数選択可)</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 pt-4">
             <Button
-              className="h-24 flex flex-col gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-200"
-              onClick={() => handleRecord("けいすけ")}
-              disabled={isSubmitting}
+              variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
+              className={`h-24 flex flex-col gap-2 font-bold rounded-2xl shadow-lg transition-all ${
+                selectedAssignees.includes("けいすけ")
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-200 ring-2 ring-blue-400'
+                  : 'bg-white hover:bg-slate-50 text-slate-800'
+              }`}
+              onClick={() => handleAssigneeSelect("けいすけ")}
             >
               <span className="text-2xl">👦</span>
               けいすけ
             </Button>
             <Button
-              className="h-24 flex flex-col gap-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-2xl shadow-lg shadow-pink-200"
-              onClick={() => handleRecord("けいこ")}
-              disabled={isSubmitting}
+              variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
+              className={`h-24 flex flex-col gap-2 font-bold rounded-2xl shadow-lg transition-all ${
+                selectedAssignees.includes("けいこ")
+                  ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-200 ring-2 ring-pink-400'
+                  : 'bg-white hover:bg-slate-50 text-slate-800'
+              }`}
+              onClick={() => handleAssigneeSelect("けいこ")}
             >
               <span className="text-2xl">👧</span>
               けいこ
@@ -315,7 +333,14 @@ export function ChoreBubbleGame({
               <span className="text-sm font-black text-amber-700">デイリーボーナス対象！ (x{bonusInfo?.multiplier})</span>
             </div>
           )}
-          <p className="text-center text-sm text-slate-500 mt-4">
+          <Button
+            onClick={handleRecord}
+            disabled={isSubmitting || selectedAssignees.length === 0}
+            className="w-full mt-4 font-bold"
+          >
+            {isSubmitting ? "記録中..." : "記録する"}
+          </Button>
+          <p className="text-center text-sm text-slate-500 mt-2">
             {selectedTask?.area} - {selectedTask?.name}
           </p>
         </DialogContent>

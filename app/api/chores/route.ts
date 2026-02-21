@@ -25,7 +25,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { category, task, note, base_score, assignee, created_at, multiplier: clientMultiplier } = await request.json();
+    const { category, task, note, base_score, assignees, created_at, multiplier: clientMultiplier } = await request.json();
 
     if (!category || !task) {
       return NextResponse.json(
@@ -33,14 +33,20 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    
+    if (!assignees || !Array.isArray(assignees) || assignees.length === 0) {
+      return NextResponse.json(
+        { error: '担当者を指定してください。' },
+        { status: 400 }
+      );
+    }
 
+    // --- 倍率とメッセージの計算をループの外に移動 ---
     let multiplier = clientMultiplier || 1;
     let multiplier_message = null;
-    let score = null;
 
     if (base_score) {
       const rand = Math.random(); // 0.0 <= rand < 1.0
-
       if (rand < 0.01) { // 1/100
         multiplier *= 10;
         multiplier_message = "\n💎爆裂大当たり！！一生分の運を使い切ったかも！！！ポイント10倍！！！";
@@ -51,38 +57,44 @@ export async function POST(request: Request) {
         multiplier *= 2;
         multiplier_message = "\n🎊ラッキーだ！運も実力うんちだ！ポイント2倍！";
       }
-
-      score = base_score; // ベーススコアを保存（表示時に multiplier を掛ける）
     }
+    // --- ここまで ---
 
-    const insertData: any = {
-      note,
-      category,
-      task,
-      score,
-      multiplier,
-      assignee
-    };
+    // スコアを人数で分割
+    const scorePerAssignee = base_score && assignees.length > 0 ? base_score / assignees.length : base_score;
 
-    if (created_at) {
-      insertData.created_at = created_at;
-    }
+    const recordsToInsert = assignees.map(assignee => {
+      const insertData: any = {
+        note,
+        category,
+        task,
+        score: scorePerAssignee,
+        multiplier, // 全員に同じ倍率を適用
+        assignee,
+      };
+      if (created_at) {
+        insertData.created_at = created_at;
+      }
+      return insertData;
+    });
 
     const { data, error } = await supabase
       .from('chores')
-      .insert([insertData])
-      .select()
-      .single();
+      .insert(recordsToInsert)
+      .select();
 
     if (error) {
       throw new Error(`家事の記録に失敗しました: ${error.message}`);
     }
 
-    // レスポンスにメッセージを含めて、フロントエンドで表示できるようにする
-    return NextResponse.json({
-      ...data,
+    // レスポンスデータに、計算したメッセージを付与する
+    const responseData = data.map(d => ({
+      ...d,
       multiplier_message
-    }, { status: 201 });
+    }));
+
+    return NextResponse.json(responseData, { status: 201 });
+
   } catch (e: unknown) {
     console.error(e);
     const message = e instanceof Error ? e.message : "Unknown error";

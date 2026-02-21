@@ -1,0 +1,2 @@
+ALTER TABLE chores
+ALTER COLUMN score TYPE REAL;

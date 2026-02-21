@@ -233,21 +233,13 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
             </div>
           </div>
 
-          <div className="pt-4 mt-2 border-t flex flex-col gap-2">
+          <div className="pt-4 mt-2 border-t">
             <Button 
               type="submit" 
               disabled={isSubmitting || !selectedCategoryId || !selectedTaskName || selectedAssignees.length === 0} 
               className="w-full font-bold h-11"
             >
               {isSubmitting ? "記録中..." : "記録する"}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              className="w-full text-slate-400 font-normal h-9"
-            >
-              キャンセル
             </Button>
           </div>
         </form>

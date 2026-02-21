@@ -198,7 +198,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
           {currentCategory && (
             <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
               <label className="text-sm font-medium">作業 ({currentCategory.name})</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-2">
                 {currentCategory.tasks.map((task, index) => {
                   const isSelected = selectedTaskName === task.name;
                   return (
@@ -206,13 +206,11 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
                       key={index}
                       type="button"
                       variant={isSelected ? "default" : "outline"}
-                      className={`h-16 py-2 px-3 flex items-center justify-center text-center ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
+                      className={`h-auto min-h-12 py-2 px-4 flex items-center justify-between w-full text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
                       onClick={() => setSelectedTaskName(task.name)}
                     >
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold">{task.name}</span>
-                        <span className="text-xs opacity-80">{task.score} pt</span>
-                      </div>
+                      <span className="text-sm font-bold">{task.name}</span>
+                      <span className="text-xs opacity-80">{task.score} pt</span>
                     </Button>
                   );
                 })}

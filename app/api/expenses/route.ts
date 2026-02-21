@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const { startOfWeek, endOfWeek } = getWeekRange(new Date());
 
     const { data: expenses, error } = await supabase
-      .from("expenses")
+      .from("expense_records")
       .select("id, created_at, category, amount")
       .gte("created_at", startOfWeek.toISOString())
       .lte("created_at", endOfWeek.toISOString())
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await supabase
-      .from('expenses')
+      .from('expense_records')
       .insert([{ category, amount: numAmount }])
       .select()
       .single(); // 追加したレコードを返す

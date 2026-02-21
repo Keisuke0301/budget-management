@@ -82,14 +82,14 @@ export async function GET(request: Request) {
     const weekNumber = Math.floor(daysFromMonthStart / 7) + 1;
 
     // --- データ取得 ---
-    const { data: budgets, error: budgetError } = await supabase
-      .from("budgets")
+    const { data: expense_budgets, error: budgetError } = await supabase
+      .from("expense_budgets")
       .select("category, amount");
 
     if (budgetError) throw new Error(`予算の取得に失敗: ${budgetError.message}`);
 
     const { data: expenses, error: expenseError } = await supabase
-      .from("expenses")
+      .from("expense_records")
       .select("created_at, category, amount")
       .gte("created_at", startOfMonth.toISOString())
       .lte("created_at", endOfMonth.toISOString());
@@ -97,8 +97,8 @@ export async function GET(request: Request) {
     if (expenseError) throw new Error(`支出記録の取得に失敗: ${expenseError.message}`);
 
     // --- データ集計 ---
-    const foodBudget = budgets.find(b => b.category === '食費')?.amount || 0;
-    const dailyGoodsBudget = budgets.find(b => b.category === '日用品')?.amount || 0;
+    const foodBudget = expense_budgets.find(b => b.category === '食費')?.amount || 0;
+    const dailyGoodsBudget = expense_budgets.find(b => b.category === '日用品')?.amount || 0;
 
     let weeklyFoodUsage = 0;
     let weeklyDailyGoodsUsage = 0;

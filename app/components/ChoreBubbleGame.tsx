@@ -27,7 +27,7 @@ export function ChoreBubbleGame({
   const [selectedTask, setSelectedTask] = useState<(MasterTask & { area: string }) | null>(null);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [poppingTask, setPoppingTask] = useState<string | null>(null);
+  const [poppingTask, setPoppingTask] = useState<number | null>(null);
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
 
   // バブル表示対象のタスクを抽出
@@ -64,15 +64,15 @@ export function ChoreBubbleGame({
     // 各タスクに今日の日付に基づいたスコアを割り当てる
     const scoredTasks = bubbleTasks.map(task => ({
       taskId: task.id,
-      // タスクIDのハッシュと日付のハッシュをXORしてスコアを生成
-      score: getHash(task.id) ^ getHash(dateStr)
+      // task.id を文字列に変換してからハッシュを計算
+      score: getHash(String(task.id)) ^ getHash(dateStr)
     }));
 
     // 最もスコア（ハッシュ値）が高いタスクを今日の勝者とする
     const winner = scoredTasks.sort((a, b) => b.score - a.score)[0];
     
     // 3倍になるかどうかも、日付と当選タスクIDの組み合わせで決定論的に決める (1/5の確率)
-    const multiplier = (getHash(winner.taskId + dateStr + "multiplier") % 5 === 0) ? 3 : 2;
+    const multiplier = (getHash(String(winner.taskId) + dateStr + "multiplier") % 5 === 0) ? 3 : 2;
     
     return {
       taskId: winner.taskId,

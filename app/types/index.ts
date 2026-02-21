@@ -10,7 +10,7 @@ export interface Chore {
 }
 
 export interface MasterTask {
-  id: string;
+  id: number;
   category_id: string;
   name: string;
   score: number;

@@ -106,136 +106,148 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[95vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle>家事記録</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          {/* 日付選択 */}
-          <div className="space-y-2">
-            <label htmlFor="date" className="text-sm font-medium">実施日</label>
-            <input
-              type="date"
-              id="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
-
-          {/* 担当者選択 */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">担当者 (複数選択可)</label>
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                type="button"
-                variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
-                className={`h-12 text-lg font-bold transition-all ${
-                  selectedAssignees.includes("けいすけ")
-                    ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200 text-white"
-                    : "border-blue-200 text-blue-600 hover:bg-blue-50"
-                }`}
-                onClick={() => {
-                  setSelectedAssignees(prev =>
-                    prev.includes("けいすけ")
-                      ? prev.filter(n => n !== "けいすけ")
-                      : [...prev, "けいすけ"]
-                  );
-                }}
-              >
-                けいすけ
-              </Button>
-              <Button
-                type="button"
-                variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
-                className={`h-12 text-lg font-bold transition-all ${
-                  selectedAssignees.includes("けいこ")
-                    ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200 text-white"
-                    : "border-pink-200 text-pink-600 hover:bg-pink-50"
-                }`}
-                onClick={() => {
-                  setSelectedAssignees(prev =>
-                    prev.includes("けいこ")
-                      ? prev.filter(n => n !== "けいこ")
-                      : [...prev, "けいこ"]
-                  );
-                }}
-              >
-                けいこ
-              </Button>
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden px-6 pb-6">
+          
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2 -mr-2 min-h-0 max-h-[60vh] sm:max-h-none">
+            {/* 日付選択 */}
+            <div className="space-y-1.5">
+              <label htmlFor="date" className="text-sm font-medium text-slate-500">実施日</label>
+              <input
+                type="date"
+                id="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
             </div>
-          </div>
 
-          {/* 分類選択 */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">分類</label>
-            <div className="grid grid-cols-5 gap-1">
-              {masterData.map((category) => {
-                const Icon = ICON_MAP[category.icon_name] || ICON_MAP.MoreHorizontal;
-                const isSelected = selectedCategoryId === category.id;
-                return (
-                  <Button
-                    key={category.id}
-                    type="button"
-                    variant={isSelected ? "default" : "outline"}
-                    className={`h-14 px-0 flex flex-col items-center justify-center gap-1 transition-all ${
-                      isSelected 
-                        ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" 
-                        : "text-slate-500 border-slate-200"
-                    }`}
-                    onClick={() => handleCategorySelect(category.id)}
-                  >
-                    <Icon size={14} />
-                    <span className="text-[10px] font-bold leading-none">{category.name}</span>
-                  </Button>
-                );
-              })}
+            {/* 担当者選択 */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-500">担当者 (複数可)</label>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
+                  className={`h-10 text-base font-bold transition-all ${
+                    selectedAssignees.includes("けいすけ")
+                      ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200 text-white"
+                      : "border-blue-200 text-blue-600 hover:bg-blue-50"
+                  }`}
+                  onClick={() => {
+                    setSelectedAssignees(prev =>
+                      prev.includes("けいすけ")
+                        ? prev.filter(n => n !== "けいすけ")
+                        : [...prev, "けいすけ"]
+                    );
+                  }}
+                >
+                  けいすけ
+                </Button>
+                <Button
+                  type="button"
+                  variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
+                  className={`h-10 text-base font-bold transition-all ${
+                    selectedAssignees.includes("けいこ")
+                      ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200 text-white"
+                      : "border-pink-200 text-pink-600 hover:bg-pink-50"
+                  }`}
+                  onClick={() => {
+                    setSelectedAssignees(prev =>
+                      prev.includes("けいこ")
+                        ? prev.filter(n => n !== "けいこ")
+                        : [...prev, "けいこ"]
+                    );
+                  }}
+                >
+                  けいこ
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* タスク選択 (カテゴリが選択されている場合のみ表示) */}
-          {currentCategory && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-              <label className="text-sm font-medium">作業 ({currentCategory.name})</label>
-              <div className="flex flex-col gap-1">
-                {currentCategory.tasks.map((task, index) => {
-                  const isSelected = selectedTaskName === task.name;
+            {/* 分類選択 */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-500">分類</label>
+              <div className="grid grid-cols-5 gap-1">
+                {masterData.map((category) => {
+                  const Icon = ICON_MAP[category.icon_name] || ICON_MAP.MoreHorizontal;
+                  const isSelected = selectedCategoryId === category.id;
                   return (
                     <Button
-                      key={index}
+                      key={category.id}
                       type="button"
                       variant={isSelected ? "default" : "outline"}
-                      className={`h-auto min-h-9 py-1 px-4 flex items-center justify-between w-full text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
-                      onClick={() => setSelectedTaskName(task.name)}
+                      className={`h-12 px-0 flex flex-col items-center justify-center gap-1 transition-all ${
+                        isSelected 
+                          ? "ring-2 ring-offset-1 ring-blue-500 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" 
+                          : "text-slate-500 border-slate-200"
+                      }`}
+                      onClick={() => handleCategorySelect(category.id)}
                     >
-                      <span className="text-xs font-bold">{task.name}</span>
-                      <span className="text-xs opacity-80">{task.score} pt</span>
+                      <Icon size={14} />
+                      <span className="text-[10px] font-bold leading-none">{category.name}</span>
                     </Button>
                   );
                 })}
               </div>
             </div>
-          )}
 
-          {/* メモ入力 */}
-          <div className="space-y-2">
-            <label htmlFor="note" className="text-sm font-medium">
-              メモ (任意)
-            </label>
-            <input
-              type="text"
-              id="note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="メモがあれば入力"
-              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            />
+            {/* タスク選択 (カテゴリが選択されている場合のみ表示) */}
+            {currentCategory && (
+              <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
+                <label className="text-sm font-medium text-slate-500">作業 ({currentCategory.name})</label>
+                <div className="flex flex-col gap-1">
+                  {currentCategory.tasks.map((task, index) => {
+                    const isSelected = selectedTaskName === task.name;
+                    return (
+                      <Button
+                        key={index}
+                        type="button"
+                        variant={isSelected ? "default" : "outline"}
+                        className={`h-auto min-h-8 py-1 px-4 flex items-center justify-between w-full text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
+                        onClick={() => setSelectedTaskName(task.name)}
+                      >
+                        <span className="text-xs font-bold">{task.name}</span>
+                        <span className="text-xs opacity-80">{task.score} pt</span>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* メモ入力 */}
+            <div className="space-y-1.5">
+              <label htmlFor="note" className="text-sm font-medium text-slate-500">メモ (任意)</label>
+              <input
+                type="text"
+                id="note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="メモがあれば入力"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            </div>
           </div>
 
-          <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSubmitting || !selectedCategoryId || !selectedTaskName || selectedAssignees.length === 0} className="w-full sm:w-auto">
+          <div className="pt-4 mt-2 border-t flex flex-col gap-2">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !selectedCategoryId || !selectedTaskName || selectedAssignees.length === 0} 
+              className="w-full font-bold h-11"
+            >
               {isSubmitting ? "記録中..." : "記録する"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onClose}
+              className="w-full text-slate-400 font-normal h-9"
+            >
+              キャンセル
             </Button>
           </div>
         </form>

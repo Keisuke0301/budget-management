@@ -24,7 +24,7 @@ interface ChoreModalProps {
 export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModalProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTaskName, setSelectedTaskName] = useState<string | null>(null);
-  const [selectedAssignee, setSelectedAssignee] = useState<string | null>(null);
+  const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,8 +44,8 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentCategory || !currentTask) {
-      toast.error("分類とタスクを選択してください。");
+    if (!currentCategory || !currentTask || selectedAssignees.length === 0) {
+      toast.error("分類、タスク、担当者を選択してください。");
       return;
     }
 
@@ -61,7 +61,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
         task: currentTask.name,
         base_score: currentTask.score,
         note,
-        assignee: selectedAssignee,
+        assignees: selectedAssignees,
         created_at: createdAt,
       };
 
@@ -77,11 +77,14 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
-      const score = result.score ?? 0;
-      let toastMessage = `${currentTask.name} (${score}pt) を記録しました！\n\n${randomPraise}`;
+      
+      // 複数人登録の場合、APIは配列を返すことを想定
+      const firstResult = Array.isArray(result) ? result[0] : result;
+      const score = firstResult.score ?? 0;
+      let toastMessage = `${currentTask.name} (${score.toFixed(1)}pt) を記録しました！\n\n${randomPraise}`;
 
-      if (result.multiplier && result.multiplier > 1 && result.multiplier_message) {
-        toastMessage = `${result.multiplier_message}\n` + toastMessage;
+      if (firstResult.multiplier && firstResult.multiplier > 1 && firstResult.multiplier_message) {
+        toastMessage = `${firstResult.multiplier_message}\n` + toastMessage;
         toast.success(toastMessage, { duration: 5000 });
       } else {
         toast.success(toastMessage);
@@ -89,7 +92,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
       setSelectedCategoryId(null);
       setSelectedTaskName(null);
-      setSelectedAssignee(null);
+      setSelectedAssignees([]);
       setNote("");
       onSuccess();
       onClose();
@@ -123,29 +126,41 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
           {/* 担当者選択 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">担当者</label>
+            <label className="text-sm font-medium">担当者 (複数選択可)</label>
             <div className="grid grid-cols-2 gap-4">
               <Button
                 type="button"
-                variant={selectedAssignee === "けいすけ" ? "default" : "outline"}
+                variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
                 className={`h-12 text-lg font-bold transition-all ${
-                  selectedAssignee === "けいすけ"
-                    ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200"
+                  selectedAssignees.includes("けいすけ")
+                    ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200 text-white"
                     : "border-blue-200 text-blue-600 hover:bg-blue-50"
                 }`}
-                onClick={() => setSelectedAssignee("けいすけ")}
+                onClick={() => {
+                  setSelectedAssignees(prev =>
+                    prev.includes("けいすけ")
+                      ? prev.filter(n => n !== "けいすけ")
+                      : [...prev, "けいすけ"]
+                  );
+                }}
               >
                 けいすけ
               </Button>
               <Button
                 type="button"
-                variant={selectedAssignee === "けいこ" ? "default" : "outline"}
+                variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
                 className={`h-12 text-lg font-bold transition-all ${
-                  selectedAssignee === "けいこ"
-                    ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200"
+                  selectedAssignees.includes("けいこ")
+                    ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200 text-white"
                     : "border-pink-200 text-pink-600 hover:bg-pink-50"
                 }`}
-                onClick={() => setSelectedAssignee("けいこ")}
+                onClick={() => {
+                  setSelectedAssignees(prev =>
+                    prev.includes("けいこ")
+                      ? prev.filter(n => n !== "けいこ")
+                      : [...prev, "けいこ"]
+                  );
+                }}
               >
                 けいこ
               </Button>
@@ -221,7 +236,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSubmitting || !selectedCategoryId || !selectedTaskName || !selectedAssignee} className="w-full sm:w-auto">
+            <Button type="submit" disabled={isSubmitting || !selectedCategoryId || !selectedTaskName || selectedAssignees.length === 0} className="w-full sm:w-auto">
               {isSubmitting ? "記録中..." : "記録する"}
             </Button>
           </div>

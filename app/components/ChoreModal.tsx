@@ -206,12 +206,12 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
                       key={index}
                       type="button"
                       variant={isSelected ? "default" : "outline"}
-                      className={`h-auto py-2 px-3 justify-start text-left ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
+                      className={`h-16 py-2 px-3 flex items-center justify-center text-center ${isSelected ? "ring-2 ring-offset-1 ring-green-500 bg-green-50 text-green-700 border-green-200 hover:bg-green-100" : ""}`}
                       onClick={() => setSelectedTaskName(task.name)}
                     >
-                      <div className="flex flex-col items-start w-full">
-                        <span className="text-sm font-medium">{task.name}</span>
-                        <span className="text-xs opacity-70">{task.score} pt</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold">{task.name}</span>
+                        <span className="text-xs opacity-80">{task.score} pt</span>
                       </div>
                     </Button>
                   );
@@ -225,13 +225,13 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
             <label htmlFor="note" className="text-sm font-medium">
               メモ (任意)
             </label>
-            <textarea
+            <input
+              type="text"
               id="note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="メモがあれば入力"
-              rows={2}
-              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 

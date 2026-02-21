@@ -588,3 +588,15 @@ button:not([data-slot]):hover {
 }
 /* ▲▲▲ ここまで ▲▲▲ */
 /* ▲▲▲ ここまで ▲▲▲ */
+
+@keyframes rare-border-anim {
+  0% { border-color: #ec4899; }
+  25% { border-color: #f59e0b; }
+  50% { border-color: #84cc16; }
+  75% { border-color: #3b82f6; }
+  100% { border-color: #ec4899; }
+}
+.rare-bubble-border {
+  border-width: 2px;
+  animation: rare-border-anim 2s linear infinite;
+}

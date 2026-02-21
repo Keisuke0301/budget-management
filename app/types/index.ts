@@ -18,6 +18,7 @@ export interface MasterTask {
   is_repeatable: boolean;
   is_bubble: boolean;
   display_order: number;
+  is_rare?: boolean;
 }
 
 export interface MasterCategory {

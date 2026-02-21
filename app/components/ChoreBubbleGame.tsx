@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { Chore, MasterCategory, MasterTask } from "@/app/types";
 import { Button } from "@/components/ui/button";
-import { isToday } from "date-fns";
+import { isToday, format } from "date-fns";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
 import {
   Dialog,
@@ -13,6 +13,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Sparkles, Check } from "lucide-react";
+
+// 文字列から数値のハッシュを生成する簡易関数
+const getHash = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // 32bit整数に変換
+  }
+  return Math.abs(hash);
+};
 
 export function ChoreBubbleGame({ 
   onUpdate, 
@@ -29,13 +40,15 @@ export function ChoreBubbleGame({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [poppingTask, setPoppingTask] = useState<string | null>(null);
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
+  const [appearedRareBubbles, setAppearedRareBubbles] = useState<(MasterTask & { area: string })[]>([]);
 
   // バブル表示対象のタスクを抽出
   const bubbleTasks = useMemo(() => {
     const tasks: (MasterTask & { area: string })[] = [];
     masterData.forEach(cat => {
+      if (cat.id === 'bonus') return;
       cat.tasks.forEach(task => {
-        if (task.is_bubble) {
+        if (task.is_bubble && !task.is_rare) {
           tasks.push({ ...task, area: cat.name });
         }
       });
@@ -43,16 +56,15 @@ export function ChoreBubbleGame({
     return tasks;
   }, [masterData]);
 
-  // 文字列から数値のハッシュを生成する簡易関数
-  const getHash = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // 32bit整数に変換
-    }
-    return Math.abs(hash);
-  };
+  // レアキャラ候補をDBから抽出
+  const rareCandidates = useMemo(() => {
+    const bonusCategory = masterData.find(cat => cat.id === 'bonus');
+    if (!bonusCategory) return [];
+    
+    return bonusCategory.tasks
+      .filter(task => task.is_rare)
+      .map(task => ({ ...task, area: bonusCategory.name }));
+  }, [masterData]);
 
   // 今日のボーナスタスクを決定 (項目の増減に左右されないハッシュ方式)
   const bonusInfo = useMemo(() => {
@@ -103,6 +115,31 @@ export function ChoreBubbleGame({
     fetchTodayChores();
   }, [fetchTodayChores, refreshTrigger]);
 
+  // 今日の履歴取得後、未完了のレアキャラを確率で出現させる
+  useEffect(() => {
+    // 履歴取得が完了し、かつレアキャラ候補がDBからロードされてから実行
+    if ((Object.keys(completedCounts).length === 0 && refreshTrigger === 0) || rareCandidates.length === 0) return;
+
+    const now = new Date();
+    const todayStr = format(now, 'yyyy-MM-dd');
+    const spawnedBubbles: (MasterTask & { area: string })[] = [];
+
+    rareCandidates.forEach(char => {
+      const isAlreadyDone = (completedCounts[`${char.area}-${char.name}`] || 0) > 0;
+      if (isAlreadyDone) return;
+
+      const seed = getHash(todayStr + char.id);
+      if ((seed % 100) < 20) { // 20%の確率
+        spawnedBubbles.push(char);
+      }
+    });
+    setAppearedRareBubbles(spawnedBubbles);
+  }, [completedCounts, refreshTrigger, rareCandidates]);
+  
+  const allTasks = useMemo(() => {
+    return [...bubbleTasks, ...appearedRareBubbles];
+  }, [bubbleTasks, appearedRareBubbles]);
+
   const handleBubbleClick = (task: MasterTask & { area: string }) => {
     setPoppingTask(task.id);
     setSelectedAssignees([]); // Reset assignees when opening modal
@@ -121,12 +158,14 @@ export function ChoreBubbleGame({
 
     setIsSubmitting(true);
     try {
+      const isRare = selectedTask.is_rare === true;
+
       const payload = {
         category: selectedTask.area,
         task: selectedTask.name,
         base_score: selectedTask.score,
         assignees: selectedAssignees,
-        multiplier: selectedTask.id === bonusInfo?.taskId ? bonusInfo.multiplier : 1
+        multiplier: !isRare && selectedTask.id === bonusInfo?.taskId ? bonusInfo.multiplier : 1
       };
 
       const response = await fetch("/api/chores", {
@@ -136,24 +175,28 @@ export function ChoreBubbleGame({
       });
 
       if (!response.ok) throw new Error("記録に失敗しました。");
-
-      const result = await response.json();
-      const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
-      const finalScore = (payload.base_score * payload.multiplier) / selectedAssignees.length;
       
-      let toastMessage = `${selectedTask.name} (${finalScore.toFixed(1)}pt/人) を記録しました！\n\n${randomPraise}`;
+      const result = await response.json();
 
-      // デイリーボーナスのメッセージ追加
-      if (selectedTask.id === bonusInfo?.taskId) {
-        toastMessage = `✨ デイリーボーナス適用！(x${bonusInfo.multiplier}) ✨\n` + toastMessage;
-      }
-
-      // APIからのレスポンスは配列で返ってくる可能性があるため、最初の要素を確認
-      if (result.length > 0 && result[0].multiplier_message) {
-        toastMessage = `${result[0].multiplier_message}\n` + toastMessage;
-        toast.success(toastMessage, { duration: 5000 });
+      if (isRare) {
+        toast.success(`レアキャラ発見！ ${selectedTask.name}で ${selectedTask.score}pt ゲット！ ${selectedTask.icon}`, {
+          duration: 5000,
+        });
       } else {
-        toast.success(toastMessage);
+        const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+        const finalScore = (payload.base_score * payload.multiplier) / selectedAssignees.length;
+        let toastMessage = `${selectedTask.name} (${finalScore.toFixed(1)}pt/人) を記録しました！\n\n${randomPraise}`;
+
+        if (selectedTask.id === bonusInfo?.taskId) {
+          toastMessage = `✨ デイリーボーナス適用！(x${bonusInfo.multiplier}) ✨\n` + toastMessage;
+        }
+
+        if (result.length > 0 && result[0].multiplier_message) {
+          toastMessage = `${result[0].multiplier_message}\n` + toastMessage;
+          toast.success(toastMessage, { duration: 5000 });
+        } else {
+          toast.success(toastMessage);
+        }
       }
 
       setIsAssigneeModalOpen(false);
@@ -168,8 +211,8 @@ export function ChoreBubbleGame({
   };
 
   // 各タスクにその種類内での出現順序を割り当てる
-  const tasksWithOrder = bubbleTasks.map((task, index) => {
-    const previousSameTasks = bubbleTasks.slice(0, index).filter(
+  const tasksWithOrder = allTasks.map((task, index) => {
+    const previousSameTasks = allTasks.slice(0, index).filter(
       t => t.area === task.area && t.name === task.name
     );
     return { ...task, order: previousSameTasks.length + 1 };
@@ -179,18 +222,26 @@ export function ChoreBubbleGame({
     const count = completedCounts[`${t.area}-${t.name}`] || 0;
     const isRepeatable = t.is_repeatable === true;
     const isBonus = t.id === bonusInfo?.taskId;
+    const isRare = t.is_rare === true;
+
     return {
       ...t,
       count,
       isRepeatable,
       isBonus,
+      isRare,
       bonusMultiplier: isBonus ? bonusInfo?.multiplier : 1,
       isCompleted: isRepeatable ? false : count >= t.order,
     };
   });
 
-  const allCompleted = tasksWithStatus.every((t) => t.count >= t.order);
-  const areas = Array.from(new Set(bubbleTasks.map(t => t.area)));
+  const allCompleted = tasksWithStatus.every((t) => t.isCompleted);
+  const areas = Array.from(new Set(allTasks.map(t => t.area)))
+    .sort((a, b) => {
+      if (a === 'ボーナス') return 1;
+      if (b === 'ボーナス') return -1;
+      return 0;
+    });
 
   const handleAssigneeSelect = (name: string) => {
     setSelectedAssignees(prev =>
@@ -231,9 +282,12 @@ export function ChoreBubbleGame({
                 {areaTasks.map((task, index) => {
                   const isPopping = poppingTask === task.id;
                   const isCompleted = task.isCompleted;
+                  const isRare = task.isRare;
+                  
                   const animIndex = (index % 4) + 1;
                   const delay = (index * 0.3) % 2;
-                  const duration = 4 + (index % 3);
+                  let duration = 4 + (index % 3);
+                  if (isRare) duration = 1.5; // レアキャラは動きを速くする
 
                   return (
                     <button
@@ -243,14 +297,15 @@ export function ChoreBubbleGame({
                       disabled={isPopping || task.isCompleted}
                       className={`
                         relative w-[60px] h-[60px] rounded-full flex flex-col items-center justify-center
-                        bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
+                        bg-white/40 backdrop-blur-sm shadow-lg
                         transition-all duration-300
-                        ${task.isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
+                        ${isCompleted ? 'grayscale opacity-40 scale-90' : 'hover:scale-110 active:scale-95'}
                         ${isPopping ? 'animate-ping opacity-0 scale-150' : ''}
-                        ${task.count > 0 && !task.isCompleted ? 'border-emerald-200/50 ring-2 ring-emerald-500/10' : ''}
+                        ${task.count > 0 && !isCompleted ? 'border-emerald-200/50 ring-2 ring-emerald-500/10' : ''}
+                        ${isRare && !isCompleted ? 'rare-bubble-border' : 'border border-white/60'}
                       `}
                       style={{
-                        animation: task.isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
+                        animation: isCompleted ? 'none' : `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
                       }}
                     >
                       <span className="text-xl mb-0">{task.icon}</span>

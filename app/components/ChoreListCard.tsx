@@ -9,7 +9,15 @@ import { ja } from "date-fns/locale";
 import { toast } from "sonner";
 import { Chore } from "@/app/types";
 
-export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrigger: number, onDeleteSuccess?: () => void }) {
+export function ChoreListCard({ 
+  refreshTrigger, 
+  onDeleteSuccess,
+  view = 'today'
+}: { 
+  refreshTrigger: number, 
+  onDeleteSuccess?: () => void,
+  view?: 'today' | 'history'
+}) {
   const [chores, setChores] = useState<Chore[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -18,15 +26,23 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
     try {
       const res = await fetch("/api/chores");
       if (!res.ok) throw new Error("家事ログの取得に失敗しました");
-      const data = await res.json();
+      const data: Chore[] = await res.json();
       
       if (Array.isArray(data)) {
-        // ガチャを除外し、当日のデータのみに絞り込む
-        const filteredData = data
-          .filter((chore: Chore) => chore.category !== 'ガチャ')
-          .filter((chore: Chore) => 
+        // ガチャを除外
+        let filteredData = data.filter((chore: Chore) => chore.category !== 'ガチャ');
+
+        if (view === 'today') {
+          // 当日のデータのみ
+          filteredData = filteredData.filter((chore: Chore) => 
             chore.created_at && isToday(new Date(chore.created_at))
           );
+        } else {
+          // 今日以外のデータを新しい順に20件
+          filteredData = filteredData
+            .filter((chore: Chore) => chore.created_at && !isToday(new Date(chore.created_at)))
+            .slice(0, 20);
+        }
         setChores(filteredData);
       } else {
         setChores([]);
@@ -38,7 +54,7 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [view]);
 
   useEffect(() => {
     fetchChores();
@@ -62,7 +78,7 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
     <div className="space-y-3">
       {chores.length === 0 ? (
         <div className="text-center text-slate-400 py-10 text-[11px] font-bold bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-          今日の記録はありません
+          {view === 'today' ? '今日の記録はありません' : '過去の記録はありません'}
         </div>
       ) : (
         <ul className="divide-y divide-slate-100 border-t border-slate-100">

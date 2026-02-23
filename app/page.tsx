@@ -16,7 +16,7 @@ import { Trophy } from 'lucide-react';
 import { MasterCategory, Chore, Totals, PetInfo } from './types';
 import RewardsScreen from './components/RewardsScreen';
 import Gacha from './components/Gacha';
-import PetLogScreen, { PetAddModal, PetHistoryModal, PetRecordModal } from './components/PetLogScreen';
+import PetLogScreen, { PetAddModal, PetHistoryModal, PetRecordModal, PetEditModal } from './components/PetLogScreen';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -52,6 +52,7 @@ export default function Home() {
   const [isPetAddModalOpen, setIsPetAddModalOpen] = useState(false);
   const [isPetHistoryModalOpen, setIsPetHistoryModalOpen] = useState(false);
   const [isPetRecordModalOpen, setIsPetRecordModalOpen] = useState(false);
+  const [isPetEditModalOpen, setIsPetEditModalOpen] = useState(false);
   const [selectedPet, setSelectedPet] = useState<PetInfo | null>(null);
   const [petRefreshTrigger, setPetRefreshTrigger] = useState(0);
 
@@ -148,6 +149,10 @@ export default function Home() {
             setIsPetHistoryModalOpen(true);
           }}
           onOpenAddPet={() => setIsPetAddModalOpen(true)}
+          onOpenEdit={(pet) => {
+            setSelectedPet(pet);
+            setIsPetEditModalOpen(true);
+          }}
           refreshTrigger={petRefreshTrigger}
         />
       );
@@ -287,6 +292,12 @@ export default function Home() {
       <PetRecordModal 
         isOpen={isPetRecordModalOpen} 
         onClose={() => setIsPetRecordModalOpen(false)} 
+        pet={selectedPet}
+        onSuccess={() => setPetRefreshTrigger(Date.now())}
+      />
+      <PetEditModal 
+        isOpen={isPetEditModalOpen} 
+        onClose={() => setIsPetEditModalOpen(false)} 
         pet={selectedPet}
         onSuccess={() => setPetRefreshTrigger(Date.now())}
       />

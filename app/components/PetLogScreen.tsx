@@ -361,15 +361,154 @@ export function PetAddModal({
   );
 }
 
+// --- ペット編集モーダル ---
+export function PetEditModal({ 
+  isOpen, 
+  onClose, 
+  pet,
+  onSuccess 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  pet: PetInfo | null;
+  onSuccess: () => void;
+}) {
+  const [editPet, setEditPet] = useState({ 
+    name: '', 
+    species: '', 
+    emoji_icon: '🐭', 
+    acquisition_date: '',
+    birthday: '',
+    quantity: '1'
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (pet) {
+      setEditPet({
+        name: pet.name || '',
+        species: pet.species,
+        emoji_icon: pet.emoji_icon,
+        acquisition_date: pet.acquisition_date || '',
+        birthday: pet.birthday || '',
+        quantity: pet.quantity?.toString() || '1'
+      });
+    }
+  }, [pet, isOpen]);
+
+  const handleUpdatePet = async () => {
+    if (!pet) return;
+    if (!editPet.species) {
+      toast.error('種類を入力してください');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/pets', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: pet.id,
+          ...editPet,
+          quantity: editPet.quantity ? parseInt(editPet.quantity) : 1,
+          name: editPet.name || null,
+          acquisition_date: editPet.acquisition_date || null,
+          birthday: editPet.birthday || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success('情報を更新しました');
+      onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error('更新に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeletePet = async () => {
+    if (!pet) return;
+    if (!confirm(`${pet.name || pet.species}のデータを削除しますか？\n（この操作は取り消せません）`)) return;
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/pets?id=${pet.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      toast.success('削除しました');
+      onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error('削除に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="rounded-3xl sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="font-black text-center">ペット情報の編集</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">種類 <span className="text-red-500">*</span></label>
+              <Input value={editPet.species} onChange={e => setEditPet({...editPet, species: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">名前 (任意)</label>
+              <Input value={editPet.name} onChange={e => setEditPet({...editPet, name: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            </div>
+          </div>
+          
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 ml-1">数量</label>
+            <Input type="number" value={editPet.quantity} onChange={e => setEditPet({...editPet, quantity: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">誕生日 (任意)</label>
+              <Input type="date" value={editPet.birthday} onChange={e => setEditPet({...editPet, birthday: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">お迎え日 (任意)</label>
+              <Input type="date" value={editPet.acquisition_date} onChange={e => setEditPet({...editPet, acquisition_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 ml-1">アイコン (絵文字)</label>
+            <Input value={editPet.emoji_icon} onChange={e => setEditPet({...editPet, emoji_icon: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 text-center text-xl" />
+          </div>
+
+          <div className="flex flex-col gap-2 mt-4">
+            <Button onClick={handleUpdatePet} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg">
+              {isSubmitting ? '更新中...' : '情報を更新する'}
+            </Button>
+            <Button variant="ghost" onClick={handleDeletePet} disabled={isSubmitting} className="w-full h-10 text-red-400 hover:text-red-500 hover:bg-red-50 font-bold">
+              <Trash2 size={16} className="mr-2" /> データを削除する
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function PetLogScreen({ 
   onOpenRecord,
   onOpenHistory,
   onOpenAddPet,
+  onOpenEdit,
   refreshTrigger 
 }: { 
   onOpenRecord: (pet: PetInfo) => void;
   onOpenHistory: (pet: PetInfo) => void;
   onOpenAddPet: () => void;
+  onOpenEdit: (pet: PetInfo) => void;
   refreshTrigger: number;
 }) {
   const [pets, setPets] = useState<PetInfo[]>([]);
@@ -427,14 +566,17 @@ export default function PetLogScreen({
                     key={pet.id}
                     className="flex items-center gap-3 py-2 px-3 hover:bg-slate-50/50 transition-colors group"
                   >
-                    {/* 1. アイコン */}
-                    <div className="w-8 text-center text-xl shrink-0">
-                      {pet.emoji_icon}
-                    </div>
-                    
-                    {/* 2. 名前 */}
-                    <div className="flex-1 font-bold text-slate-700 truncate min-w-0 text-sm">
-                      {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
+                    {/* 1. アイコン & 2. 名前 (クリックで編集) */}
+                    <div 
+                      onClick={() => onOpenEdit(pet)}
+                      className="flex flex-1 items-center gap-3 cursor-pointer min-w-0"
+                    >
+                      <div className="w-8 text-center text-xl shrink-0">
+                        {pet.emoji_icon}
+                      </div>
+                      <div className="font-bold text-slate-700 truncate min-w-0 text-sm">
+                        {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
+                      </div>
                     </div>
 
                     {/* 3. お迎え日 */}

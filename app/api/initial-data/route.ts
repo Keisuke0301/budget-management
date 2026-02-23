@@ -96,6 +96,12 @@ export async function GET(request: Request) {
 
     if (expenseError) throw new Error(`支出記録の取得に失敗: ${expenseError.message}`);
 
+    // --- ペットデータの取得 ---
+    const [petsRes, petItemsRes] = await Promise.all([
+      supabase.from("pet_info").select("*").order("created_at", { ascending: true }),
+      supabase.from("pet_items").select("*").order("display_order", { ascending: true })
+    ]);
+
     // --- データ集計 ---
     const foodBudget = expense_budgets.find(b => b.category === '食費')?.amount || 0;
     const dailyGoodsBudget = expense_budgets.find(b => b.category === '日用品')?.amount || 0;
@@ -134,7 +140,9 @@ export async function GET(request: Request) {
       startOfWeekTime: startOfWeek.getTime(),
       endOfWeekTime: endOfWeek.getTime(),
       startOfMonthTime: startOfMonth.getTime(),
-      endOfMonthTime: endOfMonth.getTime()
+      endOfMonthTime: endOfMonth.getTime(),
+      pets: petsRes.data || [],
+      petItems: petItemsRes.data || []
     };
 
     return NextResponse.json(responseData);

@@ -512,37 +512,22 @@ export function PetEditModal({
 }
 
 export default function PetLogScreen({ 
+  pets,
+  isLoading,
   onOpenRecord,
   onOpenHistory,
   onOpenAddPet,
   onOpenEdit,
   refreshTrigger 
 }: { 
+  pets: PetInfo[];
+  isLoading: boolean;
   onOpenRecord: (pet: PetInfo) => void;
   onOpenHistory: (pet: PetInfo) => void;
   onOpenAddPet: () => void;
   onOpenEdit: (pet: PetInfo) => void;
   refreshTrigger: number;
 }) {
-  const [pets, setPets] = useState<PetInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchPets = useCallback(async () => {
-    try {
-      const res = await fetch('/api/pets');
-      const data: PetInfo[] = await res.json();
-      setPets(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchPets();
-  }, [fetchPets, refreshTrigger]);
-
   const alivePets = useMemo(() => pets.filter(p => p.status === 'alive'), [pets]);
   const memorialPets = useMemo(() => pets.filter(p => p.status === 'memorial'), [pets]);
 

@@ -34,6 +34,8 @@ export interface InitialData {
   endOfWeekTime: number;
   startOfMonthTime: number;
   endOfMonthTime: number;
+  pets: PetInfo[];
+  petItems: PetItem[];
 }
 
 export default function Home() {
@@ -55,29 +57,12 @@ export default function Home() {
   const [isPetEditModalOpen, setIsPetEditModalOpen] = useState(false);
   const [selectedPet, setSelectedPet] = useState<PetInfo | null>(null);
   const [petRefreshTrigger, setPetRefreshTrigger] = useState(0);
+  const [pets, setPets] = useState<PetInfo[]>([]);
   const [petItems, setPetItems] = useState<PetItem[]>([]);
 
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
   const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet'>('chores');
-
-  // ペットの記録項目を取得
-  const fetchPetItems = useCallback(async () => {
-    try {
-      const res = await fetch('/api/pets/items');
-      if (!res.ok) return;
-      const data = await res.json();
-      setPetItems(data);
-    } catch (e) {
-      console.error('Failed to fetch pet items:', e);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === 'pet' && petItems.length === 0) {
-      fetchPetItems();
-    }
-  }, [activeTab, petItems.length, fetchPetItems]);
 
   const fetchChoreTotals = useCallback(async () => {
     try {
@@ -119,6 +104,8 @@ export default function Home() {
       const choreMasterResult = await choreMasterRes.json();
 
       setData(initResult);
+      setPets(initResult.pets || []);
+      setPetItems(initResult.petItems || []);
       setChoreMasterData(choreMasterResult);
       setDataUpdatedAt(Date.now());
       
@@ -141,6 +128,11 @@ export default function Home() {
     fetchChoreTotals();
   };
 
+  const handlePetUpdate = () => {
+    setPetRefreshTrigger(Date.now());
+    fetchData(); // ペット更新時も全体データを再取得してpetsステートを同期
+  };
+
   const renderContent = () => {
     // 初回ロード時のみスケルトンを表示
     if (loading && !data) {
@@ -159,6 +151,8 @@ export default function Home() {
     if (activeTab === 'pet') {
       return (
         <PetLogScreen 
+          pets={pets}
+          isLoading={loading && pets.length === 0}
           onOpenRecord={(pet) => {
             setSelectedPet(pet);
             setIsPetRecordModalOpen(true);
@@ -301,26 +295,26 @@ export default function Home() {
       <PetAddModal 
         isOpen={isPetAddModalOpen} 
         onClose={() => setIsPetAddModalOpen(false)} 
-        onSuccess={() => setPetRefreshTrigger(Date.now())} 
+        onSuccess={handlePetUpdate} 
       />
       <PetHistoryModal 
         isOpen={isPetHistoryModalOpen} 
         onClose={() => setIsPetHistoryModalOpen(false)} 
         pet={selectedPet} 
-        onRefresh={() => setPetRefreshTrigger(Date.now())}
+        onRefresh={handlePetUpdate}
       />
       <PetRecordModal 
         isOpen={isPetRecordModalOpen} 
         onClose={() => setIsPetRecordModalOpen(false)} 
         pet={selectedPet}
         recordItems={petItems}
-        onSuccess={() => setPetRefreshTrigger(Date.now())}
+        onSuccess={handlePetUpdate}
       />
       <PetEditModal 
         isOpen={isPetEditModalOpen} 
         onClose={() => setIsPetEditModalOpen(false)} 
         pet={selectedPet}
-        onSuccess={() => setPetRefreshTrigger(Date.now())}
+        onSuccess={handlePetUpdate}
       />
     </>
   );

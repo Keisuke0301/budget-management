@@ -525,7 +525,6 @@ export default function PetLogScreen({
   refreshTrigger: number;
 }) {
   const [pets, setPets] = useState<PetInfo[]>([]);
-  const [latestWeights, setLatestWeights] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPets = useCallback(async () => {
@@ -533,20 +532,6 @@ export default function PetLogScreen({
       const res = await fetch('/api/pets');
       const data: PetInfo[] = await res.json();
       setPets(data);
-
-      // 最新の体重記録を取得
-      const weightPromises = data.map(async (pet) => {
-        const r = await fetch(`/api/pets/records?petId=${pet.id}`);
-        const records: PetRecord[] = await r.json();
-        const weightRecord = records.find(rec => rec.record_type === '体重');
-        return { id: pet.id, weight: weightRecord ? `${weightRecord.numeric_value}${weightRecord.unit}` : null };
-      });
-      const weights = await Promise.all(weightPromises);
-      const weightMap: Record<number, string> = {};
-      weights.forEach(w => {
-        if (w.weight) weightMap[w.id] = w.weight;
-      });
-      setLatestWeights(weightMap);
     } catch (error) {
       console.error(error);
     } finally {
@@ -615,17 +600,7 @@ export default function PetLogScreen({
                       </div>
                     </div>
 
-                    {/* 2. 最新の体重 */}
-                    {!isMemorial && latestWeights[pet.id] && (
-                      <div className="shrink-0 text-right">
-                        <span className="text-[10px] font-black text-slate-400 block leading-none mb-0.5">最新</span>
-                        <span className="text-xs font-bold text-slate-600 tabular-nums leading-none">
-                          {latestWeights[pet.id]}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* 3. 数量 */}
+                    {/* 2. 数量 */}
                     <div className="flex flex-col items-end shrink-0 w-8">
                       <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
                       <span className="text-[11px] font-medium text-slate-500 leading-none">
@@ -633,7 +608,7 @@ export default function PetLogScreen({
                       </span>
                     </div>
 
-                    {/* 4. お迎え日 */}
+                    {/* 3. お迎え日 */}
                     <div className="flex flex-col items-end shrink-0 min-w-[60px]">
                       <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">
                         {isMemorial ? 'お別れ日' : 'お迎え日'}

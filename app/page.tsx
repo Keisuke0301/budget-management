@@ -143,6 +143,10 @@ export default function Home() {
       );
     }
 
+    if (!data) {
+      return <p className="text-center p-8 text-slate-400">データがありません。</p>;
+    }
+
     return (
       <>
         <CalendarCard data={data} />

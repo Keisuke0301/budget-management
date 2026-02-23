@@ -23,44 +23,33 @@ export function PetRecordModal({
   isOpen, 
   onClose, 
   pet, 
+  recordItems,
   onSuccess 
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   pet: PetInfo | null;
+  recordItems: PetItem[];
   onSuccess: () => void;
 }) {
   const [newRecord, setNewRecord] = useState({ 
-    record_type: '体重', 
+    record_type: '', 
     numeric_value: '', 
-    unit: 'g', 
+    unit: '', 
     note: '',
     recorded_at: format(new Date(), 'yyyy-MM-dd')
   });
-  const [recordItems, setRecordItems] = useState<PetItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const res = await fetch('/api/pets/items');
-        const data = await res.json();
-        setRecordItems(data);
-        if (data.length > 0) {
-          setNewRecord(prev => ({ 
-            ...prev, 
-            record_type: data[0].label, 
-            unit: data[0].unit || '' 
-          }));
-        }
-      } catch (error) {
-        console.error('Failed to fetch pet items:', error);
-      }
-    };
-    if (isOpen) {
-      fetchItems();
+    if (isOpen && recordItems.length > 0 && !newRecord.record_type) {
+      setNewRecord(prev => ({ 
+        ...prev, 
+        record_type: recordItems[0].label, 
+        unit: recordItems[0].unit || '' 
+      }));
     }
-  }, [isOpen]);
+  }, [isOpen, recordItems, newRecord.record_type]);
 
   const handleAddRecord = async () => {
     if (!pet) return;

@@ -109,7 +109,6 @@ export function PetRecordModal({
       <DialogContent className="rounded-3xl sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="font-black flex items-center gap-2">
-            <span className="text-2xl">{pet?.emoji_icon}</span>
             {(pet?.name || pet?.species)}の記録
           </DialogTitle>
         </DialogHeader>
@@ -218,7 +217,6 @@ export function PetHistoryModal({
       <DialogContent className="rounded-3xl sm:max-w-[450px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-black flex items-center gap-2 border-b pb-2">
-            <span className="text-2xl">{pet?.emoji_icon}</span>
             {(pet?.name || pet?.species)}の履歴
           </DialogTitle>
         </DialogHeader>
@@ -269,7 +267,6 @@ export function PetAddModal({
   const [newPet, setNewPet] = useState({ 
     name: '', 
     species: '', 
-    emoji_icon: '🐭', 
     acquisition_date: '',
     birthday: '',
     quantity: '1'
@@ -300,7 +297,6 @@ export function PetAddModal({
       setNewPet({ 
         name: '', 
         species: '', 
-        emoji_icon: '🐭', 
         acquisition_date: '', 
         birthday: '', 
         quantity: '1' 
@@ -347,11 +343,6 @@ export function PetAddModal({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">アイコン (絵文字)</label>
-            <Input value={newPet.emoji_icon} onChange={e => setNewPet({...newPet, emoji_icon: e.target.value})} placeholder="🐭" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 text-center text-xl" />
-          </div>
-
           <Button onClick={handleAddPet} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg mt-4">
             {isSubmitting ? '登録中...' : '登録する'}
           </Button>
@@ -376,7 +367,6 @@ export function PetEditModal({
   const [editPet, setEditPet] = useState({ 
     name: '', 
     species: '', 
-    emoji_icon: '🐭', 
     acquisition_date: '',
     birthday: '',
     quantity: '1'
@@ -388,7 +378,6 @@ export function PetEditModal({
       setEditPet({
         name: pet.name || '',
         species: pet.species,
-        emoji_icon: pet.emoji_icon,
         acquisition_date: pet.acquisition_date || '',
         birthday: pet.birthday || '',
         quantity: pet.quantity?.toString() || '1'
@@ -479,11 +468,6 @@ export function PetEditModal({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">アイコン (絵文字)</label>
-            <Input value={editPet.emoji_icon} onChange={e => setEditPet({...editPet, emoji_icon: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 text-center text-xl" />
-          </div>
-
           <div className="flex flex-col gap-2 mt-4">
             <Button onClick={handleUpdatePet} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg">
               {isSubmitting ? '更新中...' : '情報を更新する'}
@@ -566,14 +550,11 @@ export default function PetLogScreen({
                     key={pet.id}
                     className="flex items-center gap-3 py-2 px-3 hover:bg-slate-50/50 transition-colors group"
                   >
-                    {/* 1. アイコン & 2. 名前 (クリックで編集) */}
+                    {/* 1. 名前 (クリックで編集) */}
                     <div 
                       onClick={() => onOpenEdit(pet)}
                       className="flex flex-1 items-center gap-3 cursor-pointer min-w-0"
                     >
-                      <div className="w-8 text-center text-xl shrink-0">
-                        {pet.emoji_icon}
-                      </div>
                       <div className="font-bold text-slate-700 truncate min-w-0 text-sm">
                         {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
                       </div>

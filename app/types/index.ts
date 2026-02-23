@@ -19,7 +19,6 @@ export interface PetInfo {
   id: number;
   name: string | null;
   species: string;
-  emoji_icon: string;
   acquisition_date: string | null;
   birthday: string | null;
   quantity: number | null;

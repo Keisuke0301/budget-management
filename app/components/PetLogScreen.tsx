@@ -564,7 +564,7 @@ export default function PetLogScreen({
                     <div className="flex flex-col items-end shrink-0 min-w-[70px]">
                       <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">お迎え日</span>
                       <span className="text-[11px] text-slate-400 tabular-nums leading-none">
-                        {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yyyy/MM/dd') : '-'}
+                        {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yy/MM/dd') : '-'}
                       </span>
                     </div>
 

@@ -38,12 +38,28 @@ export async function POST(request: Request) {
 
     if (recordError) throw recordError;
 
-    // 2. もし記録タイプが「お別れ」なら、ペットのステータスを memorial に更新
+    // 2. もし記録タイプが「お別れ」なら、ペットの数量を減らし、0になったら memorial に更新
     if (body.record_type === 'お別れ') {
-      await supabase
+      // 現在の情報を取得
+      const { data: petInfo } = await supabase
         .from('pet_info')
-        .update({ status: 'memorial' })
-        .eq('id', body.pet_id);
+        .select('quantity')
+        .eq('id', body.pet_id)
+        .single();
+
+      if (petInfo) {
+        const newQuantity = Math.max(0, (petInfo.quantity || 1) - 1);
+        const updateData: { quantity: number; status?: string } = { quantity: newQuantity };
+        
+        if (newQuantity === 0) {
+          updateData.status = 'memorial';
+        }
+
+        await supabase
+          .from('pet_info')
+          .update(updateData)
+          .eq('id', body.pet_id);
+      }
     }
 
     return NextResponse.json(recordData[0]);

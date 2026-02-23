@@ -596,7 +596,15 @@ export default function PetLogScreen({
                       </div>
                     )}
 
-                    {/* 3. お迎え日 */}
+                    {/* 3. 数量 */}
+                    <div className="flex flex-col items-end shrink-0 w-8">
+                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
+                      <span className="text-[11px] font-medium text-slate-500 leading-none">
+                        {pet.quantity ? `${pet.quantity}匹` : '1匹'}
+                      </span>
+                    </div>
+
+                    {/* 4. お迎え日 */}
                     <div className="flex flex-col items-end shrink-0 min-w-[60px]">
                       <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">
                         {isMemorial ? 'お別れ日' : 'お迎え日'}

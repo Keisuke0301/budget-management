@@ -37,7 +37,7 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
         "けいこ": { totalPoints: 0, count: 0 }
       };
 
-      data.forEach(chore => {
+      data.filter(chore => chore.category !== 'ガチャ').forEach(chore => {
         const assignee = chore.assignee || "不明";
         if (!newStats[assignee]) {
           newStats[assignee] = { totalPoints: 0, count: 0 };

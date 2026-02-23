@@ -425,8 +425,7 @@ export default function PetLogScreen({
                 {groupedPets[species].map((pet) => (
                   <li 
                     key={pet.id}
-                    onClick={() => onOpenRecord(pet)}
-                    className="flex items-center gap-3 py-3 px-3 hover:bg-slate-50 transition-colors cursor-pointer group text-left"
+                    className="flex items-center gap-3 py-2 px-3 hover:bg-slate-50/50 transition-colors group"
                   >
                     {/* 1. アイコン */}
                     <div className="w-8 text-center text-xl shrink-0">
@@ -447,11 +446,33 @@ export default function PetLogScreen({
                     </div>
 
                     {/* 4. 数量 */}
-                    <div className="flex flex-col items-end shrink-0 w-10">
+                    <div className="flex flex-col items-end shrink-0 w-8">
                       <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
                       <span className="text-[11px] font-medium text-slate-500 leading-none">
                         {pet.quantity ? `${pet.quantity}匹` : '1匹'}
                       </span>
+                    </div>
+
+                    {/* 5. アクションボタン */}
+                    <div className="flex items-center gap-1 shrink-0 ml-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onOpenHistory(pet)}
+                        className="h-8 w-8 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-full"
+                        title="履歴を確認"
+                      >
+                        <ClipboardList size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onOpenRecord(pet)}
+                        className="h-8 w-8 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-full"
+                        title="記録を追加"
+                      >
+                        <Plus size={18} />
+                      </Button>
                     </div>
                   </li>
                 ))}

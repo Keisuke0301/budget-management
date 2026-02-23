@@ -19,7 +19,7 @@ const rarityColors: { [key: string]: string } = {
   UR: 'bg-purple-100 text-purple-700 border-purple-200',
 };
 
-export default function RewardsScreen() {
+export default function RewardsScreen({ refreshTrigger }: { refreshTrigger: number }) {
   const [rewards, setRewards] = useState<AggregatedReward[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -55,8 +55,10 @@ export default function RewardsScreen() {
           }
           aggregated[name].count += 1;
           if (aggregated[name].totalValue !== undefined) {
-             const val = parseInt(name.match(/\d+/)![0]);
-             aggregated[name].totalValue! += val;
+             const valMatch = name.match(/\d+/);
+             if (valMatch) {
+               aggregated[name].totalValue! += parseInt(valMatch[0]);
+             }
           }
         }
       });
@@ -66,56 +68,43 @@ export default function RewardsScreen() {
     };
 
     fetchRewards();
-  }, []);
+  }, [refreshTrigger]);
 
-  if (isLoading) return <div className="p-12 text-center font-bold text-slate-400">読み込み中...</div>;
+  if (isLoading) return <div className="p-8 text-center font-bold text-slate-400 text-xs">読み込み中...</div>;
 
   return (
-    <div className="p-4 pb-24 space-y-6">
-      <div className="flex items-center gap-3 px-2">
-        <div className="p-2 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-200">
-            <Gift className="text-white" size={24} />
-        </div>
-        <div>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">獲得したご褒美</h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Owned Rewards</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 px-1">
+        <Gift className="text-indigo-500" size={18} />
+        <h3 className="text-sm font-black text-slate-700 uppercase tracking-wider">獲得済みの報酬</h3>
       </div>
 
       {rewards.length === 0 ? (
-        <Card className="border-dashed border-2 bg-slate-50/50">
-            <CardContent className="py-12 flex flex-col items-center justify-center text-slate-400">
-                <Award size={48} className="mb-4 opacity-20" />
-                <p className="font-bold">まだ報酬はありません</p>
-                <p className="text-xs">ガチャを回してご褒美をゲットしよう！</p>
-            </CardContent>
-        </Card>
+        <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100">
+            <Award size={32} className="mb-2 opacity-20" />
+            <p className="text-[10px] font-bold uppercase tracking-widest">No Rewards Yet</p>
+        </div>
       ) : (
-        <div className="grid gap-4 grid-cols-2">
+        <div className="grid gap-2 grid-cols-2">
           {rewards.map(reward => (
-            <Card key={reward.name} className="overflow-hidden border-2 border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className={`h-1.5 ${rarityColors[reward.rarity]?.split(' ')[0] || 'bg-slate-200'}`} />
-              <CardHeader className="p-4 pb-0">
-                <div className="flex justify-between items-start mb-1">
-                   <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${rarityColors[reward.rarity] || 'bg-slate-100'}`}>
-                    {reward.rarity}
-                  </span>
-                  <span className="text-xs font-black text-slate-400">x{reward.count}</span>
-                </div>
-                <CardTitle className="text-sm font-bold text-slate-700 leading-tight">
-                    {reward.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-2">
-                {reward.totalValue !== undefined && (
-                    <div className="flex items-center gap-1 text-indigo-600">
-                        <Coins size={14} />
-                        <span className="text-lg font-black">{reward.totalValue.toLocaleString()}</span>
-                        <span className="text-[10px] font-bold">円分</span>
-                    </div>
-                )}
-              </CardContent>
-            </Card>
+            <div key={reward.name} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-1">
+              <div className="flex justify-between items-start">
+                 <span className={`text-[8px] font-black px-1.5 py-0.2 rounded-full border ${rarityColors[reward.rarity] || 'bg-slate-100'}`}>
+                  {reward.rarity}
+                </span>
+                <span className="text-[10px] font-black text-slate-300 italic">x{reward.count}</span>
+              </div>
+              <p className="text-[11px] font-bold text-slate-600 leading-tight line-clamp-2 min-h-[2.2em]">
+                  {reward.name}
+              </p>
+              {reward.totalValue !== undefined && (
+                  <div className="mt-1 pt-1 border-t border-slate-50 flex items-center gap-1 text-indigo-500">
+                      <Coins size={10} />
+                      <span className="text-xs font-black">{reward.totalValue.toLocaleString()}</span>
+                      <span className="text-[8px] font-bold uppercase">Yen</span>
+                  </div>
+              )}
+            </div>
           ))}
         </div>
       )}

@@ -7,13 +7,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Chore } from "@/app/types";
-import { Trophy, User, Hash } from "lucide-react";
+import { Chore, Totals } from "@/app/types";
+import { Trophy, User, Hash, Gift, BarChart3 } from "lucide-react";
+import Gacha from "./Gacha";
+import RewardsScreen from "./RewardsScreen";
+import { Button } from "@/components/ui/button";
 
 interface ChoreStatsModalProps {
   isOpen: boolean;
   onClose: () => void;
   refreshTrigger: number;
+  totals: Totals;
+  onGachaDraw: () => void;
 }
 
 interface Stats {
@@ -21,9 +26,10 @@ interface Stats {
   count: number;
 }
 
-export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsModalProps) {
+export function ChoreStatsModal({ isOpen, onClose, refreshTrigger, totals, onGachaDraw }: ChoreStatsModalProps) {
   const [stats, setStats] = useState<Record<string, Stats>>({});
   const [loading, setLoading] = useState(false);
+  const [activeView, setActiveView] = useState<'stats' | 'rewards'>('stats');
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -39,7 +45,6 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
 
       data.filter(chore => chore.category !== 'ガチャ').forEach(chore => {
         const assignee = chore.assignee || "不明";
-        // 表示用に日本語に変換
         const displayName = (assignee === 'keisuke' || assignee === 'けいすけ') ? 'けいすけ' : 
                           (assignee === 'keiko' || assignee === 'けいこ') ? 'けいこ' : assignee;
         
@@ -67,48 +72,92 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Trophy className="text-amber-500" />
-            家事実績ランキング
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto p-0 rounded-3xl border-none">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <Trophy className="text-amber-500" size={20} />
+                <span className="font-black tracking-tight">家事実績 ＆ ご褒美</span>
+            </div>
+            <div className="flex bg-slate-100 p-1 rounded-xl">
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setActiveView('stats')}
+                    className={`h-8 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeView === 'stats' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                    <BarChart3 size={14} className="mr-1" />
+                    Stats
+                </Button>
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setActiveView('rewards')}
+                    className={`h-8 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeView === 'rewards' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                    <Gift size={14} className="mr-1" />
+                    Rewards
+                </Button>
+            </div>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {Object.entries(stats).map(([name, data]) => (
-            <div key={name} className="relative overflow-hidden bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full ${name === 'けいすけ' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'}`}>
-                    <User size={20} />
-                  </div>
-                  <span className="font-bold text-lg">{name}</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-slate-400 font-medium">累計スコア</p>
-                  <p className="text-2xl font-black text-slate-800 tracking-tight">
-                    {data.totalPoints.toLocaleString()}<span className="text-sm font-bold ml-1">pt</span>
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4 text-sm text-slate-500 bg-slate-50/50 p-2 rounded-lg">
-                <div className="flex items-center gap-1">
-                  <Hash size={14} />
-                  <span>家事回数: <span className="font-bold text-slate-700">{data.count}</span> 回</span>
-                </div>
-                <div className="h-3 w-[1px] bg-slate-200"></div>
-                <div>
-                  <span>平均: <span className="font-bold text-slate-700">{data.count > 0 ? Math.round(data.totalPoints / data.count) : 0}</span> pt</span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="p-6 pt-2 space-y-6">
+          {activeView === 'stats' ? (
+            <div className="space-y-4">
+              {Object.entries(stats).map(([name, data]) => {
+                const assigneeKey = name === 'けいすけ' ? 'keisuke' : 'keiko';
+                const currentPoints = totals[assigneeKey];
 
-          {loading && (
-            <div className="text-center py-8 text-slate-400">
-              集計中...
+                return (
+                  <div key={name} className="relative overflow-hidden bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2.5 rounded-2xl ${name === 'けいすけ' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'}`}>
+                          <User size={20} />
+                        </div>
+                        <div>
+                            <span className="font-black text-lg block leading-none">{name}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assignee</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total Points</p>
+                        <p className="text-2xl font-black text-slate-800 tracking-tighter">
+                          {currentPoints.toLocaleString()}<span className="text-xs font-bold ml-1 italic text-slate-400">pt</span>
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 bg-slate-50/80 p-3 rounded-2xl">
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <Hash size={12} className="text-slate-300" />
+                        <span>家事回数: <span className="text-slate-700 font-black">{data.count}</span></span>
+                      </div>
+                      <div className="h-4 w-[1px] bg-slate-200"></div>
+                      <div className="flex-1">
+                        <span>平均スコア: <span className="text-slate-700 font-black">{data.count > 0 ? Math.round(data.totalPoints / data.count) : 0}</span></span>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                        <Gacha 
+                            assignee={assigneeKey} 
+                            points={currentPoints} 
+                            onGachaDraw={onGachaDraw} 
+                        />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <RewardsScreen refreshTrigger={refreshTrigger} />
+          )}
+
+          {loading && (activeView === 'stats') && (
+            <div className="text-center py-12 text-slate-300 animate-pulse text-xs font-bold tracking-[0.2em] uppercase">
+              Analyzing Data...
             </div>
           )}
         </div>

@@ -48,7 +48,7 @@ export default function Home() {
   const [isChoreStatsModalOpen, setIsChoreStatsModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'rewards'>('chores');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('chores');
 
   const fetchChoreTotals = useCallback(async () => {
     try {
@@ -127,19 +127,9 @@ export default function Home() {
       return <p className="text-center p-8 text-red-500 font-bold">エラー: {error}</p>;
     }
 
-    if (activeTab === 'rewards') {
-        return <RewardsScreen />;
-    }
-
-    if (!data) {
-      return <p>データがありません。</p>;
-    }
-
     if (activeTab === 'chores') {
       return (
         <div className="flex flex-col gap-6">
-          <Gacha totals={choreTotals} onGachaDraw={handleChoreUpdate} />
-          
           {choreMasterData.length > 0 && (
             <ChoreBubbleGame 
               onUpdate={handleChoreUpdate} 
@@ -263,6 +253,8 @@ export default function Home() {
         isOpen={isChoreStatsModalOpen}
         onClose={() => setIsChoreStatsModalOpen(false)}
         refreshTrigger={choreRefreshTrigger}
+        totals={choreTotals}
+        onGachaDraw={handleChoreUpdate}
       />
     </>
   );

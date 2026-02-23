@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     // 1. ガチャの景品をDBから取得
     const { data: prizes, error: prizesError } = await supabase
-      .from('gacha_prizes')
+      .from('chore_gachaprizes')
       .select('*');
 
     if (prizesError || !prizes || prizes.length === 0) {

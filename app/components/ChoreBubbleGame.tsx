@@ -303,25 +303,25 @@ export function ChoreBubbleGame({
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 pt-4">
             <Button
-              variant={selectedAssignees.includes("keisuke") ? "default" : "outline"}
+              variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
               className={`h-24 flex flex-col gap-2 font-bold rounded-2xl shadow-lg transition-all ${
-                selectedAssignees.includes("keisuke")
+                selectedAssignees.includes("けいすけ")
                   ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-blue-200 ring-2 ring-blue-400'
                   : 'bg-white hover:bg-slate-50 text-slate-800'
               }`}
-              onClick={() => handleAssigneeSelect("keisuke")}
+              onClick={() => handleAssigneeSelect("けいすけ")}
             >
               <span className="text-2xl">👦</span>
               けいすけ
             </Button>
             <Button
-              variant={selectedAssignees.includes("keiko") ? "default" : "outline"}
+              variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
               className={`h-24 flex flex-col gap-2 font-bold rounded-2xl shadow-lg transition-all ${
-                selectedAssignees.includes("keiko")
+                selectedAssignees.includes("けいこ")
                   ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-pink-200 ring-2 ring-pink-400'
                   : 'bg-white hover:bg-slate-50 text-slate-800'
               }`}
-              onClick={() => handleAssigneeSelect("keiko")}
+              onClick={() => handleAssigneeSelect("けいこ")}
             >
               <span className="text-2xl">👧</span>
               けいこ

@@ -33,8 +33,8 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
       const data: Chore[] = await res.json();
 
       const newStats: Record<string, Stats> = {
-        "keisuke": { totalPoints: 0, count: 0 },
-        "keiko": { totalPoints: 0, count: 0 }
+        "けいすけ": { totalPoints: 0, count: 0 },
+        "けいこ": { totalPoints: 0, count: 0 }
       };
 
       data.filter(chore => chore.category !== 'ガチャ').forEach(chore => {
@@ -76,10 +76,10 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
             <div key={name} className="relative overflow-hidden bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full ${name === 'keisuke' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'}`}>
+                  <div className={`p-2 rounded-full ${name === 'けいすけ' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'}`}>
                     <User size={20} />
                   </div>
-                  <span className="font-bold text-lg">{name === 'keisuke' ? 'けいすけ' : 'けいこ'}</span>
+                  <span className="font-bold text-lg">{name}</span>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-slate-400 font-medium">累計スコア</p>

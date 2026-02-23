@@ -89,11 +89,11 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
                 {/* 担当者 */}
                 {chore.assignee && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
-                    chore.assignee === 'keisuke' ? 'bg-blue-50 text-blue-500' :
-                    chore.assignee === 'keiko' ? 'bg-pink-50 text-pink-500' :
+                    chore.assignee === 'けいすけ' ? 'bg-blue-50 text-blue-500' :
+                    chore.assignee === 'けいこ' ? 'bg-pink-50 text-pink-500' :
                     'bg-slate-50 text-slate-500'
                   }`}>
-                    {chore.assignee === 'keisuke' ? 'けいすけ' : chore.assignee === 'keiko' ? 'けいこ' : chore.assignee}
+                    {chore.assignee.slice(0, 4)}
                   </span>
                 )}
                 

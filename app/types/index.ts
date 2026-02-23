@@ -22,7 +22,6 @@ export interface PetInfo {
   emoji_icon: string;
   acquisition_date: string | null;
   birthday: string | null;
-  price: number | null;
   quantity: number | null;
   created_at: string;
 }

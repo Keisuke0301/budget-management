@@ -45,6 +45,7 @@ export function PetRecordModal({
     { label: '水温', unit: '℃' },
     { label: '気温', unit: '℃' },
     { label: '日記', unit: '' },
+    { label: 'お別れ', unit: '' },
     { label: 'その他', unit: '' },
   ];
 
@@ -239,7 +240,6 @@ export function PetAddModal({
     emoji_icon: '🐭', 
     acquisition_date: '',
     birthday: '',
-    price: '',
     quantity: '1'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -256,7 +256,6 @@ export function PetAddModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...newPet,
-          price: newPet.price ? parseInt(newPet.price) : null,
           quantity: newPet.quantity ? parseInt(newPet.quantity) : 1,
           name: newPet.name || null,
           acquisition_date: newPet.acquisition_date || null,
@@ -272,7 +271,6 @@ export function PetAddModal({
         emoji_icon: '🐭', 
         acquisition_date: '', 
         birthday: '', 
-        price: '', 
         quantity: '1' 
       });
       toast.success('ペットを登録しました');
@@ -301,15 +299,9 @@ export function PetAddModal({
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">数量</label>
-              <Input type="number" value={newPet.quantity} onChange={e => setNewPet({...newPet, quantity: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">購入価格 (任意)</label>
-              <Input type="number" value={newPet.price} onChange={e => setNewPet({...newPet, price: e.target.value})} placeholder="0" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
-            </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 ml-1">数量</label>
+            <Input type="number" value={newPet.quantity} onChange={e => setNewPet({...newPet, quantity: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -415,18 +407,19 @@ export default function PetLogScreen({
                     </div>
 
                     {/* 3. お迎え日 */}
-                    <div className="text-[11px] text-slate-400 shrink-0 tabular-nums">
-                       {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yyyy/MM/dd') : '-'}
+                    <div className="flex flex-col items-end shrink-0 min-w-[70px]">
+                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">お迎え日</span>
+                      <span className="text-[11px] text-slate-400 tabular-nums leading-none">
+                        {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yyyy/MM/dd') : '-'}
+                      </span>
                     </div>
 
                     {/* 4. 数量 */}
-                    <div className="text-[11px] font-medium text-slate-500 shrink-0 w-10 text-right">
-                      {pet.quantity ? `${pet.quantity}匹` : '1匹'}
-                    </div>
-
-                    {/* 5. 金額 */}
-                    <div className="text-[11px] font-bold text-slate-700 shrink-0 w-16 text-right tabular-nums">
-                       {pet.price ? `¥${pet.price.toLocaleString()}` : '-'}
+                    <div className="flex flex-col items-end shrink-0 w-10">
+                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
+                      <span className="text-[11px] font-medium text-slate-500 leading-none">
+                        {pet.quantity ? `${pet.quantity}匹` : '1匹'}
+                      </span>
                     </div>
                   </li>
                 ))}

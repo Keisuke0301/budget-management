@@ -402,33 +402,33 @@ export default function PetLogScreen({
                   <button 
                     key={pet.id}
                     onClick={() => onOpenRecord(pet)}
-                    className="w-full flex items-center p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm text-left"
+                    className="w-full grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors text-sm text-left bg-white"
                   >
                     {/* 1. アイコン */}
-                    <div className="w-8 text-center text-lg mr-3 shrink-0">
+                    <div className="text-lg leading-none w-8 text-center">
                       {pet.emoji_icon}
                     </div>
                     
                     {/* 2. 名前 */}
-                    <div className="flex-1 font-bold text-slate-700 truncate mr-2">
+                    <div className="font-bold text-slate-700 truncate min-w-0">
                       {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
                     </div>
 
                     {/* 3. お迎え日 */}
-                    <div className="text-xs text-slate-400 shrink-0 text-right mr-3 hidden sm:block">
+                    <div className="text-xs text-slate-400 whitespace-nowrap text-right hidden sm:block">
                        {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yyyy/MM/dd') : '-'}
                     </div>
-                    <div className="text-xs text-slate-400 shrink-0 text-right mr-3 sm:hidden">
+                    <div className="text-xs text-slate-400 whitespace-nowrap text-right sm:hidden">
                        {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yy/MM/dd') : '-'}
                     </div>
 
                     {/* 4. 数量 */}
-                    <div className="text-xs font-medium text-slate-500 shrink-0 text-right mr-3 w-10">
+                    <div className="text-xs font-medium text-slate-500 whitespace-nowrap text-right w-10">
                       {pet.quantity ? `${pet.quantity}匹` : '1匹'}
                     </div>
 
                     {/* 5. 金額 */}
-                    <div className="text-xs font-bold text-slate-700 shrink-0 text-right w-16">
+                    <div className="text-xs font-bold text-slate-700 text-right whitespace-nowrap min-w-[3rem]">
                        {pet.price ? `¥${pet.price.toLocaleString()}` : '-'}
                     </div>
                   </button>

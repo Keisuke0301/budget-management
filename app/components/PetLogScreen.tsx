@@ -379,61 +379,67 @@ export default function PetLogScreen({
   const speciesList = Object.keys(groupedPets);
 
   return (
-    <div className="relative w-full min-h-fit overflow-hidden bg-gradient-to-b from-blue-50/30 to-white rounded-3xl border border-blue-100/50 p-3 mb-4">
-      <div className="absolute inset-0 pointer-events-none opacity-50">
-        <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-blue-100 rounded-full blur-[80px]"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-pink-100 rounded-full blur-[80px]"></div>
-      </div>
-
-      <div className="relative z-10 space-y-4 p-1">
-        {isLoading ? (
-          <div className="text-center py-20 text-slate-400 font-bold animate-pulse">読込中...</div>
-        ) : speciesList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-white/50 rounded-3xl border-2 border-dashed border-slate-100 mx-2">
-            <p className="font-bold">ペットが登録されていません</p>
-            <p className="text-xs text-center px-4 mt-1">右下の＋ボタンからペットを登録して始めましょう！</p>
-          </div>
-        ) : (
-          speciesList.map((species, sIdx) => (
-            <div key={species} className="space-y-1.5">
-              <div className="flex items-center gap-2 px-2">
-                <span className="text-[10px] font-bold text-slate-400 bg-slate-100/50 px-2 py-0.5 rounded-full uppercase tracking-widest">
-                  {species}
-                </span>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-100 to-transparent"></div>
-              </div>
-              <div className="flex flex-wrap justify-center gap-4 p-2">
-                {groupedPets[species].map((pet, pIdx) => {
-                  const animIndex = (pIdx % 4) + 1;
-                  const delay = (pIdx * 0.4) % 2;
-                  const duration = 5 + (pIdx % 3);
-
-                  return (
+    <div className="w-full space-y-6 pb-24">
+      <div className="relative overflow-hidden bg-white rounded-3xl border border-slate-100 p-1 shadow-sm">
+        <div className="relative z-10 space-y-6 p-4">
+          {isLoading ? (
+            <div className="text-center py-20 text-slate-400 font-bold animate-pulse">読込中...</div>
+          ) : speciesList.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200">
+              <p className="font-bold">ペットが登録されていません</p>
+              <p className="text-xs text-center px-4 mt-1">右下の＋ボタンからペットを登録して始めましょう！</p>
+            </div>
+          ) : (
+            speciesList.map((species) => (
+              <div key={species} className="space-y-3">
+                <div className="flex items-center gap-2 px-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-100 px-2 py-0.5 rounded">
+                    {species}
+                  </span>
+                  <div className="h-[1px] flex-1 bg-slate-100"></div>
+                </div>
+                <div className="grid gap-2">
+                  {groupedPets[species].map((pet) => (
                     <button
                       key={pet.id}
                       onClick={() => onOpenRecord(pet)}
-                      className={`
-                        relative w-[76px] h-[76px] rounded-full flex flex-col items-center justify-center
-                        bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg
-                        transition-all duration-300 hover:scale-110 active:scale-95
-                      `}
-                      style={{
-                        animation: `float-${animIndex} ${duration}s ease-in-out ${delay}s infinite alternate`,
-                      }}
+                      className="flex items-center gap-3 p-3 bg-slate-50/50 hover:bg-blue-50 transition-all rounded-2xl border border-slate-100 group text-left w-full overflow-hidden"
                     >
-                      <span className="text-3xl mb-0">{pet.emoji_icon}</span>
-                      <span className="text-[9px] font-black text-slate-700 px-1 text-center leading-[1.1] truncate w-full">
-                        {pet.name || pet.species}
-                        {pet.quantity && pet.quantity > 1 && ` x${pet.quantity}`}
+                      <span className="text-2xl bg-white w-12 h-12 flex items-center justify-center rounded-xl shadow-sm border border-slate-100 group-hover:scale-110 transition-transform shrink-0">
+                        {pet.emoji_icon}
                       </span>
-                      <div className="absolute top-2 left-5 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
+                      <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-x-4 min-w-0">
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-black text-slate-700 truncate">
+                            {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
+                          </span>
+                          <div className="flex items-center gap-2 mt-0.5 sm:mt-0">
+                            {pet.acquisition_date && (
+                              <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 shrink-0">
+                                <Calendar size={10} />
+                                {format(new Date(pet.acquisition_date), 'yyyy/MM/dd')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1 sm:mt-0 shrink-0">
+                          {pet.price !== null && (
+                            <span className="text-[11px] font-black text-indigo-500 whitespace-nowrap bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">
+                              ¥{pet.price.toLocaleString()}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-black bg-white px-2 py-0.5 rounded-lg border border-slate-100 text-slate-400 italic whitespace-nowrap">
+                            x{pet.quantity || 1}
+                          </span>
+                        </div>
+                      </div>
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

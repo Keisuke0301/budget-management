@@ -379,49 +379,49 @@ export default function PetLogScreen({
   const speciesList = Object.keys(groupedPets);
 
   return (
-    <div className="w-full space-y-4 pb-24">
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="divide-y divide-slate-50">
-          {isLoading ? (
-            <div className="text-center py-20 text-slate-400 font-bold animate-pulse text-sm">読込中...</div>
-          ) : speciesList.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 bg-slate-50/30">
-              <p className="font-bold text-sm">ペットが登録されていません</p>
-              <p className="text-[11px] text-center px-4 mt-1 opacity-70">右下の＋ボタンからペットを登録しましょう</p>
-            </div>
-          ) : (
-            speciesList.map((species) => (
-              <div key={species} className="p-3 space-y-2">
-                <div className="flex items-center gap-2 px-1 mb-1">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">
-                    {species}
-                  </span>
-                  <div className="h-[1px] flex-1 bg-slate-50"></div>
-                </div>
-                <div className="space-y-1">
-                  {groupedPets[species].map((pet) => (
+    <div className="w-full space-y-2 pb-24">
+      {isLoading ? (
+        <div className="text-center py-20 text-slate-400 font-bold animate-pulse text-sm">読込中...</div>
+      ) : speciesList.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400 bg-slate-50/30 rounded-3xl border-2 border-dashed border-slate-200">
+          <p className="font-bold text-sm">ペットが登録されていません</p>
+          <p className="text-[11px] text-center px-4 mt-1 opacity-70">右下の＋ボタンからペットを登録しましょう</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {speciesList.map((species) => (
+            <div key={species} className="space-y-1">
+              <div className="flex items-center gap-2 px-2 py-1">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  {species}
+                </span>
+                <div className="h-[1px] flex-1 bg-slate-100"></div>
+              </div>
+              <ul className="divide-y divide-slate-100">
+                {groupedPets[species].map((pet) => (
+                  <li key={pet.id}>
                     <button
-                      key={pet.id}
                       onClick={() => onOpenRecord(pet)}
-                      className="flex items-center gap-3 p-2 hover:bg-slate-50 active:bg-slate-100 transition-colors rounded-xl text-left w-full overflow-hidden"
+                      className="flex items-center gap-3 w-full py-3 px-2 hover:bg-slate-50 active:bg-slate-100 transition-colors group text-left"
                     >
-                      <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-100 text-xl shrink-0">
+                      <span className="text-xl w-8 text-center shrink-0">
                         {pet.emoji_icon}
-                      </div>
+                      </span>
                       <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
                         <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-700 text-sm truncate">
                               {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
                             </span>
-                            <span className="text-[10px] font-bold text-slate-400 shrink-0">
-                              x{pet.quantity || 1}
-                            </span>
+                            {pet.quantity && pet.quantity > 1 && (
+                              <span className="text-[10px] font-black text-slate-400">
+                                x{pet.quantity}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             {pet.acquisition_date && (
-                              <span className="text-[9px] font-medium text-slate-400 flex items-center gap-1">
-                                <Calendar size={8} />
+                              <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
                                 {format(new Date(pet.acquisition_date), 'yyyy/MM/dd')}
                               </span>
                             )}
@@ -429,20 +429,20 @@ export default function PetLogScreen({
                         </div>
                         {pet.price !== null && (
                           <div className="text-right shrink-0">
-                            <span className="text-xs font-bold text-slate-500">
+                            <span className="text-xs font-black text-slate-500 tabular-nums">
                               ¥{pet.price.toLocaleString()}
                             </span>
                           </div>
                         )}
                       </div>
                     </button>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -227,43 +227,52 @@ export function PetHistoryModal({
           ) : (
             <ul className="divide-y divide-slate-100 border-t border-slate-100">
               {records.map(record => (
-                <li key={record.id} className="grid grid-cols-[auto_auto_50px_1fr_auto] items-center gap-2.5 py-2 px-1 group">
-                  {/* 1. 日付 */}
-                  <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">
-                    {format(new Date(record.recorded_at), 'yy/MM/dd', { locale: ja })}
-                  </span>
-                  
-                  {/* 2. 項目 */}
-                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 text-center min-w-[36px]">
-                    {record.record_type}
-                  </span>
+                <li key={record.id} className="py-2.5 px-1 group">
+                  <div className="grid grid-cols-[auto_auto_50px_1fr_auto] items-center gap-2.5 mb-1">
+                    {/* 1. 日付 */}
+                    <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">
+                      {format(new Date(record.recorded_at), 'yy/MM/dd', { locale: ja })}
+                    </span>
+                    
+                    {/* 2. 項目 */}
+                    <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 text-center min-w-[36px]">
+                      {record.record_type}
+                    </span>
 
-                  {/* 3. 数値 */}
-                  <div className="flex items-baseline gap-0.5 justify-end shrink-0">
-                    {record.numeric_value !== null ? (
-                      <>
-                        <span className="text-xs font-black text-slate-700 tabular-nums">{record.numeric_value}</span>
-                        <span className="text-[9px] font-bold text-slate-400">{record.unit}</span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-slate-300">-</span>
-                    )}
+                    {/* 3. 数値 */}
+                    <div className="flex items-baseline gap-0.5 justify-end shrink-0">
+                      {record.numeric_value !== null ? (
+                        <>
+                          <span className="text-xs font-black text-slate-700 tabular-nums">{record.numeric_value}</span>
+                          <span className="text-[9px] font-bold text-slate-400">{record.unit}</span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-slate-300">-</span>
+                      )}
+                    </div>
+
+                    {/* 空白のカラム（メモ用の領域を確保するため） */}
+                    <div className="flex-1"></div>
+
+                    {/* 5. 削除ボタン */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteRecord(record.id)}
+                      className="h-7 w-7 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 size={12} />
+                    </Button>
                   </div>
 
-                  {/* 4. メモ */}
-                  <span className="text-xs text-slate-600 truncate ml-1">
-                    {record.note || ''}
-                  </span>
-
-                  {/* 5. 削除ボタン */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteRecord(record.id)}
-                    className="h-7 w-7 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 size={12} />
-                  </Button>
+                  {/* 4. メモ (複数行対応) */}
+                  {record.note && (
+                    <div className="pl-2 ml-1 border-l-2 border-slate-50">
+                      <p className="text-xs text-slate-600 leading-relaxed break-words whitespace-pre-wrap">
+                        {record.note}
+                      </p>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

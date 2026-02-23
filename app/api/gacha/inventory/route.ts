@@ -13,7 +13,7 @@ export async function GET() {
         assignee,
         is_used,
         created_at,
-        prize:chore_gachaprizes (*)
+        prize:chore_records_gachaprizes (*)
       `)
       .eq('is_used', false)
       .order('created_at', { ascending: false });

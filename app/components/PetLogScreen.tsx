@@ -166,11 +166,13 @@ export function PetRecordModal({
 export function PetHistoryModal({ 
   isOpen, 
   onClose, 
-  pet 
+  pet,
+  onRefresh
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   pet: PetInfo | null;
+  onRefresh?: () => void;
 }) {
   const [records, setRecords] = useState<PetRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -195,6 +197,20 @@ export function PetHistoryModal({
     }
   }, [isOpen, pet, fetchRecords]);
 
+  const handleDeleteRecord = async (id: number) => {
+    if (!confirm('この記録を削除しますか？')) return;
+
+    try {
+      const res = await fetch(`/api/pets/records?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      toast.success('削除しました');
+      fetchRecords();
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      toast.error('削除に失敗しました');
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="rounded-3xl sm:max-w-[450px] max-h-[80vh] overflow-y-auto">
@@ -211,7 +227,7 @@ export function PetHistoryModal({
           ) : (
             <ul className="divide-y divide-slate-100 border-t border-slate-100">
               {records.map(record => (
-                <li key={record.id} className="grid grid-cols-[auto_auto_50px_1fr] items-center gap-2.5 py-2 px-1 group">
+                <li key={record.id} className="grid grid-cols-[auto_auto_50px_1fr_auto] items-center gap-2.5 py-2 px-1 group">
                   {/* 1. 日付 */}
                   <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">
                     {format(new Date(record.recorded_at), 'yy/MM/dd', { locale: ja })}
@@ -238,6 +254,16 @@ export function PetHistoryModal({
                   <span className="text-xs text-slate-600 truncate ml-1">
                     {record.note || ''}
                   </span>
+
+                  {/* 5. 削除ボタン */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteRecord(record.id)}
+                    className="h-7 w-7 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 size={12} />
+                  </Button>
                 </li>
               ))}
             </ul>

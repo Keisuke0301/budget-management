@@ -307,6 +307,7 @@ export default function Home() {
         isOpen={isPetHistoryModalOpen} 
         onClose={() => setIsPetHistoryModalOpen(false)} 
         pet={selectedPet} 
+        onRefresh={() => setPetRefreshTrigger(Date.now())}
       />
       <PetRecordModal 
         isOpen={isPetRecordModalOpen} 

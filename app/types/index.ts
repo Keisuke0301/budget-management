@@ -15,6 +15,26 @@ export interface Totals {
   total: number;
 }
 
+export interface PetInfo {
+  id: number;
+  name: string;
+  species: string;
+  emoji_icon: string;
+  acquisition_date: string | null;
+  created_at: string;
+}
+
+export interface PetRecord {
+  id: number;
+  pet_id: number;
+  recorded_at: string;
+  record_type: string;
+  numeric_value: number | null;
+  unit: string | null;
+  note: string | null;
+  created_at: string;
+}
+
 export interface MasterTask {
   id: number;
   category_id: string;

@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { WalletCards, Sparkles, Gift } from "lucide-react";
+import { WalletCards, Sparkles, Gift, PawPrint } from "lucide-react";
 
 interface TabNavigationProps {
-  activeTab: 'budget' | 'chores';
-  onTabChange: (tab: 'budget' | 'chores') => void;
+  activeTab: 'budget' | 'chores' | 'pet';
+  onTabChange: (tab: 'budget' | 'chores' | 'pet') => void;
 }
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
@@ -18,6 +18,14 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
       >
         <Sparkles size={24} />
         <span className="text-xs font-medium">家事ログ</span>
+      </Button>
+      <Button
+        variant="ghost"
+        className={`flex-1 flex flex-col items-center gap-1 h-full rounded-none ${activeTab === 'pet' ? 'text-blue-500' : 'text-gray-500'}`}
+        onClick={() => onTabChange('pet')}
+      >
+        <PawPrint size={24} />
+        <span className="text-xs font-medium">ペット</span>
       </Button>
       <Button
         variant="ghost"

@@ -16,6 +16,7 @@ import { Trophy } from 'lucide-react';
 import { MasterCategory, Chore, Totals } from './types';
 import RewardsScreen from './components/RewardsScreen';
 import Gacha from './components/Gacha';
+import PetLogScreen from './components/PetLogScreen';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -48,7 +49,7 @@ export default function Home() {
   const [isChoreStatsModalOpen, setIsChoreStatsModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('chores');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet'>('chores');
 
   const fetchChoreTotals = useCallback(async () => {
     try {
@@ -125,6 +126,10 @@ export default function Home() {
 
     if (error) {
       return <p className="text-center p-8 text-red-500 font-bold">エラー: {error}</p>;
+    }
+
+    if (activeTab === 'pet') {
+      return <PetLogScreen />;
     }
 
     if (activeTab === 'chores') {

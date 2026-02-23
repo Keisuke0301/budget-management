@@ -238,6 +238,7 @@ export function PetAddModal({
     species: '', 
     emoji_icon: '🐭', 
     acquisition_date: '',
+    birthday: '',
     price: '',
     quantity: '1'
   });
@@ -257,13 +258,23 @@ export function PetAddModal({
           ...newPet,
           price: newPet.price ? parseInt(newPet.price) : null,
           quantity: newPet.quantity ? parseInt(newPet.quantity) : 1,
-          name: newPet.name || null
+          name: newPet.name || null,
+          acquisition_date: newPet.acquisition_date || null,
+          birthday: newPet.birthday || null,
         }),
       });
       const data = await res.json();
       onSuccess(data);
       onClose();
-      setNewPet({ name: '', species: '', emoji_icon: '🐭', acquisition_date: '', price: '', quantity: '1' });
+      setNewPet({ 
+        name: '', 
+        species: '', 
+        emoji_icon: '🐭', 
+        acquisition_date: '', 
+        birthday: '', 
+        price: '', 
+        quantity: '1' 
+      });
       toast.success('ペットを登録しました');
     } catch (error) {
       toast.error('ペットの登録に失敗しました');
@@ -274,44 +285,50 @@ export function PetAddModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="rounded-3xl">
+      <DialogContent className="rounded-3xl sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-black">新しいペットを登録</DialogTitle>
+          <DialogTitle className="font-black text-center">新しいペットを登録</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">種類 <span className="text-red-500">*</span></label>
-              <Input value={newPet.species} onChange={e => setNewPet({...newPet, species: e.target.value})} placeholder="例: デグー" className="rounded-xl h-12" />
+              <Input value={newPet.species} onChange={e => setNewPet({...newPet, species: e.target.value})} placeholder="例: デグー" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">名前 (任意)</label>
-              <Input value={newPet.name} onChange={e => setNewPet({...newPet, name: e.target.value})} placeholder="例: もち丸" className="rounded-xl h-12" />
+              <Input value={newPet.name} onChange={e => setNewPet({...newPet, name: e.target.value})} placeholder="例: もち丸" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">数量</label>
-              <Input type="number" value={newPet.quantity} onChange={e => setNewPet({...newPet, quantity: e.target.value})} className="rounded-xl h-12" />
+              <Input type="number" value={newPet.quantity} onChange={e => setNewPet({...newPet, quantity: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">購入価格 (円)</label>
-              <Input type="number" value={newPet.price} onChange={e => setNewPet({...newPet, price: e.target.value})} placeholder="0" className="rounded-xl h-12" />
+              <label className="text-xs font-bold text-slate-500 ml-1">購入価格 (任意)</label>
+              <Input type="number" value={newPet.price} onChange={e => setNewPet({...newPet, price: e.target.value})} placeholder="0" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">アイコン (絵文字)</label>
-              <Input value={newPet.emoji_icon} onChange={e => setNewPet({...newPet, emoji_icon: e.target.value})} placeholder="🐭" className="rounded-xl h-12 text-center text-2xl" />
+              <label className="text-xs font-bold text-slate-500 ml-1">誕生日 (任意)</label>
+              <Input type="date" value={newPet.birthday} onChange={e => setNewPet({...newPet, birthday: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">お迎え日</label>
-              <Input type="date" value={newPet.acquisition_date} onChange={e => setNewPet({...newPet, acquisition_date: e.target.value})} className="rounded-xl h-12" />
+              <label className="text-xs font-bold text-slate-500 ml-1">お迎え日 (任意)</label>
+              <Input type="date" value={newPet.acquisition_date} onChange={e => setNewPet({...newPet, acquisition_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
             </div>
           </div>
-          <Button onClick={handleAddPet} disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 shadow-lg mt-2">
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 ml-1">アイコン (絵文字)</label>
+            <Input value={newPet.emoji_icon} onChange={e => setNewPet({...newPet, emoji_icon: e.target.value})} placeholder="🐭" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 text-center text-xl" />
+          </div>
+
+          <Button onClick={handleAddPet} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-lg mt-4">
             {isSubmitting ? '登録中...' : '登録する'}
           </Button>
         </div>

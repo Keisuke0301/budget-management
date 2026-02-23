@@ -17,14 +17,23 @@ import { Sparkles, Check } from "lucide-react";
 export function ChoreBubbleGame({ 
   onUpdate, 
   refreshTrigger,
-  masterData 
+  masterData,
+  initialCounts = {}
 }: { 
   onUpdate: () => void, 
   refreshTrigger: number,
-  masterData: MasterCategory[]
+  masterData: MasterCategory[],
+  initialCounts?: Record<string, number>
 }) {
-  const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
+  const [completedCounts, setCompletedCounts] = useState<Record<string, number>>(initialCounts);
   const [selectedTask, setSelectedTask] = useState<(MasterTask & { area: string }) | null>(null);
+
+  // 初期データの同期
+  useEffect(() => {
+    if (Object.keys(initialCounts).length > 0) {
+      setCompletedCounts(initialCounts);
+    }
+  }, [initialCounts]);
   const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [poppingTask, setPoppingTask] = useState<number | null>(null);

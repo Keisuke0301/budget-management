@@ -36,12 +36,14 @@ export interface InitialData {
   endOfMonthTime: number;
   pets: PetInfo[];
   petItems: PetItem[];
+  todayChoreCounts: Record<string, number>;
 }
 
 export default function Home() {
   const [data, setData] = useState<InitialData | null>(null);
   const [choreMasterData, setChoreMasterData] = useState<MasterCategory[]>([]);
   const [choreTotals, setChoreTotals] = useState<Totals>({ keisuke: 0, keiko: 0, total: 0 });
+  const [todayChoreCounts, setTodayChoreCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -106,6 +108,7 @@ export default function Home() {
       setData(initResult);
       setPets(initResult.pets || []);
       setPetItems(initResult.petItems || []);
+      setTodayChoreCounts(initResult.todayChoreCounts || {});
       setChoreMasterData(choreMasterResult);
       setDataUpdatedAt(Date.now());
       
@@ -179,6 +182,7 @@ export default function Home() {
               onUpdate={handleChoreUpdate} 
               refreshTrigger={choreRefreshTrigger}
               masterData={choreMasterData}
+              initialCounts={todayChoreCounts}
             />
           )}
           {/* スペーサー */}

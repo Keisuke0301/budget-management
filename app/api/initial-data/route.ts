@@ -96,11 +96,24 @@ export async function GET(request: Request) {
 
     if (expenseError) throw new Error(`支出記録の取得に失敗: ${expenseError.message}`);
 
-    // --- ペットデータの取得 ---
-    const [petsRes, petItemsRes] = await Promise.all([
+    // --- ペットデータおよび今日の家事データの取得 ---
+    const [petsRes, petItemsRes, todayChoresRes] = await Promise.all([
       supabase.from("pet_info").select("*").order("created_at", { ascending: true }),
-      supabase.from("pet_items").select("*").order("display_order", { ascending: true })
+      supabase.from("pet_items").select("*").order("display_order", { ascending: true }),
+      supabase.from("chore_records")
+        .select("category, task")
+        .gte("created_at", startOfDay(today).toISOString())
+        .lte("created_at", endOfDay(today).toISOString())
     ]);
+
+    // 家事の集計
+    const todayChoreCounts: Record<string, number> = {};
+    if (todayChoresRes.data) {
+      todayChoresRes.data.forEach(chore => {
+        const key = `${chore.category}-${chore.task}`;
+        todayChoreCounts[key] = (todayChoreCounts[key] || 0) + 1;
+      });
+    }
 
     // --- データ集計 ---
     const foodBudget = expense_budgets.find(b => b.category === '食費')?.amount || 0;
@@ -142,7 +155,8 @@ export async function GET(request: Request) {
       startOfMonthTime: startOfMonth.getTime(),
       endOfMonthTime: endOfMonth.getTime(),
       pets: petsRes.data || [],
-      petItems: petItemsRes.data || []
+      petItems: petItemsRes.data || [],
+      todayChoreCounts: todayChoreCounts
     };
 
     return NextResponse.json(responseData);

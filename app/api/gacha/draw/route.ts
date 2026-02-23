@@ -1,9 +1,9 @@
-import { getSupabaseClient } from '@/app/lib/supabaseClient';
+import { createClient } from '@/app/lib/supabaseClient';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const supabase = getSupabaseClient();
+    const supabase = createClient();
     const { assignee } = await request.json();
 
     if (!assignee) {

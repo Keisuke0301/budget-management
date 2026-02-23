@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getSupabaseClient } from '@/app/lib/supabaseClient';
+import { createClient } from '@/app/lib/supabaseClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type AggregatedReward = {
@@ -44,7 +44,7 @@ export default function RewardsScreen() {
   useEffect(() => {
     const fetchRewards = async () => {
       setIsLoading(true);
-      const supabase = getSupabaseClient();
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('chores')
         .select('note')

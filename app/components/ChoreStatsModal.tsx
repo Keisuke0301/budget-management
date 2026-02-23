@@ -37,14 +37,18 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger }: ChoreStatsM
         "けいこ": { totalPoints: 0, count: 0 }
       };
 
-      data.forEach(chore => {
+      data.filter(chore => chore.category !== 'ガチャ').forEach(chore => {
         const assignee = chore.assignee || "不明";
-        if (!newStats[assignee]) {
-          newStats[assignee] = { totalPoints: 0, count: 0 };
+        // 表示用に日本語に変換
+        const displayName = (assignee === 'keisuke' || assignee === 'けいすけ') ? 'けいすけ' : 
+                          (assignee === 'keiko' || assignee === 'けいこ') ? 'けいこ' : assignee;
+        
+        if (!newStats[displayName]) {
+          newStats[displayName] = { totalPoints: 0, count: 0 };
         }
         const multipliedScore = (chore.score || 0) * (chore.multiplier || 1);
-        newStats[assignee].totalPoints += multipliedScore;
-        newStats[assignee].count += 1;
+        newStats[displayName].totalPoints += multipliedScore;
+        newStats[displayName].count += 1;
       });
 
       setStats(newStats);

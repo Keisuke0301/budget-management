@@ -13,7 +13,9 @@ import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Trophy } from 'lucide-react';
-import { MasterCategory } from './types';
+import { MasterCategory, Chore, Totals } from './types';
+import RewardsScreen from './components/RewardsScreen';
+import Gacha from './components/Gacha';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -36,6 +38,7 @@ export interface InitialData {
 export default function Home() {
   const [data, setData] = useState<InitialData | null>(null);
   const [choreMasterData, setChoreMasterData] = useState<MasterCategory[]>([]);
+  const [choreTotals, setChoreTotals] = useState<Totals>({ keisuke: 0, keiko: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -45,7 +48,30 @@ export default function Home() {
   const [isChoreStatsModalOpen, setIsChoreStatsModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('chores');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'rewards'>('chores');
+
+  const fetchChoreTotals = useCallback(async () => {
+    try {
+      const res = await fetch('/api/chores');
+      if (!res.ok) return;
+      const chores: Chore[] = await res.json();
+      
+      const totals: Totals = { keisuke: 0, keiko: 0, total: 0 };
+      chores.forEach(chore => {
+        const score = (chore.score || 0) * (chore.multiplier || 1);
+        // assignee の値が文字列である可能性を考慮して比較
+        if (chore.assignee === 'keisuke' || chore.assignee === 'けいすけ') {
+          totals.keisuke += score;
+        } else if (chore.assignee === 'keiko' || chore.assignee === 'けいこ') {
+          totals.keiko += score;
+        }
+      });
+      totals.total = totals.keisuke + totals.keiko;
+      setChoreTotals(totals);
+    } catch (e) {
+      console.error('Failed to fetch chore totals:', e);
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     // データ更新時にもローディング状態がわかるようにする
@@ -66,41 +92,43 @@ export default function Home() {
       setData(initResult);
       setChoreMasterData(choreMasterResult);
       setDataUpdatedAt(Date.now());
+      
+      // 家事ポイントの合計も取得
+      await fetchChoreTotals();
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchChoreTotals]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  const handleChoreUpdate = () => {
+    setChoreRefreshTrigger(Date.now());
+    fetchChoreTotals();
+  };
+
   const renderContent = () => {
     // 初回ロード時のみスケルトンを表示
     if (loading && !data) {
       return (
-        <>
-          <div className="card"><div className="p-6 animate-pulse"><div className="h-40 bg-gray-200 rounded"></div></div></div>
-          <div className="card totals-card">
-            <div className="p-6 animate-pulse">
-              <h2 className="text-2xl font-semibold h-8 bg-gray-200 rounded w-1/4 mb-4"></h2>
-              <div className="space-y-4">
-                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-8 bg-gray-200 rounded w-3/4 mt-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            </div>
-          </div>
-        </>
+        <div className="flex flex-col gap-4 p-4">
+          <div className="h-40 bg-slate-100 animate-pulse rounded-3xl" />
+          <div className="h-64 bg-slate-100 animate-pulse rounded-3xl" />
+        </div>
       );
     }
 
     if (error) {
-      return <p className="text-red-500">エラー: {error}</p>;
+      return <p className="text-center p-8 text-red-500 font-bold">エラー: {error}</p>;
+    }
+
+    if (activeTab === 'rewards') {
+        return <RewardsScreen />;
     }
 
     if (!data) {
@@ -109,17 +137,19 @@ export default function Home() {
 
     if (activeTab === 'chores') {
       return (
-        <>
+        <div className="flex flex-col gap-6">
+          <Gacha totals={choreTotals} onGachaDraw={handleChoreUpdate} />
+          
           {choreMasterData.length > 0 && (
             <ChoreBubbleGame 
-              onUpdate={() => setChoreRefreshTrigger(Date.now())} 
+              onUpdate={handleChoreUpdate} 
               refreshTrigger={choreRefreshTrigger}
               masterData={choreMasterData}
             />
           )}
           {/* スペーサー */}
           <div className="h-10"></div>
-        </>
+        </div>
       );
     }
 
@@ -216,7 +246,7 @@ export default function Home() {
       <ChoreModal
         isOpen={isChoreModalOpen}
         onClose={() => setIsChoreModalOpen(false)}
-        onSuccess={() => setChoreRefreshTrigger(Date.now())}
+        onSuccess={handleChoreUpdate}
         masterData={choreMasterData}
       />
 
@@ -225,7 +255,7 @@ export default function Home() {
         isOpen={isChoreHistoryModalOpen}
         onClose={() => setIsChoreHistoryModalOpen(false)}
         refreshTrigger={choreRefreshTrigger}
-        onDeleteSuccess={() => setChoreRefreshTrigger(Date.now())}
+        onDeleteSuccess={handleChoreUpdate}
       />
 
       {/* 家事実績モーダル */}

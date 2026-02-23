@@ -21,10 +21,12 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
       const data = await res.json();
       
       if (Array.isArray(data)) {
-        // 当日のデータのみに絞り込む
-        const filteredData = data.filter((chore: Chore) => 
-          chore.created_at && isToday(new Date(chore.created_at))
-        );
+        // ガチャを除外し、当日のデータのみに絞り込む
+        const filteredData = data
+          .filter((chore: Chore) => chore.category !== 'ガチャ')
+          .filter((chore: Chore) => 
+            chore.created_at && isToday(new Date(chore.created_at))
+          );
         setChores(filteredData);
       } else {
         setChores([]);
@@ -87,11 +89,12 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
                 {/* 担当者 */}
                 {chore.assignee && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
-                    chore.assignee === 'けいすけ' ? 'bg-blue-50 text-blue-500' :
-                    chore.assignee === 'けいこ' ? 'bg-pink-50 text-pink-500' :
+                    (chore.assignee === 'keisuke' || chore.assignee === 'けいすけ') ? 'bg-blue-50 text-blue-500' :
+                    (chore.assignee === 'keiko' || chore.assignee === 'けいこ') ? 'bg-pink-50 text-pink-500' :
                     'bg-slate-50 text-slate-500'
                   }`}>
-                    {chore.assignee.slice(0, 4)}
+                    {(chore.assignee === 'keisuke' || chore.assignee === 'けいすけ') ? 'けいすけ' : 
+                     (chore.assignee === 'keiko' || chore.assignee === 'けいこ') ? 'けいこ' : chore.assignee}
                   </span>
                 )}
                 

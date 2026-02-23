@@ -203,33 +203,44 @@ export function PetHistoryModal({
             {(pet?.name || pet?.species)}の履歴
           </DialogTitle>
         </DialogHeader>
-        <div className="py-4 space-y-3">
+        <div className="py-2">
           {isLoading ? (
             <div className="text-center py-10 text-slate-400 font-bold">読込中...</div>
           ) : records.length === 0 ? (
             <div className="text-center py-10 text-slate-400 font-bold border-2 border-dashed rounded-3xl">記録がありません</div>
           ) : (
-            records.map(record => (
-              <div key={record.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white text-slate-500 border border-slate-200 uppercase tracking-tighter">
+            <ul className="divide-y divide-slate-100 border-t border-slate-100">
+              {records.map(record => (
+                <li key={record.id} className="grid grid-cols-[auto_auto_50px_1fr] items-center gap-2.5 py-2 px-1 group">
+                  {/* 1. 日付 */}
+                  <span className="text-[10px] text-slate-400 tabular-nums whitespace-nowrap">
+                    {format(new Date(record.recorded_at), 'yy/MM/dd', { locale: ja })}
+                  </span>
+                  
+                  {/* 2. 項目 */}
+                  <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 text-center min-w-[36px]">
                     {record.record_type}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400">
-                    {format(new Date(record.recorded_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
+
+                  {/* 3. 数値 */}
+                  <div className="flex items-baseline gap-0.5 justify-end shrink-0">
+                    {record.numeric_value !== null ? (
+                      <>
+                        <span className="text-xs font-black text-slate-700 tabular-nums">{record.numeric_value}</span>
+                        <span className="text-[9px] font-bold text-slate-400">{record.unit}</span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-300">-</span>
+                    )}
+                  </div>
+
+                  {/* 4. メモ */}
+                  <span className="text-xs text-slate-600 truncate ml-1">
+                    {record.note || ''}
                   </span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  {record.numeric_value !== null && (
-                    <>
-                      <span className="text-xl font-black text-slate-800 tracking-tighter">{record.numeric_value}</span>
-                      <span className="text-xs font-bold text-slate-400">{record.unit}</span>
-                    </>
-                  )}
-                </div>
-                {record.note && <p className="text-xs font-bold text-slate-600 mt-1">{record.note}</p>}
-              </div>
-            ))
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </DialogContent>

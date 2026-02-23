@@ -21,12 +21,10 @@ export function ChoreListCard({ refreshTrigger, onDeleteSuccess }: { refreshTrig
       const data = await res.json();
       
       if (Array.isArray(data)) {
-        // ガチャの履歴を除外し、当日のデータのみに絞り込む
-        const filteredData = data
-          .filter((chore: Chore) => chore.category !== 'ガチャ')
-          .filter((chore: Chore) => 
-            chore.created_at && isToday(new Date(chore.created_at))
-          );
+        // 当日のデータのみに絞り込む
+        const filteredData = data.filter((chore: Chore) => 
+          chore.created_at && isToday(new Date(chore.created_at))
+        );
         setChores(filteredData);
       } else {
         setChores([]);

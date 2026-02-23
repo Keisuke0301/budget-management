@@ -6,13 +6,7 @@ export interface Chore {
   multiplier: number | null;
   category: string | null;
   task: string | null;
-  assignee: 'keisuke' | 'keiko' | null;
-}
-
-export interface Totals {
-  keisuke: number;
-  keiko: number;
-  total: number;
+  assignee: string | null;
 }
 
 export interface MasterTask {

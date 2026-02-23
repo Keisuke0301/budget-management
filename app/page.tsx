@@ -13,9 +13,7 @@ import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Trophy } from 'lucide-react';
-import { MasterCategory, Chore, Totals } from './types';
-import RewardsScreen from './components/RewardsScreen';
-import Gacha from './components/Gacha';
+import { MasterCategory } from './types';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -38,9 +36,6 @@ export interface InitialData {
 export default function Home() {
   const [data, setData] = useState<InitialData | null>(null);
   const [choreMasterData, setChoreMasterData] = useState<MasterCategory[]>([]);
-  const [chores, setChores] = useState<Chore[]>([]);
-  const [choreTotals, setChoreTotals] = useState<Totals>({ keisuke: 0, keiko: 0, total: 0 });
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -50,35 +45,10 @@ export default function Home() {
   const [isChoreStatsModalOpen, setIsChoreStatsModalOpen] = useState(false);
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'rewards'>('chores');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores'>('chores');
 
-  const fetchChoreData = useCallback(async () => {
-    try {
-      const res = await fetch("/api/chores");
-      if (!res.ok) throw new Error("家事ログの取得に失敗しました");
-      const data: Chore[] = await res.json();
-      setChores(data);
-
-      const newTotals: Totals = { keisuke: 0, keiko: 0, total: 0 };
-      data.forEach(chore => {
-        const score = (chore.score || 0) * (chore.multiplier || 1);
-        if (chore.assignee === 'keisuke') {
-          newTotals.keisuke += score;
-        } else if (chore.assignee === 'keiko') {
-          newTotals.keiko += score;
-        }
-      });
-      newTotals.total = newTotals.keisuke + newTotals.keiko;
-      setChoreTotals(newTotals);
-      
-      setChoreRefreshTrigger(Date.now());
-    } catch (e: unknown) {
-      console.error(e);
-      // setError(e instanceof Error ? e.message : String(e));
-    }
-  }, []);
-
-  const fetchInitialData = useCallback(async () => {
+  const fetchData = useCallback(async () => {
+    // データ更新時にもローディング状態がわかるようにする
     setLoading(true);
     setError(null);
     try {
@@ -105,49 +75,59 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchInitialData();
-    fetchChoreData();
-  }, [fetchInitialData, fetchChoreData]);
+    fetchData();
+  }, [fetchData]);
 
   const renderContent = () => {
+    // 初回ロード時のみスケルトンを表示
     if (loading && !data) {
-      return <div className="text-center p-8">読み込み中...</div>;
+      return (
+        <>
+          <div className="card"><div className="p-6 animate-pulse"><div className="h-40 bg-gray-200 rounded"></div></div></div>
+          <div className="card totals-card">
+            <div className="p-6 animate-pulse">
+              <h2 className="text-2xl font-semibold h-8 bg-gray-200 rounded w-1/4 mb-4"></h2>
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-8 bg-gray-200 rounded w-3/4 mt-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </>
+      );
     }
 
     if (error) {
       return <p className="text-red-500">エラー: {error}</p>;
     }
 
-    if (activeTab === 'rewards') {
-      return <RewardsScreen />;
+    if (!data) {
+      return <p>データがありません。</p>;
     }
-    
+
     if (activeTab === 'chores') {
       return (
         <>
-          <div className="mb-6">
-            <Gacha totals={choreTotals} onGachaDraw={fetchChoreData} />
-          </div>
           {choreMasterData.length > 0 && (
             <ChoreBubbleGame 
-              onUpdate={fetchChoreData}
+              onUpdate={() => setChoreRefreshTrigger(Date.now())} 
               refreshTrigger={choreRefreshTrigger}
               masterData={choreMasterData}
             />
           )}
+          {/* スペーサー */}
           <div className="h-10"></div>
         </>
       );
-    }
-
-    if (!data) {
-      return <p>データがありません。</p>;
     }
 
     return (
       <>
         <CalendarCard data={data} />
         <TotalsCard data={data} />
+        {/* スペーサー */}
         <div className="h-20"></div>
       </>
     );
@@ -157,8 +137,31 @@ export default function Home() {
     <>
       <Toaster position="top-center" />
       <header className="relative py-2 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
-        {/* ... header content ... */}
-      </header>
+  {/* 装飾的な背景のアクセント */}
+  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full pointer-events-none">
+    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/40 blur-[80px]"></div>
+    <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[50%] rounded-full bg-indigo-100/30 blur-[60px]"></div>
+  </div>
+
+  <div className="relative flex flex-col items-center">
+    {/* サブタイトル的なラベル */}
+    <span className="inline-block px-3 py-1 mb-1 text-[10px] font-bold tracking-[0.3em] uppercase text-indigo-500 bg-indigo-50/50 rounded-full border border-indigo-100/50 backdrop-blur-sm">
+      Management Tool
+    </span>
+    
+    <h1 className="relative group cursor-default">
+      <span className="text-3xl md:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
+        Family Hub
+      </span>
+      {/* 下線のアクセント */}
+      <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
+    </h1>
+    
+    <p className="mt-1 text-slate-400 text-xs font-medium tracking-widest uppercase">
+      Shared Life Dashboard
+    </p>
+  </div>
+</header>
       
       <div className="container">
         {renderContent()}
@@ -166,8 +169,15 @@ export default function Home() {
 
       {activeTab === 'budget' && (
         <>
-          <Button id="history-fab" className="fab history-fab" onClick={() => setIsHistoryModalOpen(true)}>📜</Button>
-          <Button id="add-expense-fab" className="fab" onClick={() => setIsExpenseModalOpen(true)}>+</Button>
+          {/* 履歴ボタン (history-fab) */}
+          <Button id="history-fab" className="fab history-fab" onClick={() => setIsHistoryModalOpen(true)}>
+            📜
+          </Button>
+
+          {/* 追加ボタン (add-expense-fab) */}
+          <Button id="add-expense-fab" className="fab" onClick={() => setIsExpenseModalOpen(true)}>
+            ＋
+          </Button>
         </>
       )}
 
@@ -176,36 +186,49 @@ export default function Home() {
           <Button id="chore-stats-fab" className="fab stats-fab" onClick={() => setIsChoreStatsModalOpen(true)}>
             <span className="text-[30px] leading-none flex items-center justify-center">🏆</span>
           </Button>
-          <Button id="chore-history-fab" className="fab history-fab" onClick={() => setIsChoreHistoryModalOpen(true)}>📜</Button>
-          <Button id="chore-fab" className="fab" onClick={() => setIsChoreModalOpen(true)}>+</Button>
+          <Button id="chore-history-fab" className="fab history-fab" onClick={() => setIsChoreHistoryModalOpen(true)}>
+            📜
+          </Button>
+          <Button id="chore-fab" className="fab" onClick={() => setIsChoreModalOpen(true)}>
+            ＋
+          </Button>
         </>
       )}
 
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
+      {/* 支出記録モーダル */}
       <ExpenseModal
         isOpen={isExpenseModalOpen}
         onClose={() => setIsExpenseModalOpen(false)}
-        onSuccess={fetchInitialData}
+        onSuccess={fetchData}
       />
+
+      {/* 履歴モーダル */}
       <HistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
-        onDataChange={fetchInitialData}
+        onDataChange={fetchData}
         dataUpdatedAt={dataUpdatedAt}
       />
+
+      {/* 家事記録モーダル */}
       <ChoreModal
         isOpen={isChoreModalOpen}
         onClose={() => setIsChoreModalOpen(false)}
-        onSuccess={fetchChoreData}
+        onSuccess={() => setChoreRefreshTrigger(Date.now())}
         masterData={choreMasterData}
       />
+
+      {/* 家事履歴モーダル */}
       <ChoreHistoryModal
         isOpen={isChoreHistoryModalOpen}
         onClose={() => setIsChoreHistoryModalOpen(false)}
         refreshTrigger={choreRefreshTrigger}
-        onDeleteSuccess={fetchChoreData}
+        onDeleteSuccess={() => setChoreRefreshTrigger(Date.now())}
       />
+
+      {/* 家事実績モーダル */}
       <ChoreStatsModal
         isOpen={isChoreStatsModalOpen}
         onClose={() => setIsChoreStatsModalOpen(false)}

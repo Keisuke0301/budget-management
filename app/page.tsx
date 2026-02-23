@@ -13,7 +13,7 @@ import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Trophy } from 'lucide-react';
-import { MasterCategory, Chore, Totals } from './types';
+import { MasterCategory, Chore, Totals, PetInfo } from './types';
 import RewardsScreen from './components/RewardsScreen';
 import Gacha from './components/Gacha';
 import PetLogScreen, { PetAddModal, PetHistoryModal, PetRecordModal } from './components/PetLogScreen';

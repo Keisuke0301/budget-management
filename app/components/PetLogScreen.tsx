@@ -127,7 +127,7 @@ export function PetRecordModal({
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">項目</label>
               <Select value={newRecord.record_type} onValueChange={(val) => {
                 const preset = recordItems.find(t => t.label === val);
-                setNewRecord({ ...newRecord, record_type: val, unit: preset?.unit || '', custom_type: '' });
+                setNewRecord({ ...newRecord, record_type: val, unit: preset?.unit || '' });
               }}>
                 <SelectTrigger className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold">
                   <SelectValue placeholder="選択" />

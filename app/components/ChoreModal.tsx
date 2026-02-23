@@ -131,17 +131,17 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   type="button"
-                  variant={selectedAssignees.includes("けいすけ") ? "default" : "outline"}
+                  variant={selectedAssignees.includes("keisuke") ? "default" : "outline"}
                   className={`h-10 text-base font-bold transition-all ${
-                    selectedAssignees.includes("けいすけ")
+                    selectedAssignees.includes("keisuke")
                       ? "bg-blue-500 hover:bg-blue-600 ring-2 ring-blue-200 text-white"
                       : "border-blue-200 text-blue-600 hover:bg-blue-50"
                   }`}
                   onClick={() => {
                     setSelectedAssignees(prev =>
-                      prev.includes("けいすけ")
-                        ? prev.filter(n => n !== "けいすけ")
-                        : [...prev, "けいすけ"]
+                      prev.includes("keisuke")
+                        ? prev.filter(n => n !== "keisuke")
+                        : [...prev, "keisuke"]
                     );
                   }}
                 >
@@ -149,17 +149,17 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
                 </Button>
                 <Button
                   type="button"
-                  variant={selectedAssignees.includes("けいこ") ? "default" : "outline"}
+                  variant={selectedAssignees.includes("keiko") ? "default" : "outline"}
                   className={`h-10 text-base font-bold transition-all ${
-                    selectedAssignees.includes("けいこ")
+                    selectedAssignees.includes("keiko")
                       ? "bg-pink-500 hover:bg-pink-600 ring-2 ring-pink-200 text-white"
                       : "border-pink-200 text-pink-600 hover:bg-pink-50"
                   }`}
                   onClick={() => {
                     setSelectedAssignees(prev =>
-                      prev.includes("けいこ")
-                        ? prev.filter(n => n !== "けいこ")
-                        : [...prev, "けいこ"]
+                      prev.includes("keiko")
+                        ? prev.filter(n => n !== "keiko")
+                        : [...prev, "keiko"]
                     );
                   }}
                 >

@@ -30,13 +30,23 @@ export async function POST(request: Request) {
     const supabase = getSupabaseClient();
     const body = await request.json();
     
-    const { data, error } = await supabase
+    // 1. 記録を挿入
+    const { data: recordData, error: recordError } = await supabase
       .from('pet_records')
       .insert([body])
       .select();
 
-    if (error) throw error;
-    return NextResponse.json(data[0]);
+    if (recordError) throw recordError;
+
+    // 2. もし記録タイプが「お別れ」なら、ペットのステータスを memorial に更新
+    if (body.record_type === 'お別れ') {
+      await supabase
+        .from('pet_info')
+        .update({ status: 'memorial' })
+        .eq('id', body.pet_id);
+    }
+
+    return NextResponse.json(recordData[0]);
   } catch (error) {
     console.error('Error creating pet record:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

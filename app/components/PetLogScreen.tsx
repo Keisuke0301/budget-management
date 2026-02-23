@@ -496,13 +496,28 @@ export default function PetLogScreen({
   refreshTrigger: number;
 }) {
   const [pets, setPets] = useState<PetInfo[]>([]);
+  const [latestWeights, setLatestWeights] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPets = useCallback(async () => {
     try {
       const res = await fetch('/api/pets');
-      const data = await res.json();
+      const data: PetInfo[] = await res.json();
       setPets(data);
+
+      // 最新の体重記録を取得
+      const weightPromises = data.map(async (pet) => {
+        const r = await fetch(`/api/pets/records?petId=${pet.id}`);
+        const records: PetRecord[] = await r.json();
+        const weightRecord = records.find(rec => rec.record_type === '体重');
+        return { id: pet.id, weight: weightRecord ? `${weightRecord.numeric_value}${weightRecord.unit}` : null };
+      });
+      const weights = await Promise.all(weightPromises);
+      const weightMap: Record<number, string> = {};
+      weights.forEach(w => {
+        if (w.weight) weightMap[w.id] = w.weight;
+      });
+      setLatestWeights(weightMap);
     } catch (error) {
       console.error(error);
     } finally {
@@ -514,95 +529,151 @@ export default function PetLogScreen({
     fetchPets();
   }, [fetchPets, refreshTrigger]);
 
-  const groupedPets = useMemo(() => {
+  const alivePets = useMemo(() => pets.filter(p => p.status === 'alive'), [pets]);
+  const memorialPets = useMemo(() => pets.filter(p => p.status === 'memorial'), [pets]);
+
+  const groupPets = (list: PetInfo[]) => {
     const groups: Record<string, PetInfo[]> = {};
-    pets.forEach(pet => {
+    list.forEach(pet => {
       if (!groups[pet.species]) groups[pet.species] = [];
       groups[pet.species].push(pet);
     });
     return groups;
-  }, [pets]);
+  };
 
-  const speciesList = Object.keys(groupedPets);
+  const aliveGroups = groupPets(alivePets);
+  const memorialGroups = groupPets(memorialPets);
 
-  return (
-    <div className="w-full space-y-2 pb-24">
-      {isLoading ? (
-        <div className="text-center py-20 text-slate-400 font-bold animate-pulse text-sm">読込中...</div>
-      ) : speciesList.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-slate-400 bg-slate-50/30 rounded-3xl border-2 border-dashed border-slate-200">
-          <p className="font-bold text-sm">ペットが登録されていません</p>
-          <p className="text-[11px] text-center px-4 mt-1 opacity-70">右下の＋ボタンからペットを登録しましょう</p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {speciesList.map((species) => (
-            <div key={species} className="space-y-1">
-              <div className="flex items-center gap-2 px-2 py-1">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  {species}
-                </span>
-                <div className="h-[1px] flex-1 bg-slate-100"></div>
-              </div>
-              <ul className="divide-y divide-slate-100 border-t border-slate-100 bg-white">
-                {groupedPets[species].map((pet) => (
+  const renderPetList = (groups: Record<string, PetInfo[]>, isMemorial: boolean = false) => {
+    const speciesList = Object.keys(groups);
+    if (speciesList.length === 0) return null;
+
+    return (
+      <div className="space-y-6">
+        {speciesList.map((species) => (
+          <div key={species} className="space-y-1">
+            <div className="flex items-center gap-2 px-2 py-1">
+              <span className={`text-[10px] font-black uppercase tracking-widest ${isMemorial ? 'text-slate-300' : 'text-slate-400'}`}>
+                {species}
+              </span>
+              <div className="h-[1px] flex-1 bg-slate-100"></div>
+            </div>
+            <ul className={`divide-y divide-slate-100 border-t border-slate-100 ${isMemorial ? 'bg-slate-50/30' : 'bg-white'}`}>
+              {groups[species].map((pet) => {
+                const daysDiff = pet.acquisition_date 
+                  ? Math.floor((new Date().getTime() - new Date(pet.acquisition_date).getTime()) / (1000 * 60 * 60 * 24)) + 1
+                  : null;
+
+                return (
                   <li 
                     key={pet.id}
-                    className="flex items-center gap-3 py-2 px-3 hover:bg-slate-50/50 transition-colors group"
+                    className={`flex items-center gap-3 py-2 px-3 transition-colors group ${isMemorial ? 'opacity-70 grayscale-[0.5]' : 'hover:bg-slate-50/50'}`}
                   >
                     {/* 1. 名前 (クリックで編集) */}
                     <div 
                       onClick={() => onOpenEdit(pet)}
-                      className="flex flex-1 items-center gap-3 cursor-pointer min-w-0"
+                      className="flex flex-1 items-center gap-2 cursor-pointer min-w-0"
                     >
-                      <div className="font-bold text-slate-700 truncate min-w-0 text-sm">
-                        {pet.name || <span className="text-slate-300 font-normal">名前なし</span>}
+                      <div className="flex flex-col min-w-0">
+                        <span className={`font-bold truncate text-sm ${isMemorial ? 'text-slate-500' : 'text-slate-700'}`}>
+                          {pet.name || <span className="text-slate-300 font-normal italic">No Name</span>}
+                        </span>
+                        {daysDiff !== null && !isMemorial && (
+                          <span className="text-[9px] font-bold text-blue-400 leading-none">
+                            {daysDiff}日目
+                          </span>
+                        )}
                       </div>
                     </div>
 
+                    {/* 2. 最新の体重 */}
+                    {!isMemorial && latestWeights[pet.id] && (
+                      <div className="shrink-0 text-right">
+                        <span className="text-[10px] font-black text-slate-400 block leading-none mb-0.5">最新</span>
+                        <span className="text-xs font-bold text-slate-600 tabular-nums leading-none">
+                          {latestWeights[pet.id]}
+                        </span>
+                      </div>
+                    )}
+
                     {/* 3. お迎え日 */}
-                    <div className="flex flex-col items-end shrink-0 min-w-[70px]">
-                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">お迎え日</span>
+                    <div className="flex flex-col items-end shrink-0 min-w-[60px]">
+                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">
+                        {isMemorial ? 'お別れ日' : 'お迎え日'}
+                      </span>
                       <span className="text-[11px] text-slate-400 tabular-nums leading-none">
                         {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yy/MM/dd') : '-'}
                       </span>
                     </div>
 
-                    {/* 4. 数量 */}
-                    <div className="flex flex-col items-end shrink-0 w-8">
-                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
-                      <span className="text-[11px] font-medium text-slate-500 leading-none">
-                        {pet.quantity ? `${pet.quantity}匹` : '1匹'}
-                      </span>
-                    </div>
-
-                    {/* 5. アクションボタン */}
+                    {/* 4. アクションボタン */}
                     <div className="flex items-center gap-1 shrink-0 ml-1">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onOpenHistory(pet)}
                         className="h-8 w-8 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-full"
-                        title="履歴を確認"
                       >
                         <ClipboardList size={16} />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onOpenRecord(pet)}
-                        className="h-8 w-8 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-full"
-                        title="記録を追加"
-                      >
-                        <Plus size={18} />
-                      </Button>
+                      {!isMemorial && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onOpenRecord(pet)}
+                          className="h-8 w-8 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-full"
+                        >
+                          <Plus size={18} />
+                        </Button>
+                      )}
                     </div>
                   </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full space-y-8 pb-24">
+      {isLoading ? (
+        <div className="text-center py-20 text-slate-400 font-bold animate-pulse text-sm">読込中...</div>
+      ) : pets.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400 bg-slate-50/30 rounded-3xl border-2 border-dashed border-slate-200">
+          <p className="font-bold text-sm">ペットが登録されていません</p>
+          <p className="text-[11px] text-center px-4 mt-1 opacity-70">右下の＋ボタンからペットを登録しましょう</p>
         </div>
+      ) : (
+        <>
+          {/* 飼育中セクション */}
+          <div className="space-y-3">
+            <h3 className="px-2 text-xs font-black text-slate-400 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+              飼育中の生体
+            </h3>
+            {alivePets.length > 0 ? (
+              renderPetList(aliveGroups, false)
+            ) : (
+              <div className="text-center py-8 text-slate-300 text-[11px] font-bold border rounded-2xl border-dashed">
+                飼育中の生体はいません
+              </div>
+            )}
+          </div>
+
+          {/* メモリアルセクション */}
+          {memorialPets.length > 0 && (
+            <div className="space-y-3 pt-4 opacity-80">
+              <h3 className="px-2 text-xs font-black text-slate-400 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                想い出（メモリアル）
+              </h3>
+              {renderPetList(memorialGroups, true)}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

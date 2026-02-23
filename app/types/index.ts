@@ -22,6 +22,7 @@ export interface PetInfo {
   acquisition_date: string | null;
   birthday: string | null;
   quantity: number | null;
+  status: 'alive' | 'memorial';
   created_at: string;
 }
 

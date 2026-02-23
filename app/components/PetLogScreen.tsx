@@ -87,7 +87,7 @@ export function PetRecordModal({
         <DialogHeader>
           <DialogTitle className="font-black flex items-center gap-2">
             <span className="text-2xl">{pet?.emoji_icon}</span>
-            {pet?.name}の記録
+            {(pet?.name || pet?.species)}の記録
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -186,7 +186,7 @@ export function PetHistoryModal({
         <DialogHeader>
           <DialogTitle className="font-black flex items-center gap-2 border-b pb-2">
             <span className="text-2xl">{pet?.emoji_icon}</span>
-            {pet?.name}の履歴
+            {(pet?.name || pet?.species)}の履歴
           </DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-3">
@@ -233,22 +233,37 @@ export function PetAddModal({
   onClose: () => void; 
   onSuccess: (pet: PetInfo) => void;
 }) {
-  const [newPet, setNewPet] = useState({ name: '', species: '', emoji_icon: '🐭', acquisition_date: '' });
+  const [newPet, setNewPet] = useState({ 
+    name: '', 
+    species: '', 
+    emoji_icon: '🐭', 
+    acquisition_date: '',
+    price: '',
+    quantity: '1'
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddPet = async () => {
-    if (!newPet.name || !newPet.species) return;
+    if (!newPet.species) {
+      toast.error('種類を入力してください');
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/pets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPet),
+        body: JSON.stringify({
+          ...newPet,
+          price: newPet.price ? parseInt(newPet.price) : null,
+          quantity: newPet.quantity ? parseInt(newPet.quantity) : 1,
+          name: newPet.name || null
+        }),
       });
       const data = await res.json();
       onSuccess(data);
       onClose();
-      setNewPet({ name: '', species: '', emoji_icon: '🐭', acquisition_date: '' });
+      setNewPet({ name: '', species: '', emoji_icon: '🐭', acquisition_date: '', price: '', quantity: '1' });
       toast.success('ペットを登録しました');
     } catch (error) {
       toast.error('ペットの登録に失敗しました');
@@ -264,14 +279,28 @@ export function PetAddModal({
           <DialogTitle className="font-black">新しいペットを登録</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">名前</label>
-            <Input value={newPet.name} onChange={e => setNewPet({...newPet, name: e.target.value})} placeholder="例: もち丸" className="rounded-xl h-12" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">種類 <span className="text-red-500">*</span></label>
+              <Input value={newPet.species} onChange={e => setNewPet({...newPet, species: e.target.value})} placeholder="例: デグー" className="rounded-xl h-12" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">名前 (任意)</label>
+              <Input value={newPet.name} onChange={e => setNewPet({...newPet, name: e.target.value})} placeholder="例: もち丸" className="rounded-xl h-12" />
+            </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">種類</label>
-            <Input value={newPet.species} onChange={e => setNewPet({...newPet, species: e.target.value})} placeholder="例: デグー" className="rounded-xl h-12" />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">数量</label>
+              <Input type="number" value={newPet.quantity} onChange={e => setNewPet({...newPet, quantity: e.target.value})} className="rounded-xl h-12" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">購入価格 (円)</label>
+              <Input type="number" value={newPet.price} onChange={e => setNewPet({...newPet, price: e.target.value})} placeholder="0" className="rounded-xl h-12" />
+            </div>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">アイコン (絵文字)</label>
@@ -377,7 +406,8 @@ export default function PetLogScreen({
                     >
                       <span className="text-3xl mb-0">{pet.emoji_icon}</span>
                       <span className="text-[9px] font-black text-slate-700 px-1 text-center leading-[1.1] truncate w-full">
-                        {pet.name}
+                        {pet.name || pet.species}
+                        {pet.quantity && pet.quantity > 1 && ` x${pet.quantity}`}
                       </span>
                       <div className="absolute top-2 left-5 w-4 h-2 bg-white/60 rounded-full rotate-[-20deg]"></div>
                     </button>

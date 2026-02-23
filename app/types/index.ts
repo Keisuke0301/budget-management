@@ -17,10 +17,12 @@ export interface Totals {
 
 export interface PetInfo {
   id: number;
-  name: string;
+  name: string | null;
   species: string;
   emoji_icon: string;
   acquisition_date: string | null;
+  price: number | null;
+  quantity: number | null;
   created_at: string;
 }
 

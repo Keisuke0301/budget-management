@@ -46,6 +46,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to record gacha transaction' }, { status: 500 });
     }
 
+    // 4. ユーザーのインベントリに報酬を追加
+    const { error: inventoryError } = await supabase.from('chore_user_inventory').insert([
+      {
+        assignee: assignee,
+        prize_id: selectedPrize.id,
+        is_used: false,
+      },
+    ]);
+
+    if (inventoryError) {
+      console.error('Error adding to inventory:', inventoryError);
+      // インベントリへの追加に失敗しても、ポイント消費はされているため、一旦続行するかエラーにするかは要検討。
+      // 今回は厳密に管理するため、エラーを返します。
+      return NextResponse.json({ error: 'Failed to add prize to inventory' }, { status: 500 });
+    }
+
     return NextResponse.json(selectedPrize);
 
   } catch (error) {

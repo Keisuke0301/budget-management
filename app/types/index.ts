@@ -26,6 +26,13 @@ export interface PetInfo {
   created_at: string;
 }
 
+export interface PetItem {
+  id: number;
+  label: string;
+  unit: string | null;
+  display_order: number;
+}
+
 export interface PetRecord {
   id: number;
   pet_id: number;

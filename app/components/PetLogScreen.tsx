@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { PetInfo, PetRecord } from '@/app/types';
+import { PetInfo, PetRecord, PetItem } from '@/app/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,19 +35,33 @@ export function PetRecordModal({
     custom_type: '',
     numeric_value: '', 
     unit: 'g', 
-    note: '' 
+    note: '',
+    recorded_at: format(new Date(), 'yyyy-MM-dd')
   });
+  const [recordItems, setRecordItems] = useState<PetItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const RECORD_TYPES = [
-    { label: '体重', unit: 'g' },
-    { label: '体長', unit: 'cm' },
-    { label: '水温', unit: '℃' },
-    { label: '気温', unit: '℃' },
-    { label: '日記', unit: '' },
-    { label: 'お別れ', unit: '' },
-    { label: 'その他', unit: '' },
-  ];
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const res = await fetch('/api/pets/items');
+        const data = await res.json();
+        setRecordItems(data);
+        if (data.length > 0) {
+          setNewRecord(prev => ({ 
+            ...prev, 
+            record_type: data[0].label, 
+            unit: data[0].unit || '' 
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch pet items:', error);
+      }
+    };
+    if (isOpen) {
+      fetchItems();
+    }
+  }, [isOpen]);
 
   const handleAddRecord = async () => {
     if (!pet) return;
@@ -68,13 +82,21 @@ export function PetRecordModal({
           numeric_value: newRecord.numeric_value ? parseFloat(newRecord.numeric_value) : null,
           unit: newRecord.unit,
           note: newRecord.note,
+          recorded_at: newRecord.recorded_at ? new Date(newRecord.recorded_at).toISOString() : new Date().toISOString()
         }),
       });
       if (!res.ok) throw new Error();
       toast.success('記録を保存しました');
       onSuccess();
       onClose();
-      setNewRecord({ record_type: '体重', custom_type: '', numeric_value: '', unit: 'g', note: '' });
+      setNewRecord({ 
+        record_type: recordItems[0]?.label || '体重', 
+        custom_type: '', 
+        numeric_value: '', 
+        unit: recordItems[0]?.unit || 'g', 
+        note: '',
+        recorded_at: format(new Date(), 'yyyy-MM-dd')
+      });
     } catch (error) {
       toast.error('記録の保存に失敗しました');
     } finally {
@@ -92,20 +114,30 @@ export function PetRecordModal({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">日付</label>
+            <Input 
+              type="date" 
+              value={newRecord.recorded_at} 
+              onChange={e => setNewRecord({...newRecord, recorded_at: e.target.value})} 
+              className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">項目</label>
               <Select value={newRecord.record_type} onValueChange={(val) => {
-                const preset = RECORD_TYPES.find(t => t.label === val);
+                const preset = recordItems.find(t => t.label === val);
                 setNewRecord({ ...newRecord, record_type: val, unit: preset?.unit || '', custom_type: val === 'その他' ? '' : val });
               }}>
                 <SelectTrigger className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold">
                   <SelectValue placeholder="選択" />
                 </SelectTrigger>
                 <SelectContent>
-                  {RECORD_TYPES.map(t => (
-                    <SelectItem key={t.label} value={t.label} className="font-bold">{t.label}</SelectItem>
+                  {recordItems.map(t => (
+                    <SelectItem key={t.id} value={t.label} className="font-bold">{t.label}</SelectItem>
                   ))}
+                  <SelectItem value="その他" className="font-bold">その他</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -32,7 +32,6 @@ export function PetRecordModal({
 }) {
   const [newRecord, setNewRecord] = useState({ 
     record_type: '体重', 
-    custom_type: '',
     numeric_value: '', 
     unit: 'g', 
     note: '',
@@ -65,7 +64,7 @@ export function PetRecordModal({
 
   const handleAddRecord = async () => {
     if (!pet) return;
-    const type = newRecord.record_type === 'その他' ? newRecord.custom_type : newRecord.record_type;
+    const type = newRecord.record_type;
     if (!type) {
       toast.error('記録項目を入力してください');
       return;
@@ -91,7 +90,6 @@ export function PetRecordModal({
       onClose();
       setNewRecord({ 
         record_type: recordItems[0]?.label || '体重', 
-        custom_type: '', 
         numeric_value: '', 
         unit: recordItems[0]?.unit || 'g', 
         note: '',
@@ -103,6 +101,8 @@ export function PetRecordModal({
       setIsSubmitting(false);
     }
   };
+
+  const selectedItem = recordItems.find(t => t.label === newRecord.record_type);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -122,12 +122,12 @@ export function PetRecordModal({
               className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className={`grid gap-3 ${selectedItem?.show_numeric ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">項目</label>
               <Select value={newRecord.record_type} onValueChange={(val) => {
                 const preset = recordItems.find(t => t.label === val);
-                setNewRecord({ ...newRecord, record_type: val, unit: preset?.unit || '', custom_type: val === 'その他' ? '' : val });
+                setNewRecord({ ...newRecord, record_type: val, unit: preset?.unit || '', custom_type: '' });
               }}>
                 <SelectTrigger className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold">
                   <SelectValue placeholder="選択" />
@@ -136,40 +136,34 @@ export function PetRecordModal({
                   {recordItems.map(t => (
                     <SelectItem key={t.id} value={t.label} className="font-bold">{t.label}</SelectItem>
                   ))}
-                  <SelectItem value="その他" className="font-bold">その他</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">数値 ({newRecord.unit || '単位なし'})</label>
-               <Input 
-                type="number" 
-                value={newRecord.numeric_value} 
-                onChange={e => setNewRecord({...newRecord, numeric_value: e.target.value})} 
-                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-black"
-              />
-            </div>
+            {selectedItem?.show_numeric && (
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  数値 <span className="lowercase">({newRecord.unit || '単位なし'})</span>
+                </label>
+                <Input 
+                  type="number" 
+                  value={newRecord.numeric_value} 
+                  onChange={e => setNewRecord({...newRecord, numeric_value: e.target.value})} 
+                  className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-black"
+                />
+              </div>
+            )}
           </div>
-          {newRecord.record_type === 'その他' && (
-            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">項目名</label>
-              <Input 
-                value={newRecord.custom_type} 
-                onChange={e => setNewRecord({...newRecord, custom_type: e.target.value})} 
-                placeholder="例: 心拍数" 
-                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold"
+          {selectedItem?.show_memo && (
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">メモ</label>
+              <Textarea 
+                value={newRecord.note} 
+                onChange={e => setNewRecord({...newRecord, note: e.target.value})} 
+                placeholder="メモを入力..." 
+                className="rounded-xl border-slate-100 bg-slate-50/50 min-h-[80px] font-bold"
               />
             </div>
           )}
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">メモ</label>
-            <Textarea 
-              value={newRecord.note} 
-              onChange={e => setNewRecord({...newRecord, note: e.target.value})} 
-              placeholder="メモを入力..." 
-              className="rounded-xl border-slate-100 bg-slate-50/50 min-h-[80px] font-bold"
-            />
-          </div>
           <Button onClick={handleAddRecord} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-black text-white font-black shadow-lg">
             {isSubmitting ? '保存中...' : '記録を保存する'}
           </Button>

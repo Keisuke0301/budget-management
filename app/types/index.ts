@@ -31,6 +31,8 @@ export interface PetItem {
   label: string;
   unit: string | null;
   display_order: number;
+  show_numeric: boolean;
+  show_memo: boolean;
 }
 
 export interface PetRecord {

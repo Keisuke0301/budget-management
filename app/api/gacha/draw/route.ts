@@ -30,8 +30,8 @@ export async function POST(request: Request) {
       return random < cumulativeProbability;
     }) || prizes[prizes.length - 1];
 
-    // 3. choresテーブルにガチャの結果を登録（ポイント消費）
-    const { error: insertError } = await supabase.from('chores').insert([
+    // 3. chore_recordsテーブルにガチャの結果を登録（ポイント消費）
+    const { error: insertError } = await supabase.from('chore_records').insert([
       {
         category: 'ガチャ',
         task: 'ガチャ消費',

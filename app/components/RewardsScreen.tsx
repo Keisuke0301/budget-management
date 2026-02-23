@@ -27,7 +27,7 @@ export default function RewardsScreen({ refreshTrigger }: { refreshTrigger: numb
     const fetchRewards = async () => {
       const supabase = getSupabaseClient();
       const { data, error } = await supabase
-        .from('chores')
+        .from('chore_records')
         .select('note')
         .eq('category', 'ガチャ')
         .ilike('task', 'ガチャ消費');

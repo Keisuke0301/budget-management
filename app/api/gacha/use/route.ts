@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     }
 
     const { error } = await supabase
-      .from('chore_user_inventory')
+      .from('chore_records_prizes')
       .update({ 
         is_used: true,
         used_at: new Date().toISOString()

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     // 1. ガチャの景品をDBから取得
     const { data: prizes, error: prizesError } = await supabase
-      .from('chore_records_gachaprizes')
+      .from('chore_gacha_prizes')
       .select('*');
 
     if (prizesError || !prizes || prizes.length === 0) {
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     }
 
     // 4. ユーザーのインベントリに報酬を追加
-    const { error: inventoryError } = await supabase.from('chore_user_inventory').insert([
+    const { error: inventoryError } = await supabase.from('chore_records_prizes').insert([
       {
         assignee: assignee,
         prize_id: selectedPrize.id,

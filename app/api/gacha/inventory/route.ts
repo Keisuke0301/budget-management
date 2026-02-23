@@ -7,13 +7,13 @@ export async function GET() {
     
     // インベントリと景品情報を結合して取得
     const { data, error } = await supabase
-      .from('chore_user_inventory')
+      .from('chore_records_prizes')
       .select(`
         id,
         assignee,
         is_used,
         created_at,
-        prize:chore_records_gachaprizes (*)
+        prize:chore_gacha_prizes (*)
       `)
       .eq('is_used', false)
       .order('created_at', { ascending: false });

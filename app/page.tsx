@@ -16,7 +16,7 @@ import { Trophy } from 'lucide-react';
 import { MasterCategory, Chore, Totals } from './types';
 import RewardsScreen from './components/RewardsScreen';
 import Gacha from './components/Gacha';
-import PetLogScreen from './components/PetLogScreen';
+import PetLogScreen, { PetAddModal, PetHistoryModal, PetRecordModal } from './components/PetLogScreen';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -47,6 +47,14 @@ export default function Home() {
   const [isChoreModalOpen, setIsChoreModalOpen] = useState(false);
   const [isChoreHistoryModalOpen, setIsChoreHistoryModalOpen] = useState(false);
   const [isChoreStatsModalOpen, setIsChoreStatsModalOpen] = useState(false);
+  
+  // ペット関連のステート
+  const [isPetAddModalOpen, setIsPetAddModalOpen] = useState(false);
+  const [isPetHistoryModalOpen, setIsPetHistoryModalOpen] = useState(false);
+  const [isPetRecordModalOpen, setIsPetRecordModalOpen] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<PetInfo | null>(null);
+  const [petRefreshTrigger, setPetRefreshTrigger] = useState(0);
+
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
   const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet'>('chores');
@@ -129,7 +137,20 @@ export default function Home() {
     }
 
     if (activeTab === 'pet') {
-      return <PetLogScreen />;
+      return (
+        <PetLogScreen 
+          onOpenRecord={(pet) => {
+            setSelectedPet(pet);
+            setIsPetRecordModalOpen(true);
+          }}
+          onOpenHistory={(pet) => {
+            setSelectedPet(pet);
+            setIsPetHistoryModalOpen(true);
+          }}
+          onOpenAddPet={() => setIsPetAddModalOpen(true)}
+          refreshTrigger={petRefreshTrigger}
+        />
+      );
     }
 
     if (activeTab === 'chores') {
@@ -165,32 +186,7 @@ export default function Home() {
   return (
     <>
       <Toaster position="top-center" />
-      <header className="relative py-2 px-4 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-white">
-  {/* 装飾的な背景のアクセント */}
-  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full pointer-events-none">
-    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100/40 blur-[80px]"></div>
-    <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[50%] rounded-full bg-indigo-100/30 blur-[60px]"></div>
-  </div>
-
-  <div className="relative flex flex-col items-center">
-    {/* サブタイトル的なラベル */}
-    <span className="inline-block px-3 py-1 mb-1 text-[10px] font-bold tracking-[0.3em] uppercase text-indigo-500 bg-indigo-50/50 rounded-full border border-indigo-100/50 backdrop-blur-sm">
-      Management Tool
-    </span>
-    
-    <h1 className="relative group cursor-default">
-      <span className="text-3xl md:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
-        Family Hub
-      </span>
-      {/* 下線のアクセント */}
-      <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
-    </h1>
-    
-    <p className="mt-1 text-slate-400 text-xs font-medium tracking-widest uppercase">
-      Shared Life Dashboard
-    </p>
-  </div>
-</header>
+      {/* ... header ... */}
       
       <div className="container">
         {renderContent()}
@@ -219,6 +215,17 @@ export default function Home() {
             📜
           </Button>
           <Button id="chore-fab" className="fab" onClick={() => setIsChoreModalOpen(true)}>
+            ＋
+          </Button>
+        </>
+      )}
+
+      {activeTab === 'pet' && (
+        <>
+          <Button id="pet-history-fab" className="fab history-fab" onClick={() => setIsPetHistoryModalOpen(true)}>
+            📜
+          </Button>
+          <Button id="pet-add-fab" className="fab" onClick={() => setIsPetAddModalOpen(true)}>
             ＋
           </Button>
         </>
@@ -264,6 +271,24 @@ export default function Home() {
         refreshTrigger={choreRefreshTrigger}
         totals={choreTotals}
         onGachaDraw={handleChoreUpdate}
+      />
+
+      {/* ペット関連モーダル */}
+      <PetAddModal 
+        isOpen={isPetAddModalOpen} 
+        onClose={() => setIsPetAddModalOpen(false)} 
+        onSuccess={() => setPetRefreshTrigger(Date.now())} 
+      />
+      <PetHistoryModal 
+        isOpen={isPetHistoryModalOpen} 
+        onClose={() => setIsPetHistoryModalOpen(false)} 
+        pet={selectedPet} 
+      />
+      <PetRecordModal 
+        isOpen={isPetRecordModalOpen} 
+        onClose={() => setIsPetRecordModalOpen(false)} 
+        pet={selectedPet}
+        onSuccess={() => setPetRefreshTrigger(Date.now())}
       />
     </>
   );

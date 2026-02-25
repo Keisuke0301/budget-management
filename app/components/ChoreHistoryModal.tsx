@@ -26,7 +26,7 @@ export function ChoreHistoryModal({ isOpen, onClose, refreshTrigger, onDeleteSuc
       <DialogContent className="sm:max-w-[450px] max-h-[85vh] flex flex-col p-0 overflow-hidden rounded-3xl">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center justify-between">
-            <span className="font-black tracking-tight">家事ログ履歴</span>
+            <span className="font-black tracking-tight">履歴</span>
             <div className="flex bg-slate-100 p-1 rounded-xl">
                 <Button 
                     variant="ghost" 

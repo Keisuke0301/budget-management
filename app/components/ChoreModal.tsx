@@ -108,7 +108,7 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-6 pb-2">
-          <DialogTitle>家事記録</DialogTitle>
+          <DialogTitle>記録</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden px-6 pb-6">
           

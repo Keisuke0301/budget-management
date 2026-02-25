@@ -17,7 +17,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
         onClick={() => onTabChange('chores')}
       >
         <Sparkles size={24} />
-        <span className="text-xs font-medium">家事ログ</span>
+        <span className="text-xs font-medium">家事</span>
       </Button>
       <Button
         variant="ghost"

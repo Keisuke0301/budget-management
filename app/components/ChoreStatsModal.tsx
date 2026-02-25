@@ -77,7 +77,7 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger, totals, onGac
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Trophy className="text-amber-500" size={20} />
-                <span className="font-black tracking-tight">家事実績＆褒美</span>
+                <span className="font-black tracking-tight">実績＆褒美</span>
             </div>
             <div className="flex bg-slate-100 p-1 rounded-xl">
                 <Button 

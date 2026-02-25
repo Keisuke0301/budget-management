@@ -122,9 +122,9 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger, totals, onGac
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total Points</p>
+                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">実績合計</p>
                         <p className="text-2xl font-black text-slate-800 tracking-tighter">
-                          {currentPoints.toLocaleString()}<span className="text-xs font-bold ml-1 italic text-slate-400">pt</span>
+                          {data.totalPoints.toLocaleString()}<span className="text-xs font-bold ml-1 italic text-slate-400">pt</span>
                         </p>
                       </div>
                     </div>
@@ -136,7 +136,7 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger, totals, onGac
                       </div>
                       <div className="h-4 w-[1px] bg-slate-200"></div>
                       <div className="flex-1">
-                        <span>平均スコア: <span className="text-slate-700 font-black">{data.count > 0 ? Math.round(data.totalPoints / data.count) : 0}</span></span>
+                        <span>所持ポイント: <span className="text-slate-700 font-black">{currentPoints.toLocaleString()} pt</span></span>
                       </div>
                     </div>
 

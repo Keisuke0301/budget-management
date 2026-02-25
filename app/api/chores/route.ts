@@ -7,8 +7,7 @@ export async function GET() {
     const { data: chores, error } = await supabase
       .from("chore_records")
       .select("*")
-      .order("created_at", { ascending: false })
-      .limit(50);
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw new Error(`家事ログの取得に失敗しました: ${error.message}`);

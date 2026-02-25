@@ -129,14 +129,18 @@ export function ChoreStatsModal({ isOpen, onClose, refreshTrigger, totals, onGac
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 bg-slate-50/80 p-3 rounded-2xl">
-                      <div className="flex items-center gap-1.5 flex-1">
+                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 bg-slate-50/80 p-3 rounded-2xl">
+                      <div className="flex items-center gap-1">
                         <Hash size={12} className="text-slate-300" />
-                        <span>家事回数: <span className="text-slate-700 font-black">{data.count}</span></span>
+                        <span>回数: <span className="text-slate-700 font-black">{data.count}</span></span>
                       </div>
                       <div className="h-4 w-[1px] bg-slate-200"></div>
-                      <div className="flex-1">
-                        <span>平均スコア: <span className="text-slate-700 font-black">{data.count > 0 ? Math.round(data.totalPoints / data.count) : 0}</span></span>
+                      <div>
+                        <span>平均: <span className="text-slate-700 font-black">{data.count > 0 ? Math.round(data.totalPoints / data.count) : 0}</span></span>
+                      </div>
+                      <div className="h-4 w-[1px] bg-slate-200"></div>
+                      <div>
+                        <span>累積: <span className="text-slate-700 font-black">{data.totalPoints.toLocaleString()} pt</span></span>
                       </div>
                     </div>
 

@@ -17,6 +17,8 @@ import { MasterCategory, Chore, Totals, PetInfo, PetItem } from './types';
 import RewardsScreen from './components/RewardsScreen';
 import Gacha from './components/Gacha';
 import PetLogScreen, { PetAddModal, PetHistoryModal, PetRecordModal, PetEditModal } from './components/PetLogScreen';
+import DiaryScreen from './components/DiaryScreen';
+import { DiaryModal } from './components/DiaryModal';
 
 
 // データの方を定義しておくと、コードが書きやすくなります
@@ -62,9 +64,13 @@ export default function Home() {
   const [pets, setPets] = useState<PetInfo[]>([]);
   const [petItems, setPetItems] = useState<PetItem[]>([]);
 
+  // 日記関連のステート
+  const [isDiaryModalOpen, setIsDiaryModalOpen] = useState(false);
+  const [diaryRefreshTrigger, setDiaryRefreshTrigger] = useState(0);
+
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet'>('chores');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet' | 'diary'>('chores');
 
   const fetchChoreTotals = useCallback(async () => {
     try {
@@ -136,6 +142,10 @@ export default function Home() {
     fetchData(); // ペット更新時も全体データを再取得してpetsステートを同期
   };
 
+  const handleDiaryUpdate = () => {
+    setDiaryRefreshTrigger(Date.now());
+  };
+
   const renderContent = () => {
     // 初回ロード時のみスケルトンを表示
     if (loading && !data) {
@@ -149,6 +159,12 @@ export default function Home() {
 
     if (error) {
       return <p className="text-center p-8 text-red-500 font-bold">エラー: {error}</p>;
+    }
+
+    if (activeTab === 'diary') {
+      return (
+        <DiaryScreen refreshTrigger={diaryRefreshTrigger} />
+      );
     }
 
     if (activeTab === 'pet') {
@@ -253,6 +269,14 @@ export default function Home() {
         </>
       )}
 
+      {activeTab === 'diary' && (
+        <>
+          <Button id="diary-fab" className="fab" onClick={() => setIsDiaryModalOpen(true)}>
+            ＋
+          </Button>
+        </>
+      )}
+
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* 支出記録モーダル */}
@@ -319,6 +343,13 @@ export default function Home() {
         onClose={() => setIsPetEditModalOpen(false)} 
         pet={selectedPet}
         onSuccess={handlePetUpdate}
+      />
+
+      {/* 日記記録モーダル */}
+      <DiaryModal
+        isOpen={isDiaryModalOpen}
+        onClose={() => setIsDiaryModalOpen(false)}
+        onSuccess={handleDiaryUpdate}
       />
     </>
   );

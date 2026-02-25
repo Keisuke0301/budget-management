@@ -64,3 +64,10 @@ export interface MasterCategory {
   display_order: number;
   tasks: MasterTask[];
 }
+
+export interface DiaryRecord {
+  id: number;
+  created_at: string;
+  content: string;
+  date: string;
+}

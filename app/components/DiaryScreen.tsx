@@ -73,24 +73,24 @@ export default function DiaryScreen({ refreshTrigger }: DiaryScreenProps) {
           <p className="text-sm">右下の＋ボタンから記録しましょう！</p>
         </div>
       ) : (
-        <div className="grid gap-2.5">
+        <div className="grid gap-2">
           {entries.map((entry) => (
-            <Card key={entry.id} className="overflow-hidden border-none shadow-sm rounded-2xl bg-white">
-              <CardHeader className="p-3 pb-1 flex flex-row items-center justify-between">
-                <CardTitle className="text-[11px] font-black text-indigo-400 tabular-nums uppercase tracking-wider">
+            <Card key={entry.id} className="overflow-hidden border-none shadow-sm rounded-xl bg-white py-0 gap-0">
+              <CardHeader className="px-3 py-1 flex flex-row items-center justify-between gap-0">
+                <CardTitle className="text-[10px] font-black text-indigo-300 tabular-nums uppercase tracking-widest">
                   {format(new Date(entry.date), "yy/MM/dd (E)", { locale: ja })}
                 </CardTitle>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-slate-200 hover:text-red-400"
+                  className="h-5 w-5 text-slate-200 hover:text-red-400 -mr-1"
                   onClick={() => handleDelete(entry.id)}
                 >
-                  <Trash2 size={12} />
+                  <Trash2 size={10} />
                 </Button>
               </CardHeader>
-              <CardContent className="p-3 pt-0">
-                <p className="text-slate-600 whitespace-pre-wrap leading-snug text-[13px] font-medium">
+              <CardContent className="px-3 pb-2 pt-0">
+                <p className="text-slate-600 whitespace-pre-wrap leading-tight text-[13px] font-medium">
                   {entry.content}
                 </p>
               </CardContent>

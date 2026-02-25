@@ -11,9 +11,10 @@ import { toast } from "sonner";
 
 interface DiaryScreenProps {
   refreshTrigger: number;
+  onEdit: (entry: DiaryRecord) => void;
 }
 
-export default function DiaryScreen({ refreshTrigger }: DiaryScreenProps) {
+export default function DiaryScreen({ refreshTrigger, onEdit }: DiaryScreenProps) {
   const [entries, setEntries] = useState<DiaryRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,7 +76,11 @@ export default function DiaryScreen({ refreshTrigger }: DiaryScreenProps) {
       ) : (
         <div className="grid gap-2">
           {entries.map((entry) => (
-            <Card key={entry.id} className="overflow-hidden border-none shadow-sm rounded-xl bg-white py-0 gap-0">
+            <Card 
+              key={entry.id} 
+              className="overflow-hidden border-none shadow-sm rounded-xl bg-white py-0 gap-0 cursor-pointer hover:bg-slate-50 active:scale-[0.98] transition-all"
+              onClick={() => onEdit(entry)}
+            >
               <CardHeader className="px-3 py-1 flex flex-row items-center justify-between gap-0">
                 <CardTitle className="text-[10px] font-black text-indigo-300 tabular-nums uppercase tracking-widest">
                   {format(new Date(entry.date), "yy/MM/dd (E)", { locale: ja })}
@@ -83,8 +88,11 @@ export default function DiaryScreen({ refreshTrigger }: DiaryScreenProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-5 w-5 text-slate-200 hover:text-red-400 -mr-1"
-                  onClick={() => handleDelete(entry.id)}
+                  className="h-5 w-5 text-slate-200 hover:text-red-400 -mr-1 z-20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(entry.id);
+                  }}
                 >
                   <Trash2 size={10} />
                 </Button>

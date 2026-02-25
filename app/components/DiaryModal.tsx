@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,17 +12,31 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { DiaryRecord } from "@/app/types";
 
 interface DiaryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  initialData?: DiaryRecord | null;
 }
 
-export function DiaryModal({ isOpen, onClose, onSuccess }: DiaryModalProps) {
+export function DiaryModal({ isOpen, onClose, onSuccess, initialData }: DiaryModalProps) {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setDate(format(new Date(initialData.date), "yyyy-MM-dd"));
+        setContent(initialData.content);
+      } else {
+        setDate(format(new Date(), "yyyy-MM-dd"));
+        setContent("");
+      }
+    }
+  }, [isOpen, initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,19 +47,20 @@ export function DiaryModal({ isOpen, onClose, onSuccess }: DiaryModalProps) {
 
     setIsSubmitting(true);
     try {
+      const method = initialData ? "PATCH" : "POST";
+      const payload = initialData ? { id: initialData.id, content, date } : { content, date };
+      
       const response = await fetch("/api/diary", {
-        method: "POST",
+        method: method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, date }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error("日記の記録に失敗しました。");
+        throw new Error(`日記の${initialData ? '更新' : '記録'}に失敗しました。`);
       }
 
-      toast.success("日記を記録しました！");
-      setContent("");
-      setDate(format(new Date(), "yyyy-MM-dd"));
+      toast.success(`日記を${initialData ? '更新' : '記録'}しました！`);
       onSuccess();
       onClose();
     } catch (error: unknown) {
@@ -60,7 +75,7 @@ export function DiaryModal({ isOpen, onClose, onSuccess }: DiaryModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>日記を記録</DialogTitle>
+          <DialogTitle>{initialData ? "日記を編集" : "日記を記録"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
@@ -85,7 +100,7 @@ export function DiaryModal({ isOpen, onClose, onSuccess }: DiaryModalProps) {
             />
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "記録中..." : "保存する"}
+            {isSubmitting ? "処理中..." : (initialData ? "更新する" : "保存する")}
           </Button>
         </form>
       </DialogContent>

@@ -66,6 +66,7 @@ export default function Home() {
 
   // 日記関連のステート
   const [isDiaryModalOpen, setIsDiaryModalOpen] = useState(false);
+  const [selectedDiary, setSelectedDiary] = useState<DiaryRecord | null>(null);
   const [diaryRefreshTrigger, setDiaryRefreshTrigger] = useState(0);
 
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
@@ -163,7 +164,13 @@ export default function Home() {
 
     if (activeTab === 'diary') {
       return (
-        <DiaryScreen refreshTrigger={diaryRefreshTrigger} />
+        <DiaryScreen 
+          refreshTrigger={diaryRefreshTrigger} 
+          onEdit={(entry) => {
+            setSelectedDiary(entry);
+            setIsDiaryModalOpen(true);
+          }}
+        />
       );
     }
 
@@ -287,7 +294,10 @@ export default function Home() {
 
       {activeTab === 'diary' && (
         <>
-          <Button id="diary-fab" className="fab" onClick={() => setIsDiaryModalOpen(true)}>
+          <Button id="diary-fab" className="fab" onClick={() => {
+            setSelectedDiary(null);
+            setIsDiaryModalOpen(true);
+          }}>
             ＋
           </Button>
         </>
@@ -364,8 +374,12 @@ export default function Home() {
       {/* 日記記録モーダル */}
       <DiaryModal
         isOpen={isDiaryModalOpen}
-        onClose={() => setIsDiaryModalOpen(false)}
+        onClose={() => {
+          setIsDiaryModalOpen(false);
+          setSelectedDiary(null);
+        }}
         onSuccess={handleDiaryUpdate}
+        initialData={selectedDiary}
       />
     </>
   );

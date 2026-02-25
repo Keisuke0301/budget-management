@@ -51,6 +51,37 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const supabase = getSupabaseClient();
+    const { id, content, date } = await request.json();
+
+    if (!id || !content || !date) {
+      return NextResponse.json(
+        { error: 'ID、日付、内容を入力してください。' },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('diary_records')
+      .update({ content, date })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      throw new Error(`日記の更新に失敗しました: ${error.message}`);
+    }
+
+    return NextResponse.json(data[0]);
+
+  } catch (e: unknown) {
+    console.error(e);
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

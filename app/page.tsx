@@ -232,22 +232,13 @@ export default function Home() {
         </div>
 
         <div className="relative flex flex-col items-center">
-          {/* サブタイトル的なラベル */}
-          <span className="inline-block px-3 py-1 mb-1 text-[10px] font-bold tracking-[0.3em] uppercase text-indigo-500 bg-indigo-50/50 rounded-full border border-indigo-100/50 backdrop-blur-sm">
-            Management Tool
-          </span>
-
           <h1 className="relative group cursor-default">
-            <span className="text-3xl md:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
+            <span className="text-xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-500">
               Family Hub
             </span>
             {/* 下線のアクセント */}
-            <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
+            <div className="absolute -bottom-1 left-0 w-1/3 h-0.5 bg-gradient-to-r from-indigo-500 to-transparent rounded-full transition-all duration-500 group-hover:w-full"></div>
           </h1>
-
-          <p className="mt-1 text-slate-400 text-xs font-medium tracking-widest uppercase">
-            Shared Life Dashboard
-          </p>
         </div>
       </header>
       

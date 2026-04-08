@@ -6,6 +6,7 @@ import { Chore, MasterCategory, MasterTask } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { isToday } from "date-fns";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
+import { DARK_TRIVIA } from "@/app/lib/contents";
 import {
   Dialog,
   DialogContent,
@@ -148,9 +149,10 @@ export function ChoreBubbleGame({
 
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+      const randomTrivia = DARK_TRIVIA[Math.floor(Math.random() * DARK_TRIVIA.length)];
       const finalScore = (payload.base_score * payload.multiplier) / selectedAssignees.length;
       
-      let toastMessage = `${selectedTask.name} (${finalScore.toFixed(1)}pt/人) を記録しました！\n\n${randomPraise}`;
+      let toastMessage = `${selectedTask.name} (${finalScore.toFixed(1)}pt/人) を記録しました！\n\n${randomPraise}\n\n【今日のブラック豆知識】\n${randomTrivia}`;
 
       // デイリーボーナスのメッセージ追加
       if (selectedTask.id === bonusInfo?.taskId) {
@@ -239,7 +241,6 @@ export function ChoreBubbleGame({
               <div className="flex flex-wrap justify-center gap-1.5 p-0.5">
                 {areaTasks.map((task, index) => {
                   const isPopping = poppingTask === task.id;
-                  const isCompleted = task.isCompleted;
                   const animIndex = (index % 4) + 1;
                   const delay = (index * 0.3) % 2;
                   const duration = 4 + (index % 3);

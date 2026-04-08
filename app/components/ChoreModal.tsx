@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { PRAISE_MESSAGES } from "@/app/lib/constants";
+import { DARK_TRIVIA } from "@/app/lib/contents";
 import { ICON_MAP } from "@/app/lib/choreConstants";
 import { format } from "date-fns";
 import { MasterCategory, MasterTask } from "@/app/types";
@@ -77,11 +78,12 @@ export function ChoreModal({ isOpen, onClose, onSuccess, masterData }: ChoreModa
 
       const result = await response.json();
       const randomPraise = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+      const randomTrivia = DARK_TRIVIA[Math.floor(Math.random() * DARK_TRIVIA.length)];
       
       // 複数人登録の場合、APIは配列を返すことを想定
       const firstResult = Array.isArray(result) ? result[0] : result;
       const score = firstResult.score ?? 0;
-      let toastMessage = `${currentTask.name} (${score.toFixed(1)}pt) を記録しました！\n\n${randomPraise}`;
+      let toastMessage = `${currentTask.name} (${score.toFixed(1)}pt) を記録しました！\n\n${randomPraise}\n\n【今日のブラック豆知識】\n${randomTrivia}`;
 
       if (firstResult.multiplier && firstResult.multiplier > 1 && firstResult.multiplier_message) {
         toastMessage = `${firstResult.multiplier_message}\n` + toastMessage;

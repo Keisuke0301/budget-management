@@ -330,12 +330,18 @@ export function PlantEditModal({
   plant: PlantInfo | null;
   onSuccess: () => void;
 }) {
-  const [editPlant, setEditPlant] = useState({ 
+  const [editPlant, setEditPlant] = useState<{
+    name: string;
+    variety: string;
+    planting_date: string;
+    location: string;
+    status: 'growing' | 'harvested' | 'ended';
+  }>({ 
     name: '', 
     variety: '', 
     planting_date: '',
     location: '',
-    status: 'growing' as const
+    status: 'growing'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 

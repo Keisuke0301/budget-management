@@ -34,3 +34,10 @@ CREATE TABLE IF NOT EXISTS plant_records (
   note TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- RLS Settings
+ALTER TABLE plant_info ENABLE ROW LEVEL SECURITY;
+ALTER TABLE plant_records ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all for plant_info" ON plant_info FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all for plant_records" ON plant_records FOR ALL USING (true) WITH CHECK (true);

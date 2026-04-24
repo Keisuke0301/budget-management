@@ -96,10 +96,11 @@ export async function GET(request: Request) {
 
     if (expenseError) throw new Error(`支出記録の取得に失敗: ${expenseError.message}`);
 
-    // --- ペットデータおよび今日の家事データの取得 ---
-    const [petsRes, petItemsRes, todayChoresRes] = await Promise.all([
+    // --- ペットデータ、植物データおよび今日の家事データの取得 ---
+    const [petsRes, petItemsRes, plantsRes, todayChoresRes] = await Promise.all([
       supabase.from("pet_info").select("*").order("created_at", { ascending: true }),
       supabase.from("pet_items").select("*").order("display_order", { ascending: true }),
+      supabase.from("plant_info").select("*").order("created_at", { ascending: true }),
       supabase.from("chore_records")
         .select("category, task")
         .gte("created_at", startOfDay(today).toISOString())
@@ -156,6 +157,7 @@ export async function GET(request: Request) {
       endOfMonthTime: endOfMonth.getTime(),
       pets: petsRes.data || [],
       petItems: petItemsRes.data || [],
+      plants: plantsRes.data || [],
       todayChoreCounts: todayChoreCounts
     };
 

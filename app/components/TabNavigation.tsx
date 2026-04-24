@@ -1,18 +1,19 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { WalletCards, Sparkles, PawPrint, BookText } from "lucide-react";
+import { WalletCards, Sparkles, PawPrint, BookText, Sprout } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface TabNavigationProps {
-  activeTab: 'budget' | 'chores' | 'pet' | 'diary';
-  onTabChange: (tab: 'budget' | 'chores' | 'pet' | 'diary') => void;
+  activeTab: 'budget' | 'chores' | 'pet' | 'diary' | 'garden';
+  onTabChange: (tab: 'budget' | 'chores' | 'pet' | 'diary' | 'garden') => void;
 }
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   const tabs = [
     { id: 'chores', label: '家事', icon: Sparkles },
     { id: 'pet', label: 'ペット', icon: PawPrint },
+    { id: 'garden', label: '菜園', icon: Sprout },
     { id: 'budget', label: '予算', icon: WalletCards },
     { id: 'diary', label: '日記', icon: BookText },
   ] as const;

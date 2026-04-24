@@ -71,3 +71,22 @@ export interface DiaryRecord {
   content: string;
   date: string;
 }
+
+export interface PlantInfo {
+  id: number;
+  name: string;
+  variety: string | null;
+  planting_date: string | null;
+  location: string | null;
+  status: 'growing' | 'harvested' | 'ended';
+  created_at: string;
+}
+
+export interface PlantRecord {
+  id: number;
+  plant_id: number;
+  recorded_at: string;
+  record_type: string;
+  note: string | null;
+  created_at: string;
+}

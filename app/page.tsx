@@ -13,10 +13,11 @@ import { TabNavigation } from './components/TabNavigation';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Trophy } from 'lucide-react';
-import { MasterCategory, Chore, Totals, PetInfo, PetItem, DiaryRecord } from './types';
+import { MasterCategory, Chore, Totals, PetInfo, PetItem, DiaryRecord, PlantInfo } from './types';
 import RewardsScreen from './components/RewardsScreen';
 import Gacha from './components/Gacha';
 import PetLogScreen, { PetAddModal, PetHistoryModal, PetRecordModal, PetEditModal } from './components/PetLogScreen';
+import GardenScreen, { PlantAddModal, PlantHistoryModal, PlantRecordModal, PlantEditModal } from './components/GardenScreen';
 import DiaryScreen from './components/DiaryScreen';
 import { DiaryModal } from './components/DiaryModal';
 
@@ -38,6 +39,7 @@ export interface InitialData {
   endOfMonthTime: number;
   pets: PetInfo[];
   petItems: PetItem[];
+  plants: PlantInfo[];
   todayChoreCounts: Record<string, number>;
 }
 
@@ -64,6 +66,15 @@ export default function Home() {
   const [pets, setPets] = useState<PetInfo[]>([]);
   const [petItems, setPetItems] = useState<PetItem[]>([]);
 
+  // 菜園関連のステート
+  const [isPlantAddModalOpen, setIsPlantAddModalOpen] = useState(false);
+  const [isPlantHistoryModalOpen, setIsPlantHistoryModalOpen] = useState(false);
+  const [isPlantRecordModalOpen, setIsPlantRecordModalOpen] = useState(false);
+  const [isPlantEditModalOpen, setIsPlantEditModalOpen] = useState(false);
+  const [selectedPlant, setSelectedPlant] = useState<PlantInfo | null>(null);
+  const [plantRefreshTrigger, setPlantRefreshTrigger] = useState(0);
+  const [plants, setPlants] = useState<PlantInfo[]>([]);
+
   // 日記関連のステート
   const [isDiaryModalOpen, setIsDiaryModalOpen] = useState(false);
   const [selectedDiary, setSelectedDiary] = useState<DiaryRecord | null>(null);
@@ -71,7 +82,7 @@ export default function Home() {
 
   const [choreRefreshTrigger, setChoreRefreshTrigger] = useState(0);
   const [dataUpdatedAt, setDataUpdatedAt] = useState(0);
-  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet' | 'diary'>('chores');
+  const [activeTab, setActiveTab] = useState<'budget' | 'chores' | 'pet' | 'diary' | 'garden'>('chores');
 
   const fetchChoreTotals = useCallback(async () => {
     try {
@@ -115,6 +126,7 @@ export default function Home() {
       setData(initResult);
       setPets(initResult.pets || []);
       setPetItems(initResult.petItems || []);
+      setPlants(initResult.plants || []);
       setTodayChoreCounts(initResult.todayChoreCounts || {});
       setChoreMasterData(choreMasterResult);
       setDataUpdatedAt(Date.now());
@@ -141,6 +153,11 @@ export default function Home() {
   const handlePetUpdate = () => {
     setPetRefreshTrigger(Date.now());
     fetchData(); // ペット更新時も全体データを再取得してpetsステートを同期
+  };
+
+  const handlePlantUpdate = () => {
+    setPlantRefreshTrigger(Date.now());
+    fetchData(); // 植物更新時も全体データを再取得してplantsステートを同期
   };
 
   const handleDiaryUpdate = () => {
@@ -170,6 +187,29 @@ export default function Home() {
             setSelectedDiary(entry);
             setIsDiaryModalOpen(true);
           }}
+        />
+      );
+    }
+
+    if (activeTab === 'garden') {
+      return (
+        <GardenScreen 
+          plants={plants}
+          isLoading={loading && plants.length === 0}
+          onOpenRecord={(plant) => {
+            setSelectedPlant(plant);
+            setIsPlantRecordModalOpen(true);
+          }}
+          onOpenHistory={(plant) => {
+            setSelectedPlant(plant);
+            setIsPlantHistoryModalOpen(true);
+          }}
+          onOpenAddPlant={() => setIsPlantAddModalOpen(true)}
+          onOpenEdit={(plant) => {
+            setSelectedPlant(plant);
+            setIsPlantEditModalOpen(true);
+          }}
+          refreshTrigger={plantRefreshTrigger}
         />
       );
     }
@@ -292,6 +332,17 @@ export default function Home() {
         </>
       )}
 
+      {activeTab === 'garden' && (
+        <>
+          <Button id="plant-history-fab" className="fab history-fab" onClick={() => setIsPlantHistoryModalOpen(true)}>
+            📜
+          </Button>
+          <Button id="plant-add-fab" className="fab" onClick={() => setIsPlantAddModalOpen(true)}>
+            ＋
+          </Button>
+        </>
+      )}
+
       {activeTab === 'diary' && (
         <>
           <Button id="diary-fab" className="fab" onClick={() => {
@@ -380,6 +431,31 @@ export default function Home() {
         }}
         onSuccess={handleDiaryUpdate}
         initialData={selectedDiary}
+      />
+
+      {/* 菜園関連モーダル */}
+      <PlantAddModal 
+        isOpen={isPlantAddModalOpen} 
+        onClose={() => setIsPlantAddModalOpen(false)} 
+        onSuccess={handlePlantUpdate} 
+      />
+      <PlantHistoryModal 
+        isOpen={isPlantHistoryModalOpen} 
+        onClose={() => setIsPlantHistoryModalOpen(false)} 
+        plant={selectedPlant} 
+        onRefresh={handlePlantUpdate}
+      />
+      <PlantRecordModal 
+        isOpen={isPlantRecordModalOpen} 
+        onClose={() => setIsPlantRecordModalOpen(false)} 
+        plant={selectedPlant}
+        onSuccess={handlePlantUpdate}
+      />
+      <PlantEditModal 
+        isOpen={isPlantEditModalOpen} 
+        onClose={() => setIsPlantEditModalOpen(false)} 
+        plant={selectedPlant}
+        onSuccess={handlePlantUpdate}
       />
     </>
   );

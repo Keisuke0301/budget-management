@@ -12,10 +12,10 @@ interface TabNavigationProps {
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   const tabs = [
     { id: 'chores', label: '家事', icon: Sparkles },
-    { id: 'pet', label: 'ペット', icon: PawPrint },
-    { id: 'garden', label: '菜園', icon: Sprout },
     { id: 'budget', label: '予算', icon: WalletCards },
     { id: 'diary', label: '日記', icon: BookText },
+    { id: 'pet', label: 'ペット', icon: PawPrint },
+    { id: 'garden', label: '菜園', icon: Sprout },
   ] as const;
 
   return (

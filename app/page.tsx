@@ -209,6 +209,7 @@ export default function Home() {
             setSelectedPlant(plant);
             setIsPlantEditModalOpen(true);
           }}
+          onUpdate={handlePlantUpdate}
           refreshTrigger={plantRefreshTrigger}
         />
       );

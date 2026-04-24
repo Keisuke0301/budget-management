@@ -4,18 +4,27 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const plantId = searchParams.get('plantId');
-
-  if (!plantId) {
-    return NextResponse.json({ error: 'plantId is required' }, { status: 400 });
-  }
+  const startDate = searchParams.get('startDate');
+  const endDate = searchParams.get('endDate');
 
   try {
     const supabase = getSupabaseClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from('plant_records')
-      .select('*')
-      .eq('plant_id', plantId)
-      .order('recorded_at', { ascending: false });
+      .select('*, plant_info(name)');
+
+    if (plantId) {
+      query = query.eq('plant_id', plantId);
+    }
+    
+    if (startDate) {
+      query = query.gte('recorded_at', startDate);
+    }
+    if (endDate) {
+      query = query.lte('recorded_at', endDate);
+    }
+
+    const { data, error } = await query.order('recorded_at', { ascending: false });
 
     if (error) throw error;
     return NextResponse.json(data);

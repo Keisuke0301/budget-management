@@ -7,9 +7,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, Calendar, ClipboardList, Sprout, Leaf, Flower2 } from 'lucide-react';
+import { 
+  Plus, 
+  Trash2, 
+  Calendar as CalendarIcon, 
+  ClipboardList, 
+  Sprout, 
+  Leaf, 
+  Flower2,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  List as ListIcon
+} from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { 
+  format, 
+  startOfMonth, 
+  endOfMonth, 
+  startOfWeek, 
+  endOfWeek, 
+  eachDayOfInterval, 
+  isSameMonth, 
+  isSameDay, 
+  addMonths, 
+  subMonths 
+} from 'date-fns';
 import { ja } from 'date-fns/locale';
 import {
   Dialog,
@@ -30,23 +53,225 @@ const PLANT_RECORD_TYPES = [
   '収穫終了'
 ];
 
+interface PlantRecordWithInfo extends PlantRecord {
+  plant_info: {
+    name: string;
+  };
+}
+
+// --- まとめて記録用モーダル ---
+export function BulkRecordModal({
+  isOpen,
+  onClose,
+  plants,
+  onSuccess,
+  selectedDate
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  plants: PlantInfo[];
+  onSuccess: () => void;
+  selectedDate: string;
+}) {
+  const [selectedPlantIds, setSelectedPlantIds] = useState<number[]>([]);
+  const [recordType, setRecordType] = useState('水やり');
+  const [note, setNote] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedPlantIds(plants.filter(p => p.status !== 'ended').map(p => p.id));
+    }
+  }, [isOpen, plants]);
+
+  const handleBulkSubmit = async () => {
+    if (selectedPlantIds.length === 0) {
+      toast.error('植物を選択してください');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const records = selectedPlantIds.map(id => ({
+        plant_id: id,
+        record_type: recordType,
+        note: note || null,
+        recorded_at: new Date(selectedDate).toISOString()
+      }));
+
+      const res = await fetch('/api/plants/records/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ records })
+      });
+
+      if (!res.ok) throw new Error();
+      toast.success('まとめて記録しました');
+      onSuccess();
+      onClose();
+      setNote('');
+    } catch (error) {
+      toast.error('記録に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const togglePlant = (id: number) => {
+    setSelectedPlantIds(prev => 
+      prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+    );
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="rounded-3xl sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="font-black text-center text-slate-700">
+            {format(new Date(selectedDate), 'M/d')} のまとめて記録
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 overflow-y-auto space-y-4 py-4 px-1">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">項目</label>
+            <Select value={recordType} onValueChange={setRecordType}>
+              <SelectTrigger className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PLANT_RECORD_TYPES.map(type => (
+                  <SelectItem key={type} value={type} className="font-bold">{type}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">対象の植物</label>
+            <div className="grid grid-cols-2 gap-2">
+              {plants.filter(p => p.status !== 'ended').map(plant => (
+                <div 
+                  key={plant.id}
+                  onClick={() => togglePlant(plant.id)}
+                  className={`p-2 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-2 ${
+                    selectedPlantIds.includes(plant.id) 
+                      ? 'border-green-500 bg-green-50 text-green-700' 
+                      : 'border-slate-100 bg-slate-50 text-slate-400'
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    selectedPlantIds.includes(plant.id) ? 'border-green-500 bg-green-500' : 'border-slate-200'
+                  }`}>
+                    {selectedPlantIds.includes(plant.id) && <CheckCircle2 size={12} className="text-white" />}
+                  </div>
+                  <span className="text-xs font-bold truncate">{plant.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">メモ (任意)</label>
+            <Textarea 
+              value={note} 
+              onChange={e => setNote(e.target.value)} 
+              placeholder="メモを入力..." 
+              className="rounded-xl border-slate-100 bg-slate-50/50 min-h-[60px] font-bold"
+            />
+          </div>
+        </div>
+        <div className="pt-2">
+          <Button onClick={handleBulkSubmit} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-black text-white font-black shadow-lg">
+            {isSubmitting ? '記録中...' : `${selectedPlantIds.length}件を記録する`}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// --- 日付詳細モーダル ---
+export function DayDetailsModal({
+  isOpen,
+  onClose,
+  date,
+  records,
+  onOpenBulk
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  date: string;
+  records: PlantRecordWithInfo[];
+  onOpenBulk: () => void;
+}) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="rounded-3xl sm:max-w-[400px] max-h-[70vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="font-black flex items-center justify-between border-b pb-2 text-slate-700">
+            <span>{format(new Date(date), 'yyyy年M月d日')}</span>
+            <Button variant="ghost" size="sm" onClick={onOpenBulk} className="text-xs text-green-600 font-bold hover:bg-green-50 h-8 px-2 rounded-lg">
+              <Plus size={14} className="mr-1" /> まとめて記録
+            </Button>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 overflow-y-auto py-2 px-1">
+          {records.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 font-bold">記録がありません</div>
+          ) : (
+            <ul className="space-y-3">
+              {records.map(record => (
+                <li key={record.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-black text-slate-700">{record.plant_info?.name}</span>
+                    <span className="text-[10px] font-bold text-white bg-green-500 px-1.5 py-0.5 rounded shrink-0">
+                      {record.record_type}
+                    </span>
+                  </div>
+                  {record.note && (
+                    <p className="text-xs text-slate-600 leading-relaxed break-words pl-1 border-l-2 border-green-200">
+                      {record.note}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // --- 記録用モーダル ---
 export function PlantRecordModal({ 
   isOpen, 
   onClose, 
   plant, 
-  onSuccess 
+  onSuccess,
+  initialDate
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   plant: PlantInfo | null;
   onSuccess: () => void;
+  initialDate?: string;
 }) {
   const [newRecord, setNewRecord] = useState({ 
     record_type: '水やり', 
     note: '',
-    recorded_at: format(new Date(), 'yyyy-MM-dd')
+    recorded_at: initialDate || format(new Date(), 'yyyy-MM-dd')
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      setNewRecord({
+        record_type: '水やり',
+        note: '',
+        recorded_at: initialDate || format(new Date(), 'yyyy-MM-dd')
+      });
+    }
+  }, [isOpen, initialDate]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddRecord = async () => {
@@ -68,11 +293,6 @@ export function PlantRecordModal({
       toast.success('記録を保存しました');
       onSuccess();
       onClose();
-      setNewRecord({ 
-        record_type: '水やり', 
-        note: '',
-        recorded_at: format(new Date(), 'yyyy-MM-dd')
-      });
     } catch (error) {
       toast.error('記録の保存に失敗しました');
     } finally {
@@ -484,6 +704,7 @@ export function PlantEditModal({
   );
 }
 
+// --- メイン画面 ---
 export default function GardenScreen({ 
   plants,
   isLoading,
@@ -491,6 +712,7 @@ export default function GardenScreen({
   onOpenHistory,
   onOpenAddPlant,
   onOpenEdit,
+  onUpdate,
   refreshTrigger 
 }: { 
   plants: PlantInfo[];
@@ -499,10 +721,56 @@ export default function GardenScreen({
   onOpenHistory: (plant: PlantInfo) => void;
   onOpenAddPlant: () => void;
   onOpenEdit: (plant: PlantInfo) => void;
+  onUpdate: () => void;
   refreshTrigger: number;
 }) {
+  const [isCalendarView, setIsCalendarView] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [records, setRecords] = useState<PlantRecordWithInfo[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [isDayDetailsOpen, setIsDayDetailsOpen] = useState(false);
+  const [isBulkRecordOpen, setIsBulkRecordOpen] = useState(false);
+
   const activePlants = useMemo(() => plants.filter(p => p.status !== 'ended'), [plants]);
   const endedPlants = useMemo(() => plants.filter(p => p.status === 'ended'), [plants]);
+
+  // 全記録の取得 (カレンダー用)
+  const fetchAllRecords = useCallback(async () => {
+    const start = format(startOfWeek(startOfMonth(currentMonth)), 'yyyy-MM-dd');
+    const end = format(endOfWeek(endOfMonth(currentMonth)), 'yyyy-MM-dd');
+    try {
+      const res = await fetch(`/api/plants/records?startDate=${start}&endDate=${end}`);
+      const data = await res.json();
+      setRecords(data);
+    } catch (error) {
+      console.error('Failed to fetch calendar records');
+    }
+  }, [currentMonth]);
+
+  useEffect(() => {
+    fetchAllRecords();
+  }, [fetchAllRecords, refreshTrigger]);
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDate(format(day, 'yyyy-MM-dd'));
+    setIsDayDetailsOpen(true);
+  };
+
+  const calendarDays = useMemo(() => {
+    const start = startOfWeek(startOfMonth(currentMonth));
+    const end = endOfWeek(endOfMonth(currentMonth));
+    return eachDayOfInterval({ start, end });
+  }, [currentMonth]);
+
+  const recordsByDate = useMemo(() => {
+    const map: Record<string, PlantRecordWithInfo[]> = {};
+    records.forEach(r => {
+      const date = format(new Date(r.recorded_at), 'yyyy-MM-dd');
+      if (!map[date]) map[date] = [];
+      map[date].push(r);
+    });
+    return map;
+  }, [records]);
 
   const renderPlantList = (list: PlantInfo[], isEnded: boolean = false) => {
     if (list.length === 0) return null;
@@ -520,11 +788,7 @@ export default function GardenScreen({
                 key={plant.id}
                 className={`flex items-center gap-3 py-2 px-3 transition-colors group ${isEnded ? 'opacity-70 grayscale-[0.5]' : 'hover:bg-slate-50/50'}`}
               >
-                {/* 1. 名前 (クリックで編集) */}
-                <div 
-                  onClick={() => onOpenEdit(plant)}
-                  className="flex flex-1 items-center gap-2 cursor-pointer min-w-0"
-                >
+                <div onClick={() => onOpenEdit(plant)} className="flex flex-1 items-center gap-2 cursor-pointer min-w-0">
                   <div className="flex flex-col min-w-0">
                     <span className={`font-bold truncate text-sm ${isEnded ? 'text-slate-500' : 'text-slate-700'}`}>
                       {plant.name}
@@ -537,42 +801,22 @@ export default function GardenScreen({
                     )}
                   </div>
                 </div>
-
-                {/* 2. 場所 */}
                 <div className="flex flex-col items-end shrink-0 min-w-[50px]">
                   <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">場所</span>
-                  <span className="text-[11px] font-medium text-slate-500 leading-none">
-                    {plant.location || '-'}
-                  </span>
+                  <span className="text-[11px] font-medium text-slate-500 leading-none">{plant.location || '-'}</span>
                 </div>
-
-                {/* 3. 植え付け日 */}
                 <div className="flex flex-col items-end shrink-0 min-w-[60px]">
-                  <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">
-                    {isEnded ? '終了日' : '植付日'}
-                  </span>
+                  <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">{isEnded ? '終了日' : '植付日'}</span>
                   <span className="text-[11px] text-slate-400 tabular-nums leading-none">
                     {plant.planting_date ? format(new Date(plant.planting_date), 'yy/MM/dd') : '-'}
                   </span>
                 </div>
-
-                {/* 4. アクションボタン */}
                 <div className="flex items-center gap-1 shrink-0 ml-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onOpenHistory(plant)}
-                    className="h-8 w-8 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-full"
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => onOpenHistory(plant)} className="h-8 w-8 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-full">
                     <ClipboardList size={16} />
                   </Button>
                   {!isEnded && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onOpenRecord(plant)}
-                      className="h-8 w-8 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-full"
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => onOpenRecord(plant)} className="h-8 w-8 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-full">
                       <Plus size={18} />
                     </Button>
                   )}
@@ -586,32 +830,99 @@ export default function GardenScreen({
   };
 
   return (
-    <div className="w-full space-y-8 pb-24">
+    <div className="w-full space-y-6 pb-24">
+      {/* ビュー切り替え */}
+      <div className="flex justify-center p-1 bg-slate-100 rounded-2xl w-fit mx-auto">
+        <Button 
+          variant={!isCalendarView ? "default" : "ghost"} 
+          size="sm" 
+          onClick={() => setIsCalendarView(false)}
+          className={`rounded-xl px-4 h-9 font-black transition-all ${!isCalendarView ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+        >
+          <ListIcon size={16} className="mr-1.5" /> 一覧
+        </Button>
+        <Button 
+          variant={isCalendarView ? "default" : "ghost"} 
+          size="sm" 
+          onClick={() => setIsCalendarView(true)}
+          className={`rounded-xl px-4 h-9 font-black transition-all ${isCalendarView ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+        >
+          <CalendarIcon size={16} className="mr-1.5" /> カレンダー
+        </Button>
+      </div>
+
       {isLoading ? (
         <div className="text-center py-20 text-slate-400 font-bold animate-pulse text-sm">読込中...</div>
+      ) : isCalendarView ? (
+        /* --- カレンダー表示 --- */
+        <Card className="rounded-3xl border-none shadow-xl shadow-slate-200/50 overflow-hidden">
+          <CardHeader className="py-4 px-6 border-b border-slate-50 flex flex-row items-center justify-between space-y-0">
+            <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="h-8 w-8 rounded-full">
+              <ChevronLeft size={20} />
+            </Button>
+            <CardTitle className="text-base font-black text-slate-700">
+              {format(currentMonth, 'yyyy年 M月')}
+            </CardTitle>
+            <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="h-8 w-8 rounded-full">
+              <ChevronRight size={20} />
+            </Button>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="calendar-weekdays mb-2">
+              {['日', '月', '火', '水', '木', '金', '土'].map(d => (
+                <div key={d} className={`text-[10px] font-black ${d === '日' ? 'text-red-400' : d === '土' ? 'text-blue-400' : 'text-slate-300'}`}>{d}</div>
+              ))}
+            </div>
+            <div className="calendar-grid gap-y-2">
+              {calendarDays.map(day => {
+                const dateKey = format(day, 'yyyy-MM-dd');
+                const dayRecords = recordsByDate[dateKey] || [];
+                const hasRecords = dayRecords.length > 0;
+                const isToday = isSameDay(day, new Date());
+                const inMonth = isSameMonth(day, currentMonth);
+
+                return (
+                  <div 
+                    key={dateKey} 
+                    onClick={() => handleDayClick(day)}
+                    className={`calendar-day flex flex-col h-12 rounded-2xl cursor-pointer transition-all ${
+                      !inMonth ? 'opacity-20' : ''
+                    } ${isToday ? 'bg-indigo-50 border-2 border-indigo-200 shadow-sm' : 'hover:bg-slate-50'}`}
+                  >
+                    <span className={`text-xs font-black ${isToday ? 'text-indigo-600' : 'text-slate-600'}`}>
+                      {format(day, 'd')}
+                    </span>
+                    {hasRecords && (
+                      <div className="flex gap-0.5 mt-0.5">
+                        {dayRecords.slice(0, 3).map((_, i) => (
+                          <div key={i} className="w-1 h-1 rounded-full bg-green-400 shadow-sm shadow-green-200"></div>
+                        ))}
+                        {dayRecords.length > 3 && <div className="w-1 h-1 rounded-full bg-slate-200"></div>}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       ) : plants.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-slate-400 bg-slate-50/30 rounded-3xl border-2 border-dashed border-slate-200">
           <p className="font-bold text-sm">植物が登録されていません</p>
           <p className="text-[11px] text-center px-4 mt-1 opacity-70">右下の＋ボタンから植物を登録しましょう</p>
         </div>
       ) : (
-        <>
-          {/* 栽培中セクション */}
+        /* --- リスト表示 --- */
+        <div className="space-y-6">
           <div className="space-y-3">
             <h3 className="px-2 text-xs font-black text-slate-400 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
               栽培中の植物
             </h3>
-            {activePlants.length > 0 ? (
-              renderPlantList(activePlants, false)
-            ) : (
-              <div className="text-center py-8 text-slate-300 text-[11px] font-bold border rounded-2xl border-dashed">
-                栽培中の植物はありません
-              </div>
+            {activePlants.length > 0 ? renderPlantList(activePlants, false) : (
+              <div className="text-center py-8 text-slate-300 text-[11px] font-bold border rounded-2xl border-dashed">栽培中の植物はありません</div>
             )}
           </div>
-
-          {/* 終了セクション */}
           {endedPlants.length > 0 && (
             <div className="space-y-3 pt-4 opacity-80">
               <h3 className="px-2 text-xs font-black text-slate-400 flex items-center gap-2">
@@ -621,8 +932,30 @@ export default function GardenScreen({
               {renderPlantList(endedPlants, true)}
             </div>
           )}
-        </>
+        </div>
       )}
+
+      {/* モーダル群 */}
+      <DayDetailsModal 
+        isOpen={isDayDetailsOpen} 
+        onClose={() => setIsDayDetailsOpen(false)} 
+        date={selectedDate || ''} 
+        records={selectedDate ? (recordsByDate[selectedDate] || []) : []}
+        onOpenBulk={() => {
+          setIsDayDetailsOpen(false);
+          setIsBulkRecordOpen(true);
+        }}
+      />
+      <BulkRecordModal 
+        isOpen={isBulkRecordOpen} 
+        onClose={() => setIsBulkRecordOpen(false)} 
+        plants={plants} 
+        onSuccess={() => {
+          fetchAllRecords();
+          onUpdate();
+        }} 
+        selectedDate={selectedDate || ''}
+      />
     </div>
   );
 }

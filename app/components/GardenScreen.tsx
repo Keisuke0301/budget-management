@@ -127,7 +127,7 @@ export function BulkRecordModal({
       <DialogContent className="rounded-3xl sm:max-w-[425px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-black text-center text-slate-700">
-            {format(new Date(selectedDate), 'M/d')} のまとめて記録
+            {selectedDate ? format(new Date(selectedDate), 'M/d') : ''} のまとめて記録
           </DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto space-y-4 py-4 px-1">
@@ -208,7 +208,7 @@ export function DayDetailsModal({
       <DialogContent className="rounded-3xl sm:max-w-[400px] max-h-[70vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-black flex items-center justify-between border-b pb-2 text-slate-700">
-            <span>{format(new Date(date), 'yyyy年M月d日')}</span>
+            <span>{date ? format(new Date(date), 'yyyy年M月d日') : ''}</span>
             <Button variant="ghost" size="sm" onClick={onOpenBulk} className="text-xs text-green-600 font-bold hover:bg-green-50 h-8 px-2 rounded-lg">
               <Plus size={14} className="mr-1" /> まとめて記録
             </Button>
@@ -512,7 +512,6 @@ export function PlantAddModal({
           <DialogTitle className="font-black text-center">新しい植物を登録</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-          {/* 名前と品種のグループ */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">名前 <span className="text-red-500">*</span></label>
@@ -524,7 +523,6 @@ export function PlantAddModal({
             </div>
           </div>
           
-          {/* 日付と種別のグループ */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">日付</label>
@@ -544,7 +542,6 @@ export function PlantAddModal({
             </div>
           </div>
 
-          {/* 場所のグループ */}
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">栽培場所</label>
             <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダのプランター" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
@@ -656,24 +653,24 @@ export function PlantEditModal({
         <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-500 ml-1">名前 <span className="text-red-500">*</span></label>
-            <Input value={editPlant.name} onChange={e => setEditPlant({...editPlant, name: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            <Input value={editPlant.name} onChange={e => setEditPlant({...editPlant, name: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">品種 (任意)</label>
-              <Input value={editPlant.variety} onChange={e => setEditPlant({...editPlant, variety: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+              <Input value={editPlant.variety} onChange={e => setEditPlant({...editPlant, variety: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">場所 (任意)</label>
-              <Input value={editPlant.location} onChange={e => setEditPlant({...editPlant, location: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+              <Input value={editPlant.location} onChange={e => setEditPlant({...editPlant, location: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">植え付け日 (任意)</label>
-              <Input type="date" value={editPlant.planting_date} onChange={e => setEditPlant({...editPlant, planting_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+              <Input type="date" value={editPlant.planting_date} onChange={e => setEditPlant({...editPlant, planting_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">ステータス</label>
@@ -740,6 +737,7 @@ export default function GardenScreen({
     const end = format(endOfWeek(endOfMonth(currentMonth)), 'yyyy-MM-dd');
     try {
       const res = await fetch(`/api/plants/records?startDate=${start}&endDate=${end}`);
+      if (!res.ok) return;
       const data = await res.json();
       setRecords(data);
     } catch (error) {

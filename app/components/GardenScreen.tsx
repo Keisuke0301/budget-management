@@ -23,7 +23,8 @@ const PLANT_RECORD_TYPES = [
   '追肥',
   '収穫',
   '観察',
-  '植え付け',
+  '播種',
+  '定植',
   '病害虫対策',
   '剪定/芽かき',
   '収穫終了'
@@ -243,6 +244,7 @@ export function PlantAddModal({
     variety: '', 
     planting_date: format(new Date(), 'yyyy-MM-dd'),
     location: '',
+    initial_type: '播種' as '播種' | '定植'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -257,11 +259,12 @@ export function PlantAddModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...newPlant,
+          name: newPlant.name,
           variety: newPlant.variety || null,
           planting_date: newPlant.planting_date || null,
           location: newPlant.location || null,
-          status: 'growing'
+          status: 'growing',
+          initial_type: newPlant.initial_type // API側に渡して自動記録で使用
         }),
       });
       const data = await res.json();
@@ -271,7 +274,8 @@ export function PlantAddModal({
         name: '', 
         variety: '', 
         planting_date: format(new Date(), 'yyyy-MM-dd'), 
-        location: '' 
+        location: '',
+        initial_type: '播種'
       });
       toast.success('植物を登録しました');
     } catch (error) {
@@ -295,8 +299,16 @@ export function PlantAddModal({
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">品種 (任意)</label>
-              <Input value={newPlant.variety} onChange={e => setNewPlant({...newPlant, variety: e.target.value})} placeholder="例: アイコ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+              <label className="text-xs font-bold text-slate-500 ml-1">項目</label>
+              <Select value={newPlant.initial_type} onValueChange={(val: any) => setNewPlant({...newPlant, initial_type: val})}>
+                <SelectTrigger className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="播種" className="font-bold">播種 (種まき)</SelectItem>
+                  <SelectItem value="定植" className="font-bold">定植 (苗植え)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 ml-1">場所 (任意)</label>
@@ -304,9 +316,15 @@ export function PlantAddModal({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">植え付け日 (任意)</label>
-            <Input type="date" value={newPlant.planting_date} onChange={e => setNewPlant({...newPlant, planting_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">品種 (任意)</label>
+              <Input value={newPlant.variety} onChange={e => setNewPlant({...newPlant, variety: e.target.value})} placeholder="例: アイコ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">日付</label>
+              <Input type="date" value={newPlant.planting_date} onChange={e => setNewPlant({...newPlant, planting_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+            </div>
           </div>
 
           <Button onClick={handleAddPlant} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black shadow-lg mt-4">

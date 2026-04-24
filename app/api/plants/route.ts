@@ -21,22 +21,23 @@ export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
     const body = await request.json();
+    const { initial_type, ...plantData } = body;
     
-    const { data: plantData, error: plantError } = await supabase
+    const { data: insertedData, error: plantError } = await supabase
       .from('plant_info')
-      .insert([body])
+      .insert([plantData])
       .select();
 
     if (plantError) throw plantError;
-    const newPlant = plantData[0];
+    const newPlant = insertedData[0];
 
-    // 植え付け日があれば自動的に記録を追加
-    if (body.planting_date) {
+    // 播種または定植の自動記録
+    if (body.planting_date && initial_type) {
       await supabase.from('plant_records').insert([{
         plant_id: newPlant.id,
-        record_type: '植え付け',
+        record_type: initial_type,
         recorded_at: new Date(body.planting_date).toISOString(),
-        note: '植え付けをしました！'
+        note: `${initial_type}をしました！`
       }]);
     }
 

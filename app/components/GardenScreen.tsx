@@ -292,14 +292,26 @@ export function PlantAddModal({
           <DialogTitle className="font-black text-center">新しい植物を登録</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">名前 <span className="text-red-500">*</span></label>
-            <Input value={newPlant.name} onChange={e => setNewPlant({...newPlant, name: e.target.value})} placeholder="例: ミニトマト" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
+          {/* 名前と品種のグループ */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">名前 <span className="text-red-500">*</span></label>
+              <Input value={newPlant.name} onChange={e => setNewPlant({...newPlant, name: e.target.value})} placeholder="例: トマト" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">品種</label>
+              <Input value={newPlant.variety} onChange={e => setNewPlant({...newPlant, variety: e.target.value})} placeholder="例: アイコ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+            </div>
           </div>
           
+          {/* 日付と種別のグループ */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">項目</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">日付</label>
+              <Input type="date" value={newPlant.planting_date} onChange={e => setNewPlant({...newPlant, planting_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">開始方法</label>
               <Select value={newPlant.initial_type} onValueChange={(val: any) => setNewPlant({...newPlant, initial_type: val})}>
                 <SelectTrigger className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold">
                   <SelectValue />
@@ -310,24 +322,15 @@ export function PlantAddModal({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">場所 (任意)</label>
-              <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
-            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">品種 (任意)</label>
-              <Input value={newPlant.variety} onChange={e => setNewPlant({...newPlant, variety: e.target.value})} placeholder="例: アイコ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 ml-1">日付</label>
-              <Input type="date" value={newPlant.planting_date} onChange={e => setNewPlant({...newPlant, planting_date: e.target.value})} className="rounded-xl h-11 border-slate-100 bg-slate-50/50" />
-            </div>
+          {/* 場所のグループ */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">栽培場所</label>
+            <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダのプランター" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
           </div>
 
-          <Button onClick={handleAddPlant} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black shadow-lg mt-4">
+          <Button onClick={handleAddPlant} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black shadow-lg mt-4 transition-all active:scale-95">
             {isSubmitting ? '登録中...' : '登録する'}
           </Button>
         </div>

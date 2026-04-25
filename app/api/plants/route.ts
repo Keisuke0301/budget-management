@@ -7,6 +7,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('plant_info')
       .select('*')
+      .order('planting_date', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) throw error;

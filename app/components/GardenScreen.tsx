@@ -464,7 +464,8 @@ export function PlantAddModal({
     variety: '', 
     planting_date: format(new Date(), 'yyyy-MM-dd'),
     location: '',
-    initial_type: '播種' as '播種' | '定植'
+    initial_type: '播種' as '播種' | '定植',
+    price: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -484,7 +485,8 @@ export function PlantAddModal({
           planting_date: newPlant.planting_date || null,
           location: newPlant.location || null,
           status: 'growing',
-          initial_type: newPlant.initial_type // API側に渡して自動記録で使用
+          initial_type: newPlant.initial_type, // API側に渡して自動記録で使用
+          price: newPlant.price ? parseInt(newPlant.price) : null
         }),
       });
       const data = await res.json();
@@ -495,7 +497,8 @@ export function PlantAddModal({
         variety: '', 
         planting_date: format(new Date(), 'yyyy-MM-dd'), 
         location: '',
-        initial_type: '播種'
+        initial_type: '播種',
+        price: ''
       });
       toast.success('植物を登録しました');
     } catch (error) {
@@ -512,17 +515,6 @@ export function PlantAddModal({
           <DialogTitle className="font-black text-center">新しい植物を登録</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">名前 <span className="text-red-500">*</span></label>
-              <Input value={newPlant.name} onChange={e => setNewPlant({...newPlant, name: e.target.value})} placeholder="例: トマト" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">品種</label>
-              <Input value={newPlant.variety} onChange={e => setNewPlant({...newPlant, variety: e.target.value})} placeholder="例: アイコ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
-            </div>
-          </div>
-          
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">日付</label>
@@ -542,9 +534,32 @@ export function PlantAddModal({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">栽培場所</label>
-            <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダのプランター" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">名前 <span className="text-red-500">*</span></label>
+              <Input value={newPlant.name} onChange={e => setNewPlant({...newPlant, name: e.target.value})} placeholder="例: トマト" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">品種</label>
+              <Input value={newPlant.variety} onChange={e => setNewPlant({...newPlant, variety: e.target.value})} placeholder="例: アイコ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">栽培場所</label>
+              <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">値段 (任意)</label>
+              <Input 
+                type="number" 
+                value={newPlant.price} 
+                onChange={e => setNewPlant({...newPlant, price: e.target.value})} 
+                placeholder="例: 500" 
+                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
+              />
+            </div>
           </div>
 
           <Button onClick={handleAddPlant} disabled={isSubmitting} className="w-full h-12 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black shadow-lg mt-4 transition-all active:scale-95">
@@ -574,12 +589,14 @@ export function PlantEditModal({
     planting_date: string;
     location: string;
     status: 'growing' | 'harvested' | 'ended';
+    price: string;
   }>({ 
     name: '', 
     variety: '', 
     planting_date: '',
     location: '',
-    status: 'growing'
+    status: 'growing',
+    price: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -590,7 +607,8 @@ export function PlantEditModal({
         variety: plant.variety || '',
         planting_date: plant.planting_date || '',
         location: plant.location || '',
-        status: plant.status
+        status: plant.status,
+        price: plant.price?.toString() || ''
       });
     }
   }, [plant, isOpen]);
@@ -613,6 +631,7 @@ export function PlantEditModal({
           variety: editPlant.variety || null,
           planting_date: editPlant.planting_date || null,
           location: editPlant.location || null,
+          price: editPlant.price ? parseInt(editPlant.price) : null
         }),
       });
       if (!res.ok) throw new Error();
@@ -685,6 +704,17 @@ export function PlantEditModal({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 ml-1">値段 (任意)</label>
+            <Input 
+              type="number" 
+              value={editPlant.price} 
+              onChange={e => setEditPlant({...editPlant, price: e.target.value})} 
+              placeholder="例: 500" 
+              className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
+            />
           </div>
 
           <div className="flex flex-col gap-2 mt-4">

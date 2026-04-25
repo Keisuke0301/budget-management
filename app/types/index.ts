@@ -79,6 +79,7 @@ export interface PlantInfo {
   planting_date: string | null;
   location: string | null;
   status: 'growing' | 'harvested' | 'ended';
+  price: number | null;
   created_at: string;
 }
 

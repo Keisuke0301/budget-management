@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS plant_info (
   location TEXT,
   status TEXT DEFAULT 'growing',
   price INTEGER,
+  quantity INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

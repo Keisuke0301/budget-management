@@ -80,6 +80,7 @@ export interface PlantInfo {
   location: string | null;
   status: 'growing' | 'harvested' | 'ended';
   price: number | null;
+  quantity: number | null;
   created_at: string;
 }
 

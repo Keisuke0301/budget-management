@@ -465,7 +465,8 @@ export function PlantAddModal({
     planting_date: format(new Date(), 'yyyy-MM-dd'),
     location: '',
     initial_type: '播種' as '播種' | '定植',
-    price: ''
+    price: '',
+    quantity: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -486,7 +487,8 @@ export function PlantAddModal({
           location: newPlant.location || null,
           status: 'growing',
           initial_type: newPlant.initial_type, // API側に渡して自動記録で使用
-          price: newPlant.price ? parseInt(newPlant.price) : null
+          price: newPlant.price ? parseInt(newPlant.price) : null,
+          quantity: newPlant.quantity ? parseInt(newPlant.quantity) : null
         }),
       });
       const data = await res.json();
@@ -498,7 +500,8 @@ export function PlantAddModal({
         planting_date: format(new Date(), 'yyyy-MM-dd'), 
         location: '',
         initial_type: '播種',
-        price: ''
+        price: '',
+        quantity: ''
       });
       toast.success('植物を登録しました');
     } catch (error) {
@@ -545,11 +548,12 @@ export function PlantAddModal({
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">栽培場所</label>
+            <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">栽培場所</label>
-              <Input value={newPlant.location} onChange={e => setNewPlant({...newPlant, location: e.target.value})} placeholder="例: ベランダ" className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" />
-            </div>
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">値段 (任意)</label>
               <Input 
@@ -557,6 +561,16 @@ export function PlantAddModal({
                 value={newPlant.price} 
                 onChange={e => setNewPlant({...newPlant, price: e.target.value})} 
                 placeholder="例: 500" 
+                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">個数 (任意)</label>
+              <Input 
+                type="number" 
+                value={newPlant.quantity} 
+                onChange={e => setNewPlant({...newPlant, quantity: e.target.value})} 
+                placeholder="例: 1" 
                 className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
               />
             </div>
@@ -590,13 +604,15 @@ export function PlantEditModal({
     location: string;
     status: 'growing' | 'harvested' | 'ended';
     price: string;
+    quantity: string;
   }>({ 
     name: '', 
     variety: '', 
     planting_date: '',
     location: '',
     status: 'growing',
-    price: ''
+    price: '',
+    quantity: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -608,7 +624,8 @@ export function PlantEditModal({
         planting_date: plant.planting_date || '',
         location: plant.location || '',
         status: plant.status,
-        price: plant.price?.toString() || ''
+        price: plant.price?.toString() || '',
+        quantity: plant.quantity?.toString() || ''
       });
     }
   }, [plant, isOpen]);
@@ -631,7 +648,8 @@ export function PlantEditModal({
           variety: editPlant.variety || null,
           planting_date: editPlant.planting_date || null,
           location: editPlant.location || null,
-          price: editPlant.price ? parseInt(editPlant.price) : null
+          price: editPlant.price ? parseInt(editPlant.price) : null,
+          quantity: editPlant.quantity ? parseInt(editPlant.quantity) : null
         }),
       });
       if (!res.ok) throw new Error();
@@ -706,15 +724,27 @@ export function PlantEditModal({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 ml-1">値段 (任意)</label>
-            <Input 
-              type="number" 
-              value={editPlant.price} 
-              onChange={e => setEditPlant({...editPlant, price: e.target.value})} 
-              placeholder="例: 500" 
-              className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">値段 (任意)</label>
+              <Input 
+                type="number" 
+                value={editPlant.price} 
+                onChange={e => setEditPlant({...editPlant, price: e.target.value})} 
+                placeholder="例: 500" 
+                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 ml-1">個数 (任意)</label>
+              <Input 
+                type="number" 
+                value={editPlant.quantity} 
+                onChange={e => setEditPlant({...editPlant, quantity: e.target.value})} 
+                placeholder="例: 1" 
+                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold" 
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 mt-4">

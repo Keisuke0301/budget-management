@@ -100,7 +100,7 @@ export async function GET(request: Request) {
     const [petsRes, petItemsRes, plantsRes, todayChoresRes] = await Promise.all([
       supabase.from("pet_info").select("*").order("created_at", { ascending: true }),
       supabase.from("pet_items").select("*").order("display_order", { ascending: true }),
-      supabase.from("plant_info").select("*").order("created_at", { ascending: true }),
+      supabase.from("plant_info").select("*").order("planting_date", { ascending: true }).order("created_at", { ascending: true }),
       supabase.from("chore_records")
         .select("category, task")
         .gte("created_at", startOfDay(today).toISOString())

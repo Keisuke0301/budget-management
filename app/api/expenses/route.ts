@@ -59,7 +59,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabaseClient();
-    const { category, amount } = await request.json();
+    const { category, amount, date } = await request.json();
 
     // バリデーション
     const numAmount = Number(amount);
@@ -70,9 +70,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const insertData: any = { category, amount: numAmount };
+    if (date) {
+      const parsedDate = new Date(`${date}T12:00:00+09:00`);
+      if (!isNaN(parsedDate.getTime())) {
+        insertData.created_at = parsedDate.toISOString();
+      }
+    }
+
     const { data, error } = await supabase
       .from('expense_records')
-      .insert([{ category, amount: numAmount }])
+      .insert([insertData])
       .select()
       .single(); // 追加したレコードを返す
 

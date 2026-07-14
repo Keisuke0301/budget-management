@@ -393,6 +393,10 @@
         <div class="modal-form-container">
           <form id="expenseForm">
             <div class="input-group">
+              <label for="date">日付</label>
+              <input type="date" id="date" name="date" required>
+            </div>
+            <div class="input-group">
               <label for="category">費目</label>
               <select id="category" name="category">
                 <option value="食費">🥗 食費</option>
@@ -457,7 +461,14 @@
         const modal = document.getElementById('expense-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
 
-        fab.addEventListener('click', () => modal.classList.remove('hidden'));
+        fab.addEventListener('click', () => {
+          modal.classList.remove('hidden');
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(today.getDate()).padStart(2, '0');
+          document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+        });
         closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
         modal.addEventListener('click', (e) => {
           if (e.target === modal) { modal.classList.add('hidden'); }
@@ -539,7 +550,7 @@
         // ▲▲▲ ここまで ▲▲▲
       });
 
-      document.getElementById('expenseForm').addEventListener('submit', function(e) { e.preventDefault(); const t = document.getElementById('submitButton'); t.disabled = true; t.textContent = '処理中...'; const n = document.getElementById('category').value; const o = document.getElementById('amount').value; google.script.run.withSuccessHandler(onAddSuccess).withFailureHandler(showError).addExpense(n, o); });
+      document.getElementById('expenseForm').addEventListener('submit', function(e) { e.preventDefault(); const t = document.getElementById('submitButton'); t.disabled = true; t.textContent = '処理中...'; const n = document.getElementById('category').value; const o = document.getElementById('amount').value; const d = document.getElementById('date').value; google.script.run.withSuccessHandler(onAddSuccess).withFailureHandler(showError).addExpense(n, o, d); });
       
       // ▼▼▼【追加】クライアントサイドで日付を整形する関数 ▼▼▼
       function formatDate(date, format) {
@@ -622,7 +633,17 @@
 
 
       function showError(error) { showSnackbar('エラー: ' + error.message, 'error'); resetForm(); }
-      function resetForm() { document.getElementById('amount').value = ''; const t = document.getElementById('submitButton'); t.disabled = false; t.textContent = '記録する'; }
+      function resetForm() {
+        document.getElementById('amount').value = '';
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+        const t = document.getElementById('submitButton');
+        t.disabled = false;
+        t.textContent = '記録する';
+      }
       
       // ▼▼▼【変更】通知をスナックバーで行う関数 ▼▼▼
       function showSnackbar(text, className) {

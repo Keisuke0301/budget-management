@@ -94,7 +94,7 @@ function getInitialData() {
 /**
  * フォームから送信された支出をスプレッドシートに記録します。
  */
-function addExpense(category, amount) {
+function addExpense(category, amount, dateStr) {
   const numAmount = Number(amount);
   if (!category || !numAmount || !Number.isInteger(numAmount) || numAmount <= 0) {
     throw new Error('費目を選択し、正しい金額(正の整数)を入力してください。');
@@ -106,7 +106,16 @@ function addExpense(category, amount) {
     if (!dataSheet) {
       throw new Error(`'${DATA_SHEET_NAME}' という名前のシートが見つかりません。`);
     }
-    dataSheet.appendRow([new Date(), category, numAmount]);
+    
+    let date = new Date();
+    if (dateStr) {
+      const dateParts = dateStr.split('-');
+      if (dateParts.length === 3) {
+        date = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]), 12, 0, 0);
+      }
+    }
+    
+    dataSheet.appendRow([date, category, numAmount]);
     return getInitialData();
   } catch(e) {
     console.error(e);

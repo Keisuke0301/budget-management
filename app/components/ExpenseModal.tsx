@@ -27,6 +27,13 @@ interface ExpenseModalProps {
 export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) {
   const [category, setCategory] = useState("食費");
   const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCalculatorClick = (value: string) => {
@@ -54,7 +61,7 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
       const response = await fetch('/api/expenses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, amount: Number(amount) }),
+        body: JSON.stringify({ category, amount: Number(amount), date }),
       });
       if (!response.ok) {
         const errorData = await response.json();
@@ -63,6 +70,11 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
       toast.success("記録しました！");
       onSuccess(); // 親コンポーネントのデータ再取得をトリガー
       setAmount(""); // 金額をリセット
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      setDate(`${yyyy}-${mm}-${dd}`); // 日付をリセット
       onClose();
     } catch (error: any) {
       toast.error(error.message);
@@ -80,6 +92,16 @@ export function ExpenseModal({ isOpen, onClose, onSuccess }: ExpenseModalProps) 
         <div className="modal-form-container">
           <form onSubmit={handleSubmit} className="modal-form">
             <div className="modal-scroll-area">
+              <div className="input-group">
+                <label htmlFor="date">日付</label>
+                <Input
+                  type="date"
+                  id="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </div>
               <div className="input-group">
                 <label htmlFor="category">費目</label>
                 <Select value={category} onValueChange={setCategory}>

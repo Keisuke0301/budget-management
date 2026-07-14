@@ -586,22 +586,26 @@ export default function PetLogScreen({
                     </div>
 
                     {/* 2. 数量 */}
-                    <div className="flex flex-col items-end shrink-0 w-8">
-                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
-                      <span className="text-[11px] font-medium text-slate-500 leading-none">
-                        {pet.quantity ? `${pet.quantity}匹` : '1匹'}
-                      </span>
-                    </div>
+                    {!isMemorial && (
+                      <div className="flex flex-col items-end shrink-0 w-8">
+                        <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">数量</span>
+                        <span className="text-[11px] font-medium text-slate-500 leading-none">
+                          {pet.quantity !== null && pet.quantity !== undefined ? `${pet.quantity}匹` : '1匹'}
+                        </span>
+                      </div>
+                    )}
 
                     {/* 3. お迎え日 */}
-                    <div className="flex flex-col items-end shrink-0 min-w-[60px]">
-                      <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">
-                        {isMemorial ? 'お別れ日' : 'お迎え日'}
-                      </span>
-                      <span className="text-[11px] text-slate-400 tabular-nums leading-none">
-                        {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yy/MM/dd') : '-'}
-                      </span>
-                    </div>
+                    {!isMemorial && (
+                      <div className="flex flex-col items-end shrink-0 min-w-[60px]">
+                        <span className="text-[9px] font-bold text-slate-300 leading-none mb-0.5">
+                          お迎え日
+                        </span>
+                        <span className="text-[11px] text-slate-400 tabular-nums leading-none">
+                          {pet.acquisition_date ? format(new Date(pet.acquisition_date), 'yy/MM/dd') : '-'}
+                        </span>
+                      </div>
+                    )}
 
                     {/* 4. アクションボタン */}
                     <div className="flex items-center gap-1 shrink-0 ml-1">

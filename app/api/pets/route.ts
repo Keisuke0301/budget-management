@@ -69,6 +69,15 @@ export async function PATCH(request: Request) {
     
     if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 });
 
+    // 数量(quantity)の変更に応じてstatusを自動的に更新する
+    if (typeof updateData.quantity === 'number') {
+      if (updateData.quantity <= 0) {
+        updateData.status = 'memorial';
+      } else {
+        updateData.status = 'alive';
+      }
+    }
+
     const { data, error } = await supabase
       .from('pet_info')
       .update(updateData)

@@ -48,7 +48,10 @@ export async function POST(request: Request) {
         .single();
 
       if (petInfo) {
-        const newQuantity = Math.max(0, (petInfo.quantity || 1) - 1);
+        const subtractAmount = typeof body.numeric_value === 'number' && body.numeric_value > 0
+          ? body.numeric_value
+          : 1;
+        const newQuantity = Math.max(0, (petInfo.quantity || 1) - subtractAmount);
         const updateData: { quantity: number; status?: string } = { quantity: newQuantity };
         
         if (newQuantity === 0) {

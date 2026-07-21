@@ -76,11 +76,13 @@ export function BulkRecordModal({
   const [selectedPlantIds, setSelectedPlantIds] = useState<number[]>([]);
   const [recordType, setRecordType] = useState('水やり');
   const [note, setNote] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setSelectedPlantIds(plants.filter(p => p.status !== 'ended').map(p => p.id));
+      setQuantity('');
     }
   }, [isOpen, plants]);
 
@@ -95,6 +97,7 @@ export function BulkRecordModal({
         plant_id: id,
         record_type: recordType,
         note: note || null,
+        quantity: recordType === '収穫' && quantity ? parseInt(quantity) : null,
         recorded_at: new Date(selectedDate).toISOString()
       }));
 
@@ -109,6 +112,7 @@ export function BulkRecordModal({
       onSuccess();
       onClose();
       setNote('');
+      setQuantity('');
     } catch (error) {
       toast.error('記録に失敗しました');
     } finally {
@@ -169,6 +173,19 @@ export function BulkRecordModal({
             </div>
           </div>
 
+          {recordType === '収穫' && (
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">個数</label>
+              <Input 
+                type="number" 
+                value={quantity} 
+                onChange={e => setQuantity(e.target.value)} 
+                placeholder="例: 5" 
+                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold"
+              />
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">メモ (任意)</label>
             <Textarea 
@@ -225,6 +242,7 @@ export function DayDetailsModal({
                     <span className="text-xs font-black text-slate-700">{record.plant_info?.name}</span>
                     <span className="text-[10px] font-bold text-white bg-green-500 px-1.5 py-0.5 rounded shrink-0">
                       {record.record_type}
+                      {record.quantity != null && ` (${record.quantity}個)`}
                     </span>
                   </div>
                   {record.note && (
@@ -259,6 +277,7 @@ export function PlantRecordModal({
   const [newRecord, setNewRecord] = useState({ 
     record_type: '水やり', 
     note: '',
+    quantity: '',
     recorded_at: initialDate || format(new Date(), 'yyyy-MM-dd')
   });
 
@@ -267,6 +286,7 @@ export function PlantRecordModal({
       setNewRecord({
         record_type: '水やり',
         note: '',
+        quantity: '',
         recorded_at: initialDate || format(new Date(), 'yyyy-MM-dd')
       });
     }
@@ -286,6 +306,7 @@ export function PlantRecordModal({
           plant_id: plant.id,
           record_type: newRecord.record_type,
           note: newRecord.note,
+          quantity: newRecord.record_type === '収穫' && newRecord.quantity ? parseInt(newRecord.quantity) : null,
           recorded_at: newRecord.recorded_at ? new Date(newRecord.recorded_at).toISOString() : new Date().toISOString()
         }),
       });
@@ -331,6 +352,18 @@ export function PlantRecordModal({
               </SelectContent>
             </Select>
           </div>
+          {newRecord.record_type === '収穫' && (
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">個数</label>
+              <Input 
+                type="number" 
+                value={newRecord.quantity} 
+                onChange={e => setNewRecord({...newRecord, quantity: e.target.value})} 
+                placeholder="例: 5" 
+                className="rounded-xl h-11 border-slate-100 bg-slate-50/50 font-bold"
+              />
+            </div>
+          )}
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">メモ</label>
             <Textarea 
@@ -421,6 +454,7 @@ export function PlantHistoryModal({
                     </span>
                     <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 text-center">
                       {record.record_type}
+                      {record.quantity != null && ` (${record.quantity}個)`}
                     </span>
                     <div className="flex-1"></div>
                     <Button
@@ -806,6 +840,7 @@ export default function GardenScreen({
   }, [currentMonth]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAllRecords();
   }, [fetchAllRecords, refreshTrigger]);
 

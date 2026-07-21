@@ -90,5 +90,6 @@ export interface PlantRecord {
   recorded_at: string;
   record_type: string;
   note: string | null;
+  quantity: number | null;
   created_at: string;
 }

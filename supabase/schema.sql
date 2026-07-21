@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS plant_records (
   recorded_at TIMESTAMPTZ DEFAULT NOW(),
   record_type TEXT NOT NULL,
   note TEXT,
+  quantity INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

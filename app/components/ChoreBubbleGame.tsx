@@ -64,9 +64,11 @@ export function ChoreBubbleGame({
     return Math.abs(hash);
   };
 
-  // 今日のボーナスタスクを決定 (項目の増減に左右されないハッシュ方式)
-  const bonusInfo = useMemo(() => {
-    if (bubbleTasks.length === 0) return null;
+  const [bonusInfo, setBonusInfo] = useState<{ taskId: number; multiplier: number } | null>(null);
+
+  // 今日のボーナスタスクを決定 (クライアントマウント後に実行してハイドレーションミスマッチと日付の固定を回避)
+  useEffect(() => {
+    if (bubbleTasks.length === 0) return;
     
     const now = new Date();
     const dateStr = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
@@ -78,16 +80,17 @@ export function ChoreBubbleGame({
       score: getHash(`${task.id}-${dateStr}`)
     }));
 
-    // 最もスコア（ハッシュ値）が高いタスクを今日の勝者とする
+    // 最量スコア（ハッシュ値）が高いタスクを今日の勝者とする
     const winner = scoredTasks.sort((a, b) => b.score - a.score)[0];
+    if (!winner) return;
     
     // 3倍になるかどうかも、日付と当選タスクIDの組み合わせで決定論的に決める (1/5の確率)
     const multiplier = (getHash(String(winner.taskId) + dateStr + "multiplier") % 5 === 0) ? 3 : 2;
     
-    return {
+    setBonusInfo({
       taskId: winner.taskId,
       multiplier
-    };
+    });
   }, [bubbleTasks]);
 
   const fetchTodayChores = useCallback(async () => {

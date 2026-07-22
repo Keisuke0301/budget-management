@@ -53,7 +53,7 @@ export function ChoreBubbleGame({
     return tasks;
   }, [masterData]);
 
-  // 文字列から数値のハッシュを生成する簡易関数
+  // 文字列から数値のハッシュを生成する簡易関数 (雪崩効果を高めるミキシング処理付き)
   const getHash = (str: string) => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -61,7 +61,13 @@ export function ChoreBubbleGame({
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash; // 32bit整数に変換
     }
-    return Math.abs(hash);
+    // ミキシング処理 (ファイナライザ) を追加してハッシュの偏りを排除し雪崩効果を発生させる
+    hash ^= hash >>> 16;
+    hash = Math.imul(hash, 0x21f0aa77);
+    hash ^= hash >>> 15;
+    hash = Math.imul(hash, 0x7588f287);
+    hash ^= hash >>> 13;
+    return Math.abs(hash | 0);
   };
 
   const [bonusInfo, setBonusInfo] = useState<{ taskId: number; multiplier: number } | null>(null);
